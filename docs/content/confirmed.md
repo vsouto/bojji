@@ -38,3 +38,12 @@ The essentials:
 - **Index model:** persist structure + ownership, **compute exposure on-read** (a leak reveals the dependency map, not a list of exploitable holes).
 - **Defaults:** SBOM = CycloneDX, vulnerability feed = OSV, "product" = a releasable/deployable versioned unit, v1 ontology = Product · Package · Repository · Team · Person.
 - **Git host** only matters in extended mode: self-hosted GitLab first, GitHub as fast-follow. Not MVP-gating.
+
+## Audit & compliance (confirmed 2026-07-20)
+
+Worked out on the **Analysis → Audit & compliance** page; the decisions:
+
+- **Audit artifact = the SBOM, in two low-friction forms (both kept).** A = a committed `.bojji/sbom.cdx.json`, auto-regenerated and re-staged by a Bojji-installed pre-commit hook (no CI bot-commit). B = a signed release attestation via keyless OIDC in the existing CI job (no secrets). Exposure findings are never stored — they are computed on read.
+- **Design principle: Bojji is unnoticeable.** Near-zero setup (zero where possible) and near-zero developer friction; artifacts are produced automatically by the normal flow. Nobody should have to "run Bojji."
+- **MCP is optional.** In default mode the value arrives via the CLI, the generated files, and CI output — with zero MCP. MCP is the secondary, opt-in agent surface. Its detailed component spec is still to be written.
+- **Enterprise readiness (E1–E12).** The requirements auditors need are catalogued, each with a solution. Most are small; the three with real effort are E3 (keyless signing under true air-gap), E6 (dated feed snapshots for "as-of" answers), and E12 (modelling a workspaces monorepo as multiple products). None block M0.

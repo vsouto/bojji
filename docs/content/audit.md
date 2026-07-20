@@ -1,6 +1,6 @@
 # Audit & compliance
 
-> [!NOTE] Open spec questions about how Bojji serves audits and how it earns its place in enterprise projects (like SWWC v2, which is already live). Some answers are decided; the ones still being weighed are flagged.
+> [!NOTE] These questions have been worked out and the decisions folded into **Confirmed specs**. This page is kept as the worked analysis: the reasoning behind the audit-artifact and MCP decisions, and the enterprise requirements (E1–E12) with their solutions.
 
 ---
 

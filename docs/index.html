@@ -169,7 +169,6 @@ const NAV = [
   { title: 'Plan', children: [
     { id: 'solution', title: 'Solution shape (current)', md: 'content/solution.md' },
   ]},
-  { id: 'audit', title: 'Audit', md: 'content/audit.md' },
   { title: 'Confirmed specs', children: [
     { id: 'confirmed', title: 'All confirmed specs', md: 'content/confirmed.md' },
     { id: 'ontology',  title: 'Ontology (secondary feature)', md: 'content/ontology.md' },
@@ -179,6 +178,7 @@ const NAV = [
   ]},
   { title: 'Analysis', children: [
     { id: 'heavy-light', title: 'Heavy vs Light & dry-run', md: 'content/heavy-light.md' },
+    { id: 'audit', title: 'Audit & compliance (worked analysis)', md: 'content/audit.md' },
   ]},
 ];
 
@@ -190,12 +190,15 @@ const CONFIRMED = [
   'npm — the first ecosystem',
   'Index model — persist structure + ownership, compute exposure on-read',
   'Defaults — SBOM CycloneDX, feed OSV, "product" = releasable unit, v1 ontology',
+  'Audit artifact — committed SBOM (auto, no bot-commit) + signed release attestation (keyless)',
+  'Design principle — Bojji is unnoticeable (near-zero setup & friction)',
+  'MCP is optional — default mode delivers value via CLI + files + CI',
+  'Enterprise readiness — requirements E1–E12 catalogued, each with a solution',
   'Lightness thesis — validated by the Plan 002 dry-run',
 ];
 const OPEN = [
-  'Audit artifact — release attestation (B) confirmed; commit SBOM in-repo (A) value TBD',
-  'MCP server spec — local server reading the index repo (default vs extended source)',
-  'Enterprise audit gaps — signed attestation, as-of queries, export formats',
+  'MCP server spec — still to write (design decided: local, reads the same source)',
+  'Build the enterprise adds — E3 attestation, E6 as-of queries, E10 exports (solutions specd)',
   'Git host specifics for extended mode (GitLab-first leaning) — not MVP-gating',
   'Index write model — per-project push vs PR vs collector (extended mode)',
   'How much instant whole-org querying matters (extended mode)',
