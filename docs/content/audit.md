@@ -104,8 +104,12 @@ build ──▶ produces: artifact  +  SBOM
    auditor / CI ─────────┴────▶ verify signature → "trusted, and it's the real build"
 ```
 
+> [!WARNING] **The gap:** Bojji doesn't yet emit a signed attestation binding the SBOM to the built artifact. To build: sign the artifact digest plus the SBOM in the release job with keyless OIDC, and attach it so anyone can verify it.
+
 **E4 — Completeness & honest coverage.**
 An SBOM that *silently* omits something is worse than one that says "I couldn't resolve X." Trust comes from declaring blind spots. Bojji must list what it scanned and explicitly flag what it couldn't (a private registry it couldn't reach, a lockfile it couldn't parse) — never drop quietly.
+
+> [!WARNING] **The gap:** Bojji doesn't yet record its blind spots. To build: a coverage summary that lists what was scanned and explicitly flags what it couldn't resolve (an unreachable registry, an unparseable lockfile), instead of silently omitting.
 
 **E6 — Audit trail & "as-of" (time-travel).**
 There are two different audit questions, and we must answer both:
@@ -118,14 +122,22 @@ There are two different audit questions, and we must answer both:
 
 Because exposure is computed live, "as-of" means pairing a **past SBOM** (git history already gives us this) with a **dated feed**. This is what lets us reconstruct "what we knew then," which auditors ask for after an incident.
 
+> [!WARNING] **The gap:** Bojji can answer "exposed today?" but not "what did we know at release v2.3?". To build: as-of queries that pair a past SBOM (from git history) with a dated vulnerability feed.
+
 **E10 — Machine-readable exports.**
 Auditors and their GRC/scanner tools ingest specific formats. Bojji should export a defined set — **CycloneDX** (the SBOM), **VEX** (exploitability decisions), **SARIF** (findings for security tooling), and a **CRA-style report**. The open decision is confirming exactly which formats to support first.
+
+> [!WARNING] **The gap:** there's no agreed export set yet. To decide and build: which formats Bojji emits (CycloneDX, VEX, SARIF, a CRA-style report) and the command / CI step that produces them.
 
 **E12 — Monorepo + internal registries.**
 SWWC v2 is an npm **workspaces monorepo** that also pulls **internal** packages from Artifactory. Bojji must resolve workspace-local packages correctly and give internal packages stable purls so they join the graph like any other node. Confirm this works before the first real run.
 
+> [!WARNING] **The gap:** it's unconfirmed that npm workspaces resolve correctly and that internal Artifactory packages get stable purls so they join the graph. To do: validate against SWWC v2 before the first real run.
+
 **E8 — PII handling for contacts.**
 `product.yaml` holds contact people (names, emails) — that is PII under GDPR. Keep it minimal, document handling/retention, and note that it lives in-perimeter, which already helps.
+
+> [!WARNING] **The gap:** contact PII in `product.yaml` has no documented handling. To do: a short data-handling and retention note (what's stored, minimisation, stays in-perimeter) for GDPR.
 
 ### The three concrete gaps
 
