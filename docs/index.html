@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bojji — Documentation</title>
+<style>
+  :root {
+    --ground: #f5f4f0; --panel: #ffffff; --panel-2: #eeece5; --ink: #1b1d24;
+    --text: #43474f; --muted: #7d818b; --line: #dedbd2; --accent: #0f9e8f;
+    --accent-soft: #d3ebe7; --warn: #c8871f; --warn-soft: #f3e6cb; --ok: #2e9e5b; --ok-soft: #d8efe0;
+    --shadow: 0 1px 2px rgba(27,29,36,.06), 0 10px 26px rgba(27,29,36,.07);
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --sidebar: 288px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --ground:#0d0f13; --panel:#15181e; --panel-2:#1c2029; --ink:#f0f1f4; --text:#b7bcc6; --muted:#7f858f; --line:#272b34; --accent:#35c4b3; --accent-soft:#123430; --warn:#e0a94b; --warn-soft:#35290f; --ok:#43b873; --ok-soft:#15321f; --shadow:0 1px 2px rgba(0,0,0,.4), 0 16px 36px rgba(0,0,0,.45); }
+  }
+  :root[data-theme="light"] { --ground:#f5f4f0; --panel:#fff; --panel-2:#eeece5; --ink:#1b1d24; --text:#43474f; --muted:#7d818b; --line:#dedbd2; --accent:#0f9e8f; --accent-soft:#d3ebe7; --warn:#c8871f; --warn-soft:#f3e6cb; --ok:#2e9e5b; --ok-soft:#d8efe0; }
+  :root[data-theme="dark"] { --ground:#0d0f13; --panel:#15181e; --panel-2:#1c2029; --ink:#f0f1f4; --text:#b7bcc6; --muted:#7f858f; --line:#272b34; --accent:#35c4b3; --accent-soft:#123430; --warn:#e0a94b; --warn-soft:#35290f; --ok:#43b873; --ok-soft:#15321f; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body { background: var(--ground); color: var(--text); font-family: var(--sans); line-height: 1.65; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
+
+  /* layout */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar); flex: none; background: var(--panel); border-right: 1px solid var(--line); height: 100vh; position: sticky; top: 0; overflow-y: auto; padding: 22px 14px 40px; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
+  .brand .logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--ok)); flex: none; }
+  .brand .name { font-family: var(--serif); font-weight: 600; font-size: 20px; color: var(--ink); }
+  .brand .sub { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+  nav ul { list-style: none; margin: 0; padding: 0; }
+  nav .group > .row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 10px; border: none; background: none; color: var(--ink); font: inherit; font-weight: 600; font-size: 14.5px; cursor: pointer; border-radius: 8px; text-align: left; }
+  nav .group > .row:hover { background: var(--panel-2); }
+  nav .caret { width: 16px; flex: none; color: var(--muted); transition: transform .18s ease; font-size: 11px; display: inline-block; text-align: center; }
+  nav .group.collapsed .caret { transform: rotate(-90deg); }
+  nav .children { overflow: hidden; }
+  nav .group.collapsed .children { display: none; }
+  nav a.item, nav button.item { display: block; width: 100%; text-align: left; border: none; background: none; font: inherit; cursor: pointer; padding: 8px 10px 8px 34px; color: var(--text); border-radius: 8px; font-size: 14px; }
+  nav a.item:hover, nav button.item:hover { background: var(--panel-2); text-decoration: none; color: var(--ink); }
+  nav a.item.active, nav button.item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  nav .top.item { padding-left: 10px; font-weight: 600; color: var(--ink); }
+
+  /* main */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar { display: none; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 20; }
+  .content { max-width: 860px; width: 100%; margin: 0 auto; padding: clamp(28px, 4vw, 60px) clamp(20px, 4vw, 52px) 90px; }
+  .themebtn { margin-left: auto; border: 1px solid var(--line); background: var(--panel); color: var(--muted); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; padding: 6px 11px; border-radius: 999px; cursor: pointer; }
+  .themebtn:hover { color: var(--ink); border-color: var(--accent); }
+  .hamburger { display: none; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; width: 38px; height: 38px; font-size: 18px; cursor: pointer; }
+
+  /* markdown content */
+  .content h1 { font-family: var(--serif); font-weight: 600; color: var(--ink); font-size: clamp(28px, 4vw, 40px); line-height: 1.1; letter-spacing: -.015em; margin: 0 0 18px; }
+  .content h2 { font-family: var(--serif); font-weight: 600; color: var(--ink); font-size: clamp(21px, 2.6vw, 27px); margin: 34px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+  .content h3 { font-weight: 650; color: var(--ink); font-size: 17px; margin: 24px 0 6px; }
+  .content p { margin: 0 0 14px; }
+  .content ul, .content ol { margin: 0 0 14px; padding-left: 22px; }
+  .content li { margin: 5px 0; }
+  .content code { font-family: var(--mono); font-size: .88em; background: var(--panel-2); padding: 1.5px 5px; border-radius: 4px; color: var(--ink); }
+  .content pre { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; overflow-x: auto; box-shadow: var(--shadow); }
+  .content pre code { background: none; padding: 0; font-size: 13px; }
+  .content blockquote { margin: 0 0 16px; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 10px 10px 0; color: var(--ink); }
+  .content hr { border: none; border-top: 1px solid var(--line); margin: 28px 0; }
+  .twrap { overflow-x: auto; margin: 0 0 18px; border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+  .content table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  .content th { text-align: left; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 11px 13px; background: var(--panel); border-bottom: 2px solid var(--line); }
+  .content td { padding: 10px 13px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .content tr:last-child td { border-bottom: none; }
+  .content td:first-child { color: var(--ink); font-weight: 600; }
+
+  /* dashboard */
+  .dash-hero { margin-bottom: 26px; }
+  .dash-hero .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+  .dash-hero h1 { font-family: var(--serif); font-weight: 600; color: var(--ink); font-size: clamp(30px, 5vw, 46px); line-height: 1.05; margin: 0 0 12px; }
+  .dash-hero p { font-size: clamp(16px, 1.8vw, 19px); max-width: 60ch; }
+  .blocks { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; margin-top: 6px; }
+  @media (max-width: 680px) { .blocks { grid-template-columns: 1fr; } }
+  .block { border-radius: 16px; padding: 20px 22px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .block.done { background: var(--ok-soft); border-color: var(--ok); }
+  .block.todo { background: var(--warn-soft); border-color: var(--warn); }
+  .block .count { font-family: var(--serif); font-weight: 600; font-size: 46px; line-height: 1; color: var(--ink); }
+  .block .label { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin: 4px 0 14px; }
+  .block.done .label { color: var(--ok); } .block.todo .label { color: var(--warn); }
+  .block ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .block li { position: relative; padding-left: 22px; font-size: 14px; color: var(--ink); }
+  .block.done li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-weight: 700; }
+  .block.todo li::before { content: "○"; position: absolute; left: 2px; color: var(--warn); font-weight: 700; }
+
+  .err { border: 1px solid var(--warn); background: var(--warn-soft); border-radius: 12px; padding: 18px 20px; }
+  .err code { background: rgba(0,0,0,.06); }
+
+  @media (max-width: 860px) {
+    .sidebar { position: fixed; z-index: 40; transform: translateX(-100%); transition: transform .22s ease; box-shadow: var(--shadow); }
+    .sidebar.open { transform: none; }
+    .topbar { display: flex; }
+    .hamburger { display: block; }
+    .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 35; display: none; }
+    .scrim.show { display: block; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div>
+        <div class="name">Bojji</div>
+        <div class="sub">Project docs</div>
+      </div>
+    </div>
+    <nav id="nav"></nav>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+      <strong style="color:var(--ink)">Bojji docs</strong>
+      <button class="themebtn" id="themebtn">THEME</button>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<script>
+/* ---------------- site config (edit this + the .md files to update) ---------------- */
+const NAV = [
+  { id: 'home', title: 'Home', type: 'dashboard' },
+  { title: 'Confirmed specs', children: [
+    { id: 'confirmed', title: 'All confirmed specs', md: 'content/confirmed.md' },
+    { id: 'ontology',  title: 'Ontology (secondary feature)', md: 'content/ontology.md' },
+  ]},
+  { title: 'Research', children: [
+    { id: 'market', title: 'Market fit', md: 'content/market-research.md' },
+  ]},
+  { title: 'Analysis', children: [
+    { id: 'heavy-light', title: 'Heavy vs Light & dry-run', md: 'content/heavy-light.md' },
+  ]},
+];
+
+const CONFIRMED = [
+  'Strategy "b" — on-prem, compliance-grade, ontology-backed dependency inventory',
+  'C1 — The contract (one canonical ontology; sources are adapters)',
+  'C2 — The flow (one Ingestion Service → one graph → REST / UI / MCP)',
+  'C3 — Adopt: scan & gather (auto-scan on install, never blocks)',
+  'C4 — Report at release (CI push, no project credentials)',
+  'C5 — Ownership (Victor’s personal project; tested in a local clone)',
+  'Lightness thesis — validated by the Plan 002 dry-run',
+];
+const OPEN = [
+  'First ecosystem to build for (npm is the likely call)',
+  'Storage specifics — a file per repo vs. one shared index repo',
+  'What counts as a "product" for compliance reporting',
+  'SBOM format — CycloneDX / SPDX / both',
+  'Which vulnerability feed to consume',
+  'The minimal v1 ontology to ship first',
+  '"Cheaper" — full cost comparison vs Moderne / Backstage at scale',
+];
+
+/* ---------------- tiny markdown renderer ---------------- */
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function inline(s){
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g, (m,c)=>'<code>'+c+'</code>');
+  s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  return s;
+}
+function mdToHtml(src){
+  const lines = src.replace(/\r/g,'').split('\n');
+  let html = '', i = 0;
+  const isBlockStart = l => /^(#{1,6}\s|```|>|\s*[-*]\s|\s*\d+\.\s)/.test(l) || l.includes('|');
+  while (i < lines.length){
+    const line = lines[i];
+    if (/^\s*$/.test(line)) { i++; continue; }
+    if (/^```/.test(line)) { let code=''; i++; while(i<lines.length && !/^```/.test(lines[i])){ code+=lines[i]+'\n'; i++; } i++; html+='<pre><code>'+esc(code)+'</code></pre>'; continue; }
+    const h = line.match(/^(#{1,6})\s+(.*)$/); if (h) { const l=h[1].length; html+='<h'+l+'>'+inline(h[2])+'</h'+l+'>'; i++; continue; }
+    if (/^(\-\-\-|\*\*\*|___)\s*$/.test(line)) { html+='<hr>'; i++; continue; }
+    if (line.includes('|') && i+1<lines.length && /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i+1]) && lines[i+1].includes('-')) {
+      const row = r => r.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(c=>c.trim());
+      const headers = row(line); i += 2; const rows = [];
+      while (i<lines.length && lines[i].includes('|') && !/^\s*$/.test(lines[i])) { rows.push(row(lines[i])); i++; }
+      html += '<div class="twrap"><table><thead><tr>' + headers.map(c=>'<th>'+inline(c)+'</th>').join('') +
+              '</tr></thead><tbody>' + rows.map(r=>'<tr>'+r.map(c=>'<td>'+inline(c)+'</td>').join('')+'</tr>').join('') +
+              '</tbody></table></div>'; continue;
+    }
+    if (/^>\s?/.test(line)) { let bq=''; while(i<lines.length && /^>\s?/.test(lines[i])){ bq+=lines[i].replace(/^>\s?/,'')+' '; i++; } html+='<blockquote>'+inline(bq.trim())+'</blockquote>'; continue; }
+    if (/^\s*[-*]\s+/.test(line)) { let items=''; while(i<lines.length && /^\s*[-*]\s+/.test(lines[i])){ items+='<li>'+inline(lines[i].replace(/^\s*[-*]\s+/,''))+'</li>'; i++; } html+='<ul>'+items+'</ul>'; continue; }
+    if (/^\s*\d+\.\s+/.test(line)) { let items=''; while(i<lines.length && /^\s*\d+\.\s+/.test(lines[i])){ items+='<li>'+inline(lines[i].replace(/^\s*\d+\.\s+/,''))+'</li>'; i++; } html+='<ol>'+items+'</ol>'; continue; }
+    let para = line; i++;
+    while (i<lines.length && !/^\s*$/.test(lines[i]) && !isBlockStart(lines[i])) { para += ' ' + lines[i]; i++; }
+    html += '<p>'+inline(para)+'</p>';
+  }
+  return html;
+}
+
+/* ---------------- nav + routing ---------------- */
+const byId = {};
+(function index(items){ for (const it of items){ if (it.id) byId[it.id]=it; if (it.children) index(it.children); } })(NAV);
+
+const navEl = document.getElementById('nav');
+function buildNav(){
+  const ul = document.createElement('ul');
+  for (const node of NAV){
+    if (node.children){
+      const li = document.createElement('li'); li.className = 'group';
+      const row = document.createElement('button'); row.className = 'row';
+      row.innerHTML = '<span class="caret">▾</span><span>'+node.title+'</span>';
+      row.addEventListener('click', ()=> li.classList.toggle('collapsed'));
+      const sub = document.createElement('ul'); sub.className = 'children';
+      for (const child of node.children){
+        const cli = document.createElement('li');
+        const a = document.createElement('a'); a.className='item'; a.href='#'+child.id; a.textContent=child.title; a.dataset.id=child.id;
+        cli.appendChild(a); sub.appendChild(cli);
+      }
+      li.appendChild(row); li.appendChild(sub); ul.appendChild(li);
+    } else {
+      const li = document.createElement('li');
+      const a = document.createElement('a'); a.className='item top'; a.href='#'+node.id; a.textContent=node.title; a.dataset.id=node.id;
+      li.appendChild(a); ul.appendChild(li);
+    }
+  }
+  navEl.innerHTML=''; navEl.appendChild(ul);
+}
+
+function setActive(id){
+  document.querySelectorAll('nav a.item').forEach(a => a.classList.toggle('active', a.dataset.id === id));
+}
+
+const contentEl = document.getElementById('content');
+function renderDashboard(){
+  contentEl.innerHTML =
+    '<div class="dash-hero">'+
+      '<p class="eyebrow">Bojji · project documentation</p>'+
+      '<h1>Where the project stands</h1>'+
+      '<p>A living record of what Bojji is and what’s decided. Everything here is rendered from Markdown in <code>docs/content/</code> — edit those files to update the docs.</p>'+
+    '</div>'+
+    '<div class="blocks">'+
+      '<div class="block done"><div class="count">'+CONFIRMED.length+'</div><div class="label">Confirmed &amp; specd</div><ul>'+CONFIRMED.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
+      '<div class="block todo"><div class="count">'+OPEN.length+'</div><div class="label">Still to confirm</div><ul>'+OPEN.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
+    '</div>';
+}
+
+async function renderPage(node){
+  contentEl.innerHTML = '<p style="color:var(--muted)">Loading…</p>';
+  try {
+    const res = await fetch(node.md, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP '+res.status);
+    const md = await res.text();
+    contentEl.innerHTML = mdToHtml(md);
+  } catch (e) {
+    contentEl.innerHTML = '<div class="err"><h1 style="margin-top:0">Couldn’t load this page</h1>'+
+      '<p>The wiki reads Markdown files over HTTP, so it must be served (not opened as a <code>file://</code> path).</p>'+
+      '<p>From the <code>docs/</code> folder run:</p><pre><code>python3 -m http.server 8099</code></pre>'+
+      '<p>then open <code>http://localhost:8099</code>. (Error: '+e.message+')</p></div>';
+  }
+}
+
+function route(){
+  const id = (location.hash || '#home').slice(1);
+  const node = byId[id] || byId['home'];
+  setActive(node.id);
+  // ensure the parent group of the active item is expanded
+  document.querySelectorAll('nav .group').forEach(g => {
+    if (g.querySelector('a.item.active')) g.classList.remove('collapsed');
+  });
+  if (node.type === 'dashboard') renderDashboard(); else renderPage(node);
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('scrim').classList.remove('show');
+  window.scrollTo(0,0);
+}
+
+/* theme + mobile */
+document.getElementById('themebtn').addEventListener('click', ()=>{
+  const r = document.documentElement;
+  const dark = r.getAttribute('data-theme')==='dark' || (!r.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+  r.setAttribute('data-theme', dark ? 'light' : 'dark');
+});
+document.getElementById('hamburger').addEventListener('click', ()=>{ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('scrim').classList.toggle('show'); });
+document.getElementById('scrim').addEventListener('click', ()=>{ document.getElementById('sidebar').classList.remove('open'); document.getElementById('scrim').classList.remove('show'); });
+
+buildNav();
+window.addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

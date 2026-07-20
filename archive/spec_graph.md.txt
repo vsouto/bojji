@@ -1,0 +1,16 @@
+                 Bojji Engine
+
+            Knowledge Graph
+           Query Engine
+        Engineering Reasoner
+      Connector Framework
+       Permission Engine
+
+        ▲         ▲         ▲
+        │         │         │
+
+     MCP API   REST API   SDK
+
+        ▲         ▲         ▲
+
+ Claude   Cursor   ChatGPT   VS Code
