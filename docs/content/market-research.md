@@ -4,7 +4,7 @@
 
 ## The one-line read
 
-The market is **real and validated**, but "AI-queryable knowledge graph" is now **table stakes**. Bojji's edge has to be architecture + dependency depth + on-prem/compliance — not the AI.
+> [!KEY] The market is **real and validated**, but "AI-queryable knowledge graph" is now **table stakes**. Bojji's edge has to be architecture + dependency depth + on-prem/compliance — not the AI.
 
 ## Competitors
 
@@ -35,4 +35,4 @@ Cortex (GA July 2025), Sourcegraph, Snyk, Moderne, Atlassian/Compass and Backsta
 
 ## Verb discipline — important
 
-Sell **"who's exposed / what's affected"**, never **"what breaks."** A metadata graph answers exposure instantly; it cannot know what actually breaks in the code without usage analysis — which is exactly what Moderne does and we deliberately do not.
+> [!IMPORTANT] Sell **"who's exposed / what's affected"**, never **"what breaks."** A metadata graph answers exposure instantly; it cannot know what actually breaks in the code without usage analysis — which is exactly what Moderne does and we deliberately do not.

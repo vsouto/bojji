@@ -1,6 +1,6 @@
 # Confirmed specs
 
-These are the decisions locked into the Bojji spec. Everything else is still open — see the **Home** dashboard for what's pending.
+> [!NOTE] These are the decisions locked into the Bojji spec. Everything else is still open — see the **Home** dashboard for what's pending.
 
 ## Strategy — direction "b"
 
@@ -29,7 +29,9 @@ The **lightness thesis** was validated by the Plan 002 prototype dry-run — see
 
 ## Solution shape & recent confirmations (2026-07-20)
 
-The final solution shape (Plan 004) and the build-gating decisions are settled. Full picture in **Plan → Solution shape (current)**; the essentials:
+> [!DECISION] The final solution shape (Plan 004) and the build-gating decisions are settled. Full picture in **Plan → Solution shape (current)**.
+
+The essentials:
 
 - **Two modes.** The **default** is a portable package for a single project (offline audit + ontology slice — no host, no server). A **shared index repo** that composes the company-wide ontology is an **optional extended mode**, opted into via the auto-detect-or-create flow (C3-style). Extended mode is a layer on top, not a requirement.
 - **npm** is confirmed as the first ecosystem.

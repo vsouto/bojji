@@ -15,7 +15,7 @@ Moderne and Bojji answer a similar question from opposite ends. Moderne works at
 | Onboarding a repo | Get its build working first | Works even if the repo doesn't build | ✅ Yes — no build needed |
 | Infrastructure | Ingestion pipeline plus a platform | No central database; a rebuildable index | 🟡 Partly — design choice, the MVP will show |
 
-**The honest trade:** because Moderne holds the code and types, it can tell you what *actually breaks*. Bojji holds only metadata, so it tells you who is *exposed* — not what breaks. That is the deliberate trade, and "who's exposed" is exactly what compliance needs.
+> [!KEY] **The honest trade:** because Moderne holds the code and types, it can tell you what *actually breaks*. Bojji holds only metadata, so it tells you who is *exposed* — not what breaks. That is the deliberate trade, and "who's exposed" is exactly what compliance needs.
 
 ## Dry-run results — Plan 002
 
@@ -32,8 +32,8 @@ A throwaway prototype read lockfiles, built a cross-repo graph, and answered exp
 | A8 | Monorepos / workspaces parse | ✅ PASS |
 | A7 | Honest limit | ✅ Confirmed — it knows "exposed", not "breaks" |
 
-> No official SWWC repositories were touched — the dry-run used fake repos plus a real public dependency tree. Full write-up: `plans/002-prototype-results.md`.
+> [!NOTE] No official SWWC repositories were touched — the dry-run used fake repos plus a real public dependency tree. Full write-up: `plans/002-prototype-results.md`.
 
 ## What "cheaper" still needs
 
-Lightness is validated. **"Cheaper"** is only *directionally* supported so far (ingest time and footprint both point the right way); the full cost comparison versus Moderne or a self-hosted Backstage at scale is a later exercise.
+> [!WARNING] Lightness is validated. **"Cheaper"** is only *directionally* supported so far (ingest time and footprint both point the right way); the full cost comparison versus Moderne or a self-hosted Backstage at scale is a later exercise.

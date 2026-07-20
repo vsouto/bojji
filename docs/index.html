@@ -21,6 +21,11 @@
   :root[data-theme="light"] { --ground:#f5f4f0; --panel:#fff; --panel-2:#eeece5; --ink:#1b1d24; --text:#43474f; --muted:#7d818b; --line:#dedbd2; --accent:#0f9e8f; --accent-soft:#d3ebe7; --warn:#c8871f; --warn-soft:#f3e6cb; --ok:#2e9e5b; --ok-soft:#d8efe0; }
   :root[data-theme="dark"] { --ground:#0d0f13; --panel:#15181e; --panel-2:#1c2029; --ink:#f0f1f4; --text:#b7bcc6; --muted:#7f858f; --line:#272b34; --accent:#35c4b3; --accent-soft:#123430; --warn:#e0a94b; --warn-soft:#35290f; --ok:#43b873; --ok-soft:#15321f; }
 
+  :root { --violet:#6d5ae0; --violet-soft:#ece9fb; --danger:#c0392b; --danger-soft:#f7dedb; }
+  @media (prefers-color-scheme: dark) { :root { --violet:#9a8bff; --violet-soft:#221d3c; --danger:#f0796d; --danger-soft:#3a1c1a; } }
+  :root[data-theme="light"] { --violet:#6d5ae0; --violet-soft:#ece9fb; --danger:#c0392b; --danger-soft:#f7dedb; }
+  :root[data-theme="dark"]  { --violet:#9a8bff; --violet-soft:#221d3c; --danger:#f0796d; --danger-soft:#3a1c1a; }
+
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; }
   body { background: var(--ground); color: var(--text); font-family: var(--sans); line-height: 1.65; -webkit-font-smoothing: antialiased; }
@@ -93,6 +98,35 @@
 
   .err { border: 1px solid var(--warn); background: var(--warn-soft); border-radius: 12px; padding: 18px 20px; }
   .err code { background: rgba(0,0,0,.06); }
+
+  /* callouts / info panels */
+  .content .callout { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; margin: 0 0 18px; border: 1px solid var(--line); border-left-width: 4px; background: var(--panel); box-shadow: var(--shadow); }
+  .content .callout .cico { flex: none; width: 22px; height: 22px; margin-top: 1px; }
+  .content .callout .cbody { min-width: 0; }
+  .content .callout .ctitle { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 5px; }
+  .content .callout .ctext { margin: 0; color: var(--text); }
+  .content .callout .ctext code { background: rgba(125,129,139,.18); }
+  .content .callout-note { border-left-color: var(--accent); background: var(--accent-soft); }
+  .content .callout-note .cico, .content .callout-note .ctitle { color: var(--accent); }
+  .content .callout-tip  { border-left-color: var(--ok); background: var(--ok-soft); }
+  .content .callout-tip .cico, .content .callout-tip .ctitle { color: var(--ok); }
+  .content .callout-ok   { border-left-color: var(--ok); background: var(--ok-soft); }
+  .content .callout-ok .cico, .content .callout-ok .ctitle { color: var(--ok); }
+  .content .callout-warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .content .callout-warn .cico, .content .callout-warn .ctitle { color: var(--warn); }
+  .content .callout-key  { border-left-color: var(--violet); background: var(--violet-soft); }
+  .content .callout-key .cico, .content .callout-key .ctitle { color: var(--violet); }
+
+  /* inline status badges */
+  .content .st { display: inline-flex; align-items: center; justify-content: center; min-width: 16px; height: 16px; padding: 0 3px; border-radius: 5px; font-size: 10px; font-weight: 800; line-height: 1; vertical-align: 1px; margin-right: 3px; }
+  .content .st.ok { background: var(--ok-soft); color: var(--ok); }
+  .content .st.warn, .content .st.mid { background: var(--warn-soft); color: var(--warn); }
+  .content .st.no { background: var(--danger-soft); color: var(--danger); }
+
+  /* table + heading polish */
+  .content tbody tr:nth-child(even) td { background: rgba(125,129,139,.06); }
+  .content h2 { border-bottom-color: var(--accent-soft); }
+  .content h3 { color: var(--accent); }
 
   @media (max-width: 860px) {
     .sidebar { position: fixed; z-index: 40; transform: translateX(-100%); transition: transform .22s ease; box-shadow: var(--shadow); }
@@ -177,7 +211,34 @@ function inline(s){
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
   s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  s = s.replace(/✅/g, '<span class="st ok">✓</span>');
+  s = s.replace(/⚠️|⚠/g, '<span class="st warn">!</span>');
+  s = s.replace(/🟡/g, '<span class="st mid">◐</span>');
+  s = s.replace(/❌/g, '<span class="st no">✕</span>');
   return s;
+}
+
+/* ---------------- callouts / info panels ---------------- */
+const ICONS = {
+  note: '<svg class="cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11.5" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8.01"/></svg>',
+  tip: '<svg class="cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5.9 1.1 1 1.7l.1.5h5l.1-.5c.1-.6.4-1.2 1-1.7A6 6 0 0 0 12 3Z"/></svg>',
+  warning: '<svg class="cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3Z"/><line x1="12" y1="9.5" x2="12" y2="14"/><line x1="12" y1="17" x2="12" y2="17.01"/></svg>',
+  key: '<svg class="cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4"/><path d="M10.3 12.7 20 3"/><path d="M16 7l3 3"/><path d="M13 10l2.5 2.5"/></svg>',
+  decision: '<svg class="cico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>',
+};
+const CALLOUT = {
+  note:      { cls: 'callout-note', label: 'Note',      icon: 'note' },
+  tip:       { cls: 'callout-tip',  label: 'Tip',       icon: 'tip' },
+  warning:   { cls: 'callout-warn', label: 'Watch out', icon: 'warning' },
+  caution:   { cls: 'callout-warn', label: 'Watch out', icon: 'warning' },
+  key:       { cls: 'callout-key',  label: 'Key',       icon: 'key' },
+  important: { cls: 'callout-key',  label: 'Important', icon: 'key' },
+  decision:  { cls: 'callout-ok',   label: 'Decided',   icon: 'decision' },
+};
+function callout(type, bodyText){
+  const c = CALLOUT[type] || CALLOUT.note;
+  return '<div class="callout '+c.cls+'">'+ICONS[c.icon]+
+    '<div class="cbody"><div class="ctitle">'+c.label+'</div><div class="ctext">'+inline(bodyText)+'</div></div></div>';
 }
 function mdToHtml(src){
   const lines = src.replace(/\r/g,'').split('\n');
@@ -197,7 +258,14 @@ function mdToHtml(src){
               '</tr></thead><tbody>' + rows.map(r=>'<tr>'+r.map(c=>'<td>'+inline(c)+'</td>').join('')+'</tr>').join('') +
               '</tbody></table></div>'; continue;
     }
-    if (/^>\s?/.test(line)) { let bq=''; while(i<lines.length && /^>\s?/.test(lines[i])){ bq+=lines[i].replace(/^>\s?/,'')+' '; i++; } html+='<blockquote>'+inline(bq.trim())+'</blockquote>'; continue; }
+    if (/^>\s?/.test(line)) {
+      const raw = [];
+      while (i<lines.length && /^>\s?/.test(lines[i])) { raw.push(lines[i].replace(/^>\s?/,'')); i++; }
+      const m = raw[0].match(/^\s*\[!(\w+)\]\s*(.*)$/);
+      if (m) { const body = [m[2]].concat(raw.slice(1)).join(' ').trim(); html += callout(m[1].toLowerCase(), body); }
+      else { html += '<blockquote>'+inline(raw.join(' ').trim())+'</blockquote>'; }
+      continue;
+    }
     if (/^\s*[-*]\s+/.test(line)) { let items=''; while(i<lines.length && /^\s*[-*]\s+/.test(lines[i])){ items+='<li>'+inline(lines[i].replace(/^\s*[-*]\s+/,''))+'</li>'; i++; } html+='<ul>'+items+'</ul>'; continue; }
     if (/^\s*\d+\.\s+/.test(line)) { let items=''; while(i<lines.length && /^\s*\d+\.\s+/.test(lines[i])){ items+='<li>'+inline(lines[i].replace(/^\s*\d+\.\s+/,''))+'</li>'; i++; } html+='<ol>'+items+'</ol>'; continue; }
     let para = line; i++;

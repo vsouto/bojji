@@ -1,6 +1,6 @@
 # Ontology (secondary feature)
 
-> The rich company ontology is **kept**, not dropped. It is deliberately sequenced behind the compliance wedge.
+> [!NOTE] The rich company ontology is **kept**, not dropped. It is deliberately sequenced behind the compliance wedge.
 
 ## What it is
 
@@ -24,7 +24,7 @@ So it rides along with compliance rather than leading the pitch.
 
 It makes every exposure answer **actionable**. Without the ontology, exposure is just a list of repositories. With it, the answer is routed, owned, and contactable:
 
-> "6 products across 3 teams are exposed to this vulnerability — here is each product, its owning team, and who to notify."
+> [!TIP] "6 products across 3 teams are exposed to this vulnerability — here is each product, its owning team, and who to notify."
 
 It also preserves the path to the broader knowledge-graph vision.
 

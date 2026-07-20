@@ -1,6 +1,6 @@
 # Audit & compliance
 
-> Open spec questions about how Bojji serves audits and how it earns its place in enterprise projects (like SWWC v2, which is already live). Some answers are decided; the ones still being weighed are flagged.
+> [!NOTE] Open spec questions about how Bojji serves audits and how it earns its place in enterprise projects (like SWWC v2, which is already live). Some answers are decided; the ones still being weighed are flagged.
 
 ---
 
@@ -16,7 +16,7 @@ So the durable artifact is the **SBOM**. The remaining question is *how it is em
 - **Option A — commit the SBOM into the repo** (`.bojji/sbom.cdx.json`, versioned; git history is the audit trail).
 - **Option B — emit a signed release attestation** (the SBOM bound to the built artifact, cryptographically signed via keyless/OIDC; not committed).
 
-**Status: B is confirmed. A's value is still being weighed.**
+> [!DECISION] **B (signed release attestation) is confirmed.** A (commit the SBOM into the repo) is still being weighed — see the matrix and the note below.
 
 ### Tradeoff matrix — A vs B
 
@@ -36,7 +36,7 @@ So the durable artifact is the **SBOM**. The remaining question is *how it is em
 
 A's *unique* value is two things: (1) dependency changes get **reviewed at PR time** as a readable SBOM diff, and (2) an SBOM is **always present**, even for a repo that rarely cuts releases. For a live library like SWWC v2, where every dependency bump matters, that is real value. For a project that only needs proof of what shipped, A is redundant with B.
 
-**Proposed middle path (pending your call):** keep A but make it *cheap* — generate `.bojji/sbom.cdx.json` via a local command / pre-commit hook rather than a CI bot-commit, so we get PR-time visibility without the protected-branch friction. B stays the authoritative release proof.
+> [!TIP] **Proposed middle path (pending your call):** keep A but make it *cheap* — generate `.bojji/sbom.cdx.json` via a local command / pre-commit hook rather than a CI bot-commit, so we get PR-time visibility without the protected-branch friction. B stays the authoritative release proof.
 
 ---
 
@@ -59,7 +59,7 @@ Plan 004 specifies MCP at the concept level: *"a local MCP server that reads the
 - **Two data sources by mode:** in **default** mode it reads the local `.bojji/` slice (single project); in **extended** mode it reads the **index repo** (whole org). Same tools, different source.
 - Reads the git index directly (clone/pull + in-memory graph); no database to run.
 
-**Open item:** write the MCP server spec — its tool set (e.g. `expose <CVE>`, `find_dependents`, `find_owner`, `impact_analysis`), transport, how it loads/caches the git index, and the default-vs-extended source switch.
+> [!WARNING] **Open item — write the MCP server spec:** its tool set (`expose <CVE>`, `find_dependents`, `find_owner`, `impact_analysis`), transport, how it loads/caches the git index, and the default-vs-extended source switch.
 
 ---
 

@@ -1,6 +1,6 @@
 # The solution (current plan)
 
-> The decided shape of Bojji, as of 2026-07-20. Full depth lives in `plans/004-final-solution-spec.md` (shape) and `plans/003-mvp.md` (MVP scope). This page is the living summary.
+> [!NOTE] The decided shape of Bojji, as of 2026-07-20. Full depth lives in `plans/004-final-solution-spec.md` (shape) and `plans/003-mvp.md` (MVP scope). This page is the living summary.
 
 ## Two modes
 
@@ -12,7 +12,7 @@ The initial and default mode is **just a package you add to one project**. It ge
 ### Extended — shared index repo (optional, opt-in)
 If you want the **company-wide** view (the ontology composing itself across many projects), you opt into **extended mode** by giving Bojji a shared index repo. Bojji sets it up with the smooth flow we designed: on install it tries to **auto-detect** the conventional `‹org›/bojji-index`, and if it's missing, **offers to create it** using the developer's already-authenticated git CLI (no stored secret). If the person lacks clearance to create org repos, it falls back to local-only and hands an admin a one-liner. It never blocks.
 
-**Key point:** extended mode is a layer on top, not a requirement. Most of the value is available in the default portable mode; the index is there when cross-project composition is wanted.
+> [!KEY] Extended mode is a layer on top, not a requirement. Most of the value is available in the default portable mode; the index is there when cross-project composition is wanted.
 
 ## The three pillars
 
@@ -44,8 +44,9 @@ No service in the middle in either mode — just files.
 
 ## Security & compliance
 
-- **Key choice (confirmed): persist structure + ownership; compute exposure on-read.** If the index leaks, it reveals the dependency map (mostly derivable anyway), **not** a ready-made list of exploitable holes.
-- In extended mode the index is a private repo governed by the org's existing SSO / RBAC / branch protection; **git history is the audit trail**. It lives in your own (on-prem / self-hosted) git, so it inherits your compliance posture — nothing leaves the perimeter.
+> [!KEY] **Persist structure + ownership; compute exposure on-read** (confirmed). If the index leaks, it reveals the dependency map (mostly derivable anyway), **not** a ready-made list of exploitable holes.
+
+In extended mode the index is a private repo governed by the org's existing SSO / RBAC / branch protection; **git history is the audit trail**. It lives in your own (on-prem / self-hosted) git, so it inherits your compliance posture — nothing leaves the perimeter.
 
 ## Confirmed technical defaults
 
@@ -63,4 +64,4 @@ No service in the middle in either mode — just files.
 
 The architecture and the build-gating decisions are settled. The remaining open items (git host specifics, index write model, cross-org freshness at scale, cost proof) all live in **extended mode** or are post-v1, so they don't block the start.
 
-**M0 — the thinnest slice (host-agnostic, portable mode):** `lockfile → sbom.cdx.json → .bojji/` in one repo. Then M1 adds the offline exposure report (`bojji expose <CVE>` → affected products + owners/contacts/path/confidence).
+> [!TIP] **M0 — the thinnest slice (host-agnostic, portable mode):** `lockfile → sbom.cdx.json → .bojji/` in one repo. Then M1 adds the offline exposure report (`bojji expose <CVE>` → affected products + owners/contacts/path/confidence).
