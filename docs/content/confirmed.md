@@ -26,3 +26,13 @@ Bojji is Victor's personal project, his alone. Hosted on his own GitHub, and fir
 ## Validated
 
 The **lightness thesis** was validated by the Plan 002 prototype dry-run — see *Analysis → Heavy vs Light & dry-run*.
+
+## Solution shape & recent confirmations (2026-07-20)
+
+The final solution shape (Plan 004) and the build-gating decisions are settled. Full picture in **Plan → Solution shape (current)**; the essentials:
+
+- **Two modes.** The **default** is a portable package for a single project (offline audit + ontology slice — no host, no server). A **shared index repo** that composes the company-wide ontology is an **optional extended mode**, opted into via the auto-detect-or-create flow (C3-style). Extended mode is a layer on top, not a requirement.
+- **npm** is confirmed as the first ecosystem.
+- **Index model:** persist structure + ownership, **compute exposure on-read** (a leak reveals the dependency map, not a list of exploitable holes).
+- **Defaults:** SBOM = CycloneDX, vulnerability feed = OSV, "product" = a releasable/deployable versioned unit, v1 ontology = Product · Package · Repository · Team · Person.
+- **Git host** only matters in extended mode: self-hosted GitLab first, GitHub as fast-follow. Not MVP-gating.

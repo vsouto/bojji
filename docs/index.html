@@ -132,6 +132,10 @@
 /* ---------------- site config (edit this + the .md files to update) ---------------- */
 const NAV = [
   { id: 'home', title: 'Home', type: 'dashboard' },
+  { title: 'Plan', children: [
+    { id: 'solution', title: 'Solution shape (current)', md: 'content/solution.md' },
+  ]},
+  { id: 'audit', title: 'Audit', md: 'content/audit.md' },
   { title: 'Confirmed specs', children: [
     { id: 'confirmed', title: 'All confirmed specs', md: 'content/confirmed.md' },
     { id: 'ontology',  title: 'Ontology (secondary feature)', md: 'content/ontology.md' },
@@ -146,20 +150,22 @@ const NAV = [
 
 const CONFIRMED = [
   'Strategy "b" — on-prem, compliance-grade, ontology-backed dependency inventory',
-  'C1 — The contract (one canonical ontology; sources are adapters)',
-  'C2 — The flow (one Ingestion Service → one graph → REST / UI / MCP)',
-  'C3 — Adopt: scan & gather (auto-scan on install, never blocks)',
-  'C4 — Report at release (CI push, no project credentials)',
-  'C5 — Ownership (Victor’s personal project; tested in a local clone)',
+  'C1–C5 — core contract (canonical ontology, single flow, scan-on-adopt, report-at-release, personal ownership)',
+  'Solution shape (Plan 004) — portable-first, no central service',
+  'Two modes — default portable package; optional extended (shared index repo)',
+  'npm — the first ecosystem',
+  'Index model — persist structure + ownership, compute exposure on-read',
+  'Defaults — SBOM CycloneDX, feed OSV, "product" = releasable unit, v1 ontology',
   'Lightness thesis — validated by the Plan 002 dry-run',
 ];
 const OPEN = [
-  'First ecosystem to build for (npm is the likely call)',
-  'Storage specifics — a file per repo vs. one shared index repo',
-  'What counts as a "product" for compliance reporting',
-  'SBOM format — CycloneDX / SPDX / both',
-  'Which vulnerability feed to consume',
-  'The minimal v1 ontology to ship first',
+  'Audit artifact — release attestation (B) confirmed; commit SBOM in-repo (A) value TBD',
+  'MCP server spec — local server reading the index repo (default vs extended source)',
+  'Enterprise audit gaps — signed attestation, as-of queries, export formats',
+  'Git host specifics for extended mode (GitLab-first leaning) — not MVP-gating',
+  'Index write model — per-project push vs PR vs collector (extended mode)',
+  'How much instant whole-org querying matters (extended mode)',
+  'Continuous monitoring / alerting — post-v1',
   '"Cheaper" — full cost comparison vs Moderne / Backstage at scale',
 ];
 
