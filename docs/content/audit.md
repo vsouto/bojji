@@ -106,10 +106,24 @@ build ──▶ produces: artifact  +  SBOM
 
 > [!WARNING] **The gap:** Bojji doesn't yet emit a signed attestation binding the SBOM to the built artifact. To build: sign the artifact digest plus the SBOM in the release job with keyless OIDC, and attach it so anyone can verify it.
 
+> [!TIP] **Solution:** Sign the artifact digest plus the CycloneDX SBOM in the existing release job with keyless OIDC (sigstore/cosign), emitting an in-toto/SLSA attestation.
+
+- **How:** In the release job, cosign `attest` binds `hash(artifact)` to the SBOM as a signed in-toto predicate (CycloneDX predicate type), authenticated by the CI runner's OIDC identity so no key is stored. On GitLab the identity comes from a job `id_tokens` block feeding cosign's OIDC flow; GitLab also has native SLSA provenance generation that can serve as a fallback. Verification is offline once the trust root is present.
+- **Where it runs:** CI release job (drop-in include, one line).
+- **Effort:** M — the CI step itself is small, but keyless signing needs an OIDC-trusting CA and a transparency log, and in a real air-gapped Siemens estate those must be self-hosted or mirrored (Fulcio plus Rekor), which is the actual work.
+- **Watch:** True air-gap breaks public sigstore; either stand up self-hosted sigstore or lean on GitLab's built-in runner attestations, but do not fall back to a stored KMS key because that abandons keyless.
+
 **E4 — Completeness & honest coverage.**
 An SBOM that *silently* omits something is worse than one that says "I couldn't resolve X." Trust comes from declaring blind spots. Bojji must list what it scanned and explicitly flag what it couldn't (a private registry it couldn't reach, a lockfile it couldn't parse) — never drop quietly.
 
 > [!WARNING] **The gap:** Bojji doesn't yet record its blind spots. To build: a coverage summary that lists what was scanned and explicitly flags what it couldn't resolve (an unreachable registry, an unparseable lockfile), instead of silently omitting.
+
+> [!TIP] **Solution:** Emit a coverage record alongside the SBOM that lists what was scanned and flags every blind spot as a first-class entry, so nothing is ever silently dropped.
+
+- **How:** The buildless generator already knows what it could and could not resolve from the lockfile, so every unresolved item becomes a flagged node or a `bojji:coverage:*` property (unreachable registry, unparseable or missing lockfile, workspace that did not resolve) rather than an omission. A short human-readable coverage summary rides in the audit report; machine consumers read it from CycloneDX `metadata.properties` or a sibling `.bojji/coverage.json`.
+- **Where it runs:** CLI on build (the SBOM generation step), surfaced again at reader/query time.
+- **Effort:** S — it is bookkeeping over data the generator already has; the discipline is distinguishing "resolved, nothing needed" from "could not resolve."
+- **Watch:** Coverage must fail loud in the report but never block the build, honouring the non-blocking principle.
 
 **E6 — Audit trail & "as-of" (time-travel).**
 There are two different audit questions, and we must answer both:
@@ -124,20 +138,48 @@ Because exposure is computed live, "as-of" means pairing a **past SBOM** (git hi
 
 > [!WARNING] **The gap:** Bojji can answer "exposed today?" but not "what did we know at release v2.3?". To build: as-of queries that pair a past SBOM (from git history) with a dated vulnerability feed.
 
+> [!TIP] **Solution:** An `--as-of <git-ref or date>` query that pairs a past SBOM pulled from git history with a dated OSV feed, reconstructing what was known at that point.
+
+- **How:** Because the SBOM is committed (artifact A), the past dependency truth is a free git checkout of `.bojji/sbom.cdx.json` at that ref. Exposure stays compute-on-read, so as-of simply feeds that past SBOM plus a feed snapshot into the same engine. "Given today's knowledge, was release v2.3 vulnerable" uses today's OSV and is trivial; "what did we actually know then" needs the feed as it stood then.
+- **Where it runs:** Reader or query time (CLI), reading git history plus a mirrored OSV snapshot.
+- **Effort:** M — the SBOM side is essentially free from git, but honest point-in-time feed answers require retaining dated OSV mirror snapshots; filtering today's feed by published-date is only an approximation because advisories get modified and withdrawn retroactively.
+- **Watch:** Decide up front whether auditors need true point-in-time (archive dated OSV snapshots) or the published-date approximation is acceptable — the choice sets whether you must keep feed history.
+
 **E10 — Machine-readable exports.**
 Auditors and their GRC/scanner tools ingest specific formats. Bojji should export a defined set — **CycloneDX** (the SBOM), **VEX** (exploitability decisions), **SARIF** (findings for security tooling), and a **CRA-style report**. The open decision is confirming exactly which formats to support first.
 
 > [!WARNING] **The gap:** there's no agreed export set yet. To decide and build: which formats Bojji emits (CycloneDX, VEX, SARIF, a CRA-style report) and the command / CI step that produces them.
+
+> [!TIP] **Solution:** A `bojji export` command producing a fixed set — CycloneDX (SBOM), CycloneDX VEX, SARIF (findings), and a CRA-style report — from the same on-read computation.
+
+- **How:** CycloneDX and VEX are already the native storage format, so those two are pass-through, not conversion. SARIF 2.1.0 is a mechanical projection of the live exposure findings (dependency-level, using logical locations, timestamped at export), matching how Grype and Trivy already emit vuln SARIF for GRC and scanner tools. The CRA-style report is a template that maps SBOM plus VEX plus coverage plus attestation onto the CRA required elements.
+- **Where it runs:** Reader or CLI, and re-runnable in the CI release job.
+- **Effort:** S — three of the four are near-free given the format choices; only the CRA report is real authoring.
+- **Watch:** The CRA has no single rigid machine schema yet, so the "CRA-style report" is a documented mapping and will need revising as the regulation's expected artifacts firm up.
 
 **E12 — Monorepo + internal registries.**
 SWWC v2 is an npm **workspaces monorepo** that also pulls **internal** packages from Artifactory. Bojji must resolve workspace-local packages correctly and give internal packages stable purls so they join the graph like any other node. Confirm this works before the first real run.
 
 > [!WARNING] **The gap:** it's unconfirmed that npm workspaces resolve correctly and that internal Artifactory packages get stable purls so they join the graph. To do: validate against SWWC v2 before the first real run.
 
+> [!TIP] **Solution:** Resolve the whole graph from the lockfile only (no registry calls), giving workspace and Artifactory packages stable purls, and model the monorepo as multiple products.
+
+- **How:** Reading `package-lock.json` v3 buildless captures workspace members (as linked entries) and every resolved transitive dep, so npm workspaces resolve without invoking npm. Internal Artifactory packages keep their npm name and scope, so `pkg:npm/@scope/name@version` is stable regardless of registry, with the source recorded as a purl `repository_url` qualifier. Crucially, lockfile-only means Bojji never authenticates to Artifactory — the resolved URLs and integrity hashes are already in the lock.
+- **Where it runs:** CLI on build (SBOM generation), with per-workspace product mapping in `product.yaml`.
+- **Effort:** M — the lockfile-only mechanism is elegant and sidesteps auth, but a workspaces monorepo means several products in one repo (per-workspace `product.yaml` attribution, shared and hoisted deps), which is genuine modelling that must be validated against the real SWWC v2 lockfile before the first run.
+- **Watch:** Internal Artifactory packages will not appear in public OSV, so coverage (E4) must flag them as not checked against the public feed rather than implying they are clean.
+
 **E8 — PII handling for contacts.**
 `product.yaml` holds contact people (names, emails) — that is PII under GDPR. Keep it minimal, document handling/retention, and note that it lives in-perimeter, which already helps.
 
 > [!WARNING] **The gap:** contact PII in `product.yaml` has no documented handling. To do: a short data-handling and retention note (what's stored, minimisation, stays in-perimeter) for GDPR.
+
+> [!TIP] **Solution:** Minimise by design — default contacts to team and role aliases, not individuals — and document handling, plus keep genuinely personal data out of committed git.
+
+- **How:** CODEOWNERS auto-fill usually yields team handles or distribution lists already, so `product.yaml` stores a role or team contact (`team-dse@…`) as the default, resolved to a person on-read from an in-perimeter directory only when needed. A short data-handling note records what is stored, the lawful basis (security-contact routing), retention, and that it never leaves the perimeter — which already satisfies most of GDPR's minimisation ask.
+- **Where it runs:** CLI at init (auto-fill) plus a documented policy note.
+- **Effort:** S — defaulting to aliases and writing the note is light.
+- **Watch:** Git history is effectively append-only, so any individual email committed to `product.yaml` collides with the right-to-erasure; keeping PII out of the committed file (store a role, resolve the person on-read) is the clean way to avoid ever having to rewrite history.
 
 ### The three concrete gaps
 
