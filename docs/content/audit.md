@@ -16,7 +16,7 @@ So the durable artifact is the **SBOM**. The remaining question is *how it is em
 - **Option A — commit the SBOM into the repo** (`.bojji/sbom.cdx.json`, versioned; git history is the audit trail).
 - **Option B — emit a signed release attestation** (the SBOM bound to the built artifact, cryptographically signed via keyless/OIDC; not committed).
 
-> [!DECISION] **B (signed release attestation) is confirmed.** A (commit the SBOM into the repo) is still being weighed — see the matrix and the note below.
+> [!DECISION] **Confirmed: keep A, and make both A and B near-zero-friction.** B (signed release attestation) was already confirmed; A (the committed SBOM) is confirmed too, on the condition that it costs the developer nothing — see how below.
 
 ### Tradeoff matrix — A vs B
 
@@ -32,11 +32,16 @@ So the durable artifact is the **SBOM**. The remaining question is *how it is em
 | Enterprise / EU CRA fit | Nice-to-have (governance) | **What auditors actually ask for** |
 | Decision | value TBD | **Confirmed** |
 
-### So, is A worth it (on top of B)?
+### Why A earns its place (and stays free)
 
-A's *unique* value is two things: (1) dependency changes get **reviewed at PR time** as a readable SBOM diff, and (2) an SBOM is **always present**, even for a repo that rarely cuts releases. For a live library like SWWC v2, where every dependency bump matters, that is real value. For a project that only needs proof of what shipped, A is redundant with B.
+A's *unique* value is two things: dependency changes get **reviewed at PR time** as a readable SBOM diff, and an SBOM is **always present**, even between releases. For a live library like SWWC v2 that is real value — so we keep A, on the condition that it costs the developer nothing.
 
-> [!TIP] **Proposed middle path (pending your call):** keep A but make it *cheap* — generate `.bojji/sbom.cdx.json` via a local command / pre-commit hook rather than a CI bot-commit, so we get PR-time visibility without the protected-branch friction. B stays the authoritative release proof.
+> [!KEY] **Design principle — Bojji is unnoticeable.** Near-zero setup (zero wherever possible) and near-zero developer friction. It produces its artifacts automatically as part of the normal flow; nobody should have to "run Bojji."
+
+How each stays frictionless:
+
+- **A — committed SBOM, no CI bot-commit.** The SBOM regenerates on install/build and is written to `.bojji/`. When Bojji is added it installs a tiny pre-commit hook that re-stages the SBOM when the lockfile changed, so it rides along with the commit the developer was already making. No separate step; if hooks can't be installed (CI / non-interactive), it is a silent no-op and B covers the release.
+- **B — release attestation, one keyless step.** Emitted in the existing release job via OIDC (the CI identity is trusted directly — no stored secret). Shipped as a drop-in CI action / include so adoption is one line, zero config, nothing to store or guard.
 
 ---
 
@@ -67,24 +72,24 @@ Plan 004 specifies MCP at the concept level: *"a local MCP server that reads the
 
 Many of these are already Bojji's strengths; a few are gaps to close. The ✅ items are decided; the ⚠️ items are explained below the table so they're easy to digest.
 
-| Requirement | Why auditors care | Status |
-|---|---|---|
-| On-prem / air-gap / no phone-home | Data can't leave the perimeter; must run offline | ✅ Confirmed (the wedge); OSV mirrorable |
-| Standards conformance (CycloneDX + VEX, EU CRA elements) | A valid, recognised format their tools accept | ✅ format chosen · ⚠️ CRA element mapping |
-| Provenance / signed attestation | Proof the SBOM matches what actually shipped | ⚠️ Gap |
-| Completeness & honest coverage | Full tree; blind spots declared, not hidden | ⚠️ To build |
-| Reproducibility / determinism | Same input → same graph; rebuildable | ✅ deterministic merge, no ML score |
-| Audit trail & "as-of" | What did we know at release vs now | ✅ git history · ⚠️ as-of queries |
-| Access control & no secrets | SSO/RBAC; least privilege; keyless | ✅ private repo + org SSO/RBAC, OIDC |
-| Data minimisation / PII | Store the minimum; handle contact PII | ✅ structure-only · ⚠️ PII note |
-| VEX / false-positive control | Not drowning auditors in un-triaged findings | ✅ VEX first-class · ⚠️ authoring flow |
-| Machine-readable exports | Feed their GRC / scanner tooling | ⚠️ Gap |
-| Non-blocking adoption | Can't break a live CI/release pipeline | ✅ never blocks; buildless |
-| Monorepo + internal registries | SWWC v2 = npm workspaces + Artifactory | ⚠️ Confirm |
+| ID | Requirement | Why auditors care | Status |
+|---|---|---|---|
+| E1 | On-prem / air-gap / no phone-home | Data can't leave the perimeter; must run offline | ✅ Confirmed (the wedge); OSV mirrorable |
+| E2 | Standards conformance (CycloneDX + VEX, EU CRA elements) | A valid, recognised format their tools accept | ✅ format chosen · ⚠️ CRA element mapping |
+| E3 | Provenance / signed attestation | Proof the SBOM matches what actually shipped | ⚠️ Gap |
+| E4 | Completeness & honest coverage | Full tree; blind spots declared, not hidden | ⚠️ To build |
+| E5 | Reproducibility / determinism | Same input → same graph; rebuildable | ✅ deterministic merge, no ML score |
+| E6 | Audit trail & "as-of" | What did we know at release vs now | ✅ git history · ⚠️ as-of queries |
+| E7 | Access control & no secrets | SSO/RBAC; least privilege; keyless | ✅ private repo + org SSO/RBAC, OIDC |
+| E8 | Data minimisation / PII | Store the minimum; handle contact PII | ✅ structure-only · ⚠️ PII note |
+| E9 | VEX / false-positive control | Not drowning auditors in un-triaged findings | ✅ VEX first-class · ⚠️ authoring flow |
+| E10 | Machine-readable exports | Feed their GRC / scanner tooling | ⚠️ Gap |
+| E11 | Non-blocking adoption | Can't break a live CI/release pipeline | ✅ never blocks; buildless |
+| E12 | Monorepo + internal registries | SWWC v2 = npm workspaces + Artifactory | ⚠️ Confirm |
 
 ### The pending items, explained
 
-**1. Provenance / signed attestation.**
+**E3 — Provenance / signed attestation.**
 A committed SBOM says *"here is what we think we depend on."* An attestation is a signed receipt that says *"this exact list belongs to this exact released build, and here is cryptographic proof it wasn't altered."* Auditors don't just want the list — they want proof the list matches what shipped.
 
 ```
@@ -99,10 +104,10 @@ build ──▶ produces: artifact  +  SBOM
    auditor / CI ─────────┴────▶ verify signature → "trusted, and it's the real build"
 ```
 
-**2. Completeness & honest coverage.**
+**E4 — Completeness & honest coverage.**
 An SBOM that *silently* omits something is worse than one that says "I couldn't resolve X." Trust comes from declaring blind spots. Bojji must list what it scanned and explicitly flag what it couldn't (a private registry it couldn't reach, a lockfile it couldn't parse) — never drop quietly.
 
-**3. Audit trail & "as-of" (time-travel).**
+**E6 — Audit trail & "as-of" (time-travel).**
 There are two different audit questions, and we must answer both:
 
 ```
@@ -113,15 +118,34 @@ There are two different audit questions, and we must answer both:
 
 Because exposure is computed live, "as-of" means pairing a **past SBOM** (git history already gives us this) with a **dated feed**. This is what lets us reconstruct "what we knew then," which auditors ask for after an incident.
 
-**4. Machine-readable exports.**
+**E10 — Machine-readable exports.**
 Auditors and their GRC/scanner tools ingest specific formats. Bojji should export a defined set — **CycloneDX** (the SBOM), **VEX** (exploitability decisions), **SARIF** (findings for security tooling), and a **CRA-style report**. The open decision is confirming exactly which formats to support first.
 
-**5. Monorepo + internal registries.**
+**E12 — Monorepo + internal registries.**
 SWWC v2 is an npm **workspaces monorepo** that also pulls **internal** packages from Artifactory. Bojji must resolve workspace-local packages correctly and give internal packages stable purls so they join the graph like any other node. Confirm this works before the first real run.
 
-**6. PII handling for contacts.**
+**E8 — PII handling for contacts.**
 `product.yaml` holds contact people (names, emails) — that is PII under GDPR. Keep it minimal, document handling/retention, and note that it lives in-perimeter, which already helps.
 
 ### The three concrete gaps
 
-Stripping the table down, the enterprise work clusters into three adds — none of which block M0: **signed attestations** (Q1 option B, being built), **as-of / time-travel queries**, and an agreed **export-format set**.
+Stripping the table down, the enterprise work clusters into three adds — none of which block M0: **signed attestations (E3)** (Q1 option B, being built), **as-of / time-travel queries (E6)**, and an agreed **export-format set (E10)**.
+
+---
+
+## Q4 — Do you need the MCP server in default mode?
+
+> [!DECISION] **No.** In default (portable) mode a developer gets the full core value with **zero MCP setup**. MCP is the *secondary*, agent-facing surface — a cherry on top, not the way in.
+
+Where the value actually comes from in default mode:
+
+| Surface | What you get | MCP needed? |
+|---|---|---|
+| CLI | `bojji audit` / `bojji expose <CVE>` → exposure report with owners, contacts, path, confidence | No |
+| Generated files | `.bojji/sbom.cdx.json` (a standard SBOM any tool reads) + the audit report (JSON / SARIF / HTML) | No |
+| CI output | SBOM + signed attestation + exposure check emitted at release | No |
+| MCP (optional) | Conversational / agent queries over the same data, from your editor or an AI agent | Yes — opt-in |
+
+The tool is useful the moment it's added: it produces a standard SBOM and an exposure/ownership report through the CLI and CI, with no MCP at all. The MCP server only adds a *conversational* way to ask the same questions — valuable for agent workflows, never a prerequisite.
+
+> [!KEY] This is the Q1 "unnoticeable" principle again: the value arrives as **artifacts the normal flow already produces** (files + CI checks), not as a tool the developer has to set up and operate.
