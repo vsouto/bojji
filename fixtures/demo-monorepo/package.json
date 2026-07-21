@@ -1,0 +1,9 @@
+{
+  "name": "demo-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fixture: a real npm-workspaces monorepo with team CODEOWNERS, for exercising bojji's per-product ownership routing.",
+  "workspaces": [
+    "packages/*"
+  ]
+}

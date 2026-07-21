@@ -6,7 +6,8 @@ import { loadLockfile, buildGraph } from './lockfile.js';
 import { discoverProducts } from './products.js';
 import { matchAdvisories, computeExposures } from './expose.js';
 import { resolveAdvisories, type Advisory } from './osv.js';
-import { lockfileFreshness } from './freshness.js';
+import { loadCodeowners } from './codeowners.js';
+import { lockfileFreshness, lastCommitDate } from './freshness.js';
 import { renderHuman, renderJson, type Report } from './render.js';
 
 interface Args {
@@ -123,6 +124,8 @@ async function cmdExpose(args: Args): Promise<void> {
   const matches = matchAdvisories(graph, advisories);
   const exposures = computeExposures(graph, matches, products);
   const freshness = lockfileFreshness(dir, relative(dir, lockfilePath) || 'package-lock.json');
+  const codeowners = loadCodeowners(dir);
+  const codeownersDate = codeowners ? lastCommitDate(dir, codeowners.relPath) : null;
 
   const report: Report = {
     label,
@@ -133,6 +136,8 @@ async function cmdExpose(args: Args): Promise<void> {
     products,
     exposures,
     freshness,
+    codeowners,
+    codeownersDate,
   };
   process.stdout.write((args.flags.json ? renderJson(report) : renderHuman(report)) + '\n');
 }

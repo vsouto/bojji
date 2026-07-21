@@ -1,0 +1,8 @@
+{
+  "name": "@acme/web",
+  "version": "1.0.0",
+  "description": "Storefront web app (exposed via a vulnerable minimist).",
+  "dependencies": {
+    "minimist": "1.2.5"
+  }
+}

@@ -16,23 +16,26 @@ export function matchAdvisories(graph: Graph, advisories: Advisory[]): PkgNode[]
 }
 
 /**
- * Shortest path from the root project ("") down to `fromKey`, walking reverse
- * edges (dependency -> dependents) breadth-first. Returns keys in dependency
- * order [root, ..., culprit], or null if the culprit is not reachable from root.
+ * Shortest path from the nearest local/workspace package down to `fromKey`,
+ * walking reverse edges (dependency -> dependents) breadth-first. The endpoint is
+ * the closest node with `isLocal` (a workspace package, or the root ""), so
+ * exposure is attributed to the real releasable unit that pulls the culprit in.
+ * Returns keys in dependency order [product, ..., culprit], or null if unreachable.
  */
-export function reversePathToRoot(graph: Graph, fromKey: string): string[] | null {
+export function reversePathToProduct(graph: Graph, fromKey: string): string[] | null {
   const prev = new Map<string, string | null>([[fromKey, null]]);
   const queue: string[] = [fromKey];
   while (queue.length > 0) {
     const cur = queue.shift() as string;
-    if (cur === '') {
+    const node = graph.nodes.get(cur);
+    if (node && node.isLocal && cur !== fromKey) {
       const path: string[] = [];
-      let node: string | null = '';
-      while (node !== null) {
-        path.push(node);
-        node = prev.get(node) ?? null;
+      let k: string | null = cur;
+      while (k !== null) {
+        path.push(k);
+        k = prev.get(k) ?? null;
       }
-      return path; // ['', directDep, ..., culprit]
+      return path; // [product, ..., culprit]
     }
     for (const edge of graph.reverse.get(cur) ?? []) {
       if (!prev.has(edge.from)) {
@@ -44,24 +47,24 @@ export function reversePathToRoot(graph: Graph, fromKey: string): string[] | nul
   return null;
 }
 
-/** Build the exposures: for each matched culprit, its proving path and attribution. */
+/** Build the exposures: for each matched culprit, its proving path and the product it lands in. */
 export function computeExposures(
   graph: Graph,
   matches: PkgNode[],
   products: Product[],
 ): Exposure[] {
+  const rootProduct = products.find((p) => p.isRoot) ?? null;
+  const byDir = new Map(products.map((p) => [p.dir, p]));
   const exposures: Exposure[] = [];
   for (const culprit of matches) {
-    const keyPath = reversePathToRoot(graph, culprit.key);
-    if (!keyPath) continue; // orphan in the lockfile; not reachable from root
+    const keyPath = reversePathToProduct(graph, culprit.key);
+    if (!keyPath) continue; // orphan in the lockfile; not reachable from any product
     const path = keyPath.map((k) => graph.nodes.get(k)).filter((n): n is PkgNode => n != null);
-    const directDep = path.length > 1 ? (path[1] as PkgNode) : null;
-    const attributed = directDep
-      ? products.filter((p) => p.declaredDeps.has(directDep.name))
-      : [];
-    // Fall back to the root project when no lib/app declares the direct dep.
-    const products_ = attributed.length > 0 ? attributed : products.filter((p) => p.isRoot);
-    exposures.push({ culprit, path, directDep, products: products_ });
+    const productNode = path[0];
+    // A direct dependency only when there's an intermediate hop between product and culprit.
+    const directDep = path.length > 2 ? (path[1] as PkgNode) : null;
+    const product = (productNode && byDir.get(productNode.key)) || rootProduct;
+    exposures.push({ culprit, path, directDep, products: product ? [product] : [] });
   }
   return exposures;
 }

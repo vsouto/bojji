@@ -1,0 +1,8 @@
+{
+  "name": "@acme/api",
+  "version": "1.0.0",
+  "description": "Backend API (not exposed to the minimist advisory).",
+  "dependencies": {
+    "semver": "7.6.3"
+  }
+}

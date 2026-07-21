@@ -6,17 +6,20 @@ Bojji answers one question well: **`bojji expose <CVE>`** → the products a vul
 
 See the plan in [`docs/`](docs/) (open `docs/index.html` in a browser, served) — the north star is **Plan → Focus** and the build order is **Plan → Prototype build plan**.
 
-## Status: M1 (CVE via OSV)
+## Status: M2 (ownership on-read)
 
-Buildable and running on a real lockfile. Give it a **CVE or GHSA id** and it
+Buildable and running on real lockfiles. Give it a **CVE or GHSA id** and it
 resolves the affected npm package(s) and version ranges from [OSV](https://osv.dev)
 (following GHSA aliases when the CVE record itself carries no npm data), parses the
 npm `package-lock.json` (v2/v3), builds the resolved dependency graph, and
-reverse-traverses to the products, printing the transitive path that proves each
-exposure plus a freshness stamp. `--package/--range` remain as an offline override.
+reverse-traverses to the **releasable unit** (workspace package, or the root) that
+pulls the vulnerability in. It then **derives ownership live from CODEOWNERS** —
+never stored — pointing at a team/role, flagging individuals, stamping "as of", and
+saying "no rule" honestly when nothing covers the path. `--package/--range` remain
+an offline override.
 
-Next: M2 (ownership-on-read from CODEOWNERS) and M3 (Nx project graph for true
-per-lib attribution, then the go/no-go beside GitLab's dependency view).
+Next: M3 (Nx project graph for true per-lib attribution on Nx repos, then the
+go/no-go beside GitLab's dependency view).
 
 ## Build & run
 

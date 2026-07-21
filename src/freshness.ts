@@ -19,3 +19,8 @@ export function lockfileFreshness(repoRoot: string, lockfileRelPath: string): Fr
   const head = git(repoRoot, ['rev-parse', '--short', 'HEAD']);
   return { lockfileCommit, lockfileDate, head };
 }
+
+/** Last-commit date (YYYY-MM-DD) for any repo-relative file, or null. */
+export function lastCommitDate(repoRoot: string, relPath: string): string | null {
+  return git(repoRoot, ['log', '-1', '--format=%cs', '--', relPath]);
+}

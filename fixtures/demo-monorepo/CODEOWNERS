@@ -1,0 +1,4 @@
+# Demo ownership. Last matching pattern wins (GitLab/GitHub semantics).
+* @acme/platform
+/packages/web/ @acme/frontend-team
+/packages/api/ @acme/backend-team
