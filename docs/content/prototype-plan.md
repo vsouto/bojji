@@ -143,6 +143,8 @@ Enumerate workspace packages as distinct products; attribute exposure **per work
 JSON output, tidy rendered report, run **beside GitLab's dependency view** on the real clone, capture the comparison, make the call.
 *Done when:* the side-by-side exists and the go/no-go is decided against the Section-1 bar.
 
+> [!OK] **M4 — shipped (2026-07-21). Verdict: GO.** Added a one-line "Shipped impact" headline for skimming, then ran the side-by-side on CVE-2021-3803 (nth-check) in SWWC v2. Bojji clears the four-criterion bar: product-granular exposure (1 of 12 units, `swwc-core-styles`, + 11 clear + a dev-tooling copy), a proof path per unit, ownership derived live, and freshness stamps — versus GitLab's accurate but repo-level flat row. Honest caveat: owner routing is only as rich as the repo's CODEOWNERS (SWWC's is sparse, so it correctly says "no rule → set one"). See **Build → M4 results**. The whole M0–M4 plan is complete.
+
 ## 6. The `bojji expose` command
 
 **Contract**

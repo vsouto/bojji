@@ -89,6 +89,21 @@ export function renderHuman(r: Report): string {
       `Exposed: ${rootName} is exposed (${copies} vulnerable ` +
         `cop${copies === 1 ? 'y' : 'ies'} in the tree).`,
     );
+    // One-line impact headline for a security-lead skim.
+    const shippedLibs = new Set<string>();
+    let toolingCopies = 0;
+    for (const e of r.exposures) {
+      if (e.attribution === 'nx-lib') for (const p of e.products) shippedLibs.add(p.name);
+      else if (e.attribution === 'root-tooling') toolingCopies++;
+    }
+    if (r.nx) {
+      const shipped =
+        shippedLibs.size > 0
+          ? `${shippedLibs.size} of ${r.nx.length} shipped units (${[...shippedLibs].sort().join(', ')})`
+          : `0 of ${r.nx.length} shipped units`;
+      const tooling = toolingCopies > 0 ? `; ${toolingCopies} dev-tooling copy(ies)` : '';
+      lines.push(`  → Shipped impact: ${shipped}${tooling}.`);
+    }
     lines.push('');
     for (const e of r.exposures) {
       const via = e.directDep ? e.directDep.name : '(direct)';
