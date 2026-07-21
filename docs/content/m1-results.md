@@ -41,3 +41,5 @@ Also verified: GHSA ids resolve directly, `--json` output is well-formed, the `-
 ## Next
 
 **M2** — ownership on-read: parse CODEOWNERS, glob-match each product's path to a team/role (never a person), stamp freshness. **M3** — the Nx project graph for true per-lib attribution, then the go/no-go beside GitLab's dependency view.
+
+:resolved:

@@ -64,3 +64,5 @@ Scope: this repo only (portable mode). Products discovered: 9 (root + 8 lib/app 
 ## Next
 
 **M1** — wire OSV `/v1/vulns/{id}` so a bare `bojji expose &lt;CVE&gt;` resolves the affected package and ranges automatically. Then **M2** (ownership-on-read from CODEOWNERS + freshness) and **M3** (Nx project graph → true per-lib attribution, and the go/no-go run beside GitLab's dependency view).
+
+:resolved:

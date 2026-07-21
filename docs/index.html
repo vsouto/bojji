@@ -123,6 +123,12 @@
   .content .st.warn, .content .st.mid { background: var(--warn-soft); color: var(--warn); }
   .content .st.no { background: var(--danger-soft); color: var(--danger); }
 
+  /* end-of-page "Resolved" badge */
+  .content .rbadge-wrap { margin: 34px 0 6px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; }
+  .content .rbadge { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: 999px;
+    background: var(--ok-soft); color: var(--ok); border: 1px solid var(--ok); font-weight: 800; font-size: 13px; letter-spacing: .3px; }
+  .content .rbadge .rdot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+
   /* table + heading polish */
   .content tbody tr:nth-child(even) td { background: rgba(125,129,139,.06); }
   .content h2 { border-bottom-color: var(--accent-soft); }
@@ -265,6 +271,7 @@ function mdToHtml(src){
     if (/^```/.test(line)) { let code=''; i++; while(i<lines.length && !/^```/.test(lines[i])){ code+=lines[i]+'\n'; i++; } i++; html+='<pre><code>'+esc(code)+'</code></pre>'; continue; }
     const h = line.match(/^(#{1,6})\s+(.*)$/); if (h) { const l=h[1].length; html+='<h'+l+'>'+inline(h[2])+'</h'+l+'>'; i++; continue; }
     if (/^(\-\-\-|\*\*\*|___)\s*$/.test(line)) { html+='<hr>'; i++; continue; }
+    if (/^:resolved:\s*$/.test(line)) { html+='<div class="rbadge-wrap"><span class="rbadge"><span class="rdot"></span>RESOLVED</span></div>'; i++; continue; }
     if (line.includes('|') && i+1<lines.length && /^\s*\|?[\s:|-]+\|?\s*$/.test(lines[i+1]) && lines[i+1].includes('-')) {
       const row = r => r.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(c=>c.trim());
       const headers = row(line); i += 2; const rows = [];
