@@ -1,0 +1,281 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bojji — Business Plan</title></head><body>
+<style>
+  :root{
+    --paper:#f5f7f6; --panel:#ffffff; --panel2:#eef2f0; --ink:#0e1519; --muted:#5c6b6a;
+    --line:#dde5e2; --accent:#0f9d78; --accent-soft:#d7efe6; --signal:#b76c17; --signal-soft:#f6e7d0;
+    --danger:#b23a2c; --danger-soft:#f4ddd8;
+    --display:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --shadow:0 1px 2px rgba(14,21,25,.05),0 14px 40px rgba(14,21,25,.07);
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0b1013; --panel:#121a1f; --panel2:#18232a; --ink:#eaf1ee; --muted:#94a4a1;
+      --line:#243139; --accent:#2fd0a3; --accent-soft:#0f352b; --signal:#e6a94b; --signal-soft:#382913;
+      --danger:#f0796d; --danger-soft:#3a1e1a;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#f5f7f6; --panel:#ffffff; --panel2:#eef2f0; --ink:#0e1519; --muted:#5c6b6a;
+    --line:#dde5e2; --accent:#0f9d78; --accent-soft:#d7efe6; --signal:#b76c17; --signal-soft:#f6e7d0;
+    --danger:#b23a2c; --danger-soft:#f4ddd8;
+    --shadow:0 1px 2px rgba(14,21,25,.05),0 14px 40px rgba(14,21,25,.07);
+  }
+  :root[data-theme="dark"]{
+    --paper:#0b1013; --panel:#121a1f; --panel2:#18232a; --ink:#eaf1ee; --muted:#94a4a1;
+    --line:#243139; --accent:#2fd0a3; --accent-soft:#0f352b; --signal:#e6a94b; --signal-soft:#382913;
+    --danger:#f0796d; --danger-soft:#3a1e1a;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);line-height:1.62;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:940px;margin:0 auto;padding:34px 22px 96px;}
+  .slide{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px 38px;
+    margin:20px 0;box-shadow:var(--shadow);animation:rise .5s ease both;}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.slide{animation:none}}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin:0 0 14px;}
+  h1{font-size:clamp(40px,7vw,66px);line-height:.98;letter-spacing:-.03em;margin:0;font-weight:800;text-wrap:balance;}
+  h2{font-size:clamp(24px,3.4vw,33px);line-height:1.08;letter-spacing:-.02em;margin:0 0 8px;font-weight:800;text-wrap:balance;}
+  h3{font-size:16px;margin:0 0 5px;font-weight:700;letter-spacing:-.01em;}
+  p{margin:0 0 13px;} p:last-child{margin-bottom:0;}
+  .lede{color:var(--muted);font-size:clamp(16px,1.9vw,19px);max-width:64ch;}
+  .muted{color:var(--muted);}
+  .mono{font-family:var(--mono);}
+  strong{font-weight:750;}
+  .cmd{font-family:var(--mono);font-size:14px;background:var(--ink);color:var(--paper);
+    border-radius:12px;padding:14px 16px;overflow-x:auto;box-shadow:var(--shadow);}
+  .cmd .p{color:var(--accent);} .cmd .c{opacity:.55;}
+  code{font-family:var(--mono);font-size:.86em;background:var(--panel2);border:1px solid var(--line);
+    border-radius:6px;padding:1px 6px;color:var(--ink);}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:740px){.grid2,.grid3{grid-template-columns:1fr;}}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:16px 18px;}
+  .card.accent{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));}
+  .card p{font-size:14.5px;color:var(--muted);}
+  .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);}
+  .t-accent{color:var(--accent);background:var(--accent-soft);border-color:transparent;}
+  .t-signal{color:var(--signal);background:var(--signal-soft);border-color:transparent;}
+  .rule{height:1px;background:var(--line);border:0;margin:22px 0;}
+  ul{margin:6px 0 0;padding-left:0;list-style:none;}
+  li{margin:9px 0;padding-left:24px;position:relative;}
+  li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border-radius:2px;
+    background:var(--accent);transform:rotate(45deg);}
+  .kill li::before{background:none;content:"\00d7";left:0;top:-.05em;color:var(--danger);font-weight:800;font-size:18px;
+    width:auto;height:auto;transform:none;}
+  .kill .k{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--danger) 60%,transparent);
+    text-decoration-thickness:2px;color:var(--muted);font-weight:650;}
+  .kill b{color:var(--ink);}
+  .dots{font-family:var(--mono);letter-spacing:2px;color:var(--danger);font-size:13px;}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:13px;overflow:hidden;}
+  @media(max-width:740px){.vs{grid-template-columns:1fr;}}
+  .vs > div{padding:16px 18px;}
+  .vs .a{background:var(--panel2);border-right:1px solid var(--line);}
+  .vs .b{background:var(--accent-soft);}
+  @media(max-width:740px){.vs .a{border-right:0;border-bottom:1px solid var(--line);}}
+  .vs h3{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .stack{display:flex;flex-direction:column;gap:2px;border-radius:13px;overflow:hidden;border:1px solid var(--line);}
+  .band{padding:14px 18px;display:flex;gap:14px;align-items:baseline;}
+  .band .who{font-weight:750;min-width:132px;}
+  .band .d{color:var(--muted);font-size:14px;}
+  .band.top{background:var(--panel2);} .band.mid{background:var(--accent-soft);}
+  .band.bot{background:var(--panel2);}
+  .band.mid .who{color:var(--accent);}
+  .risk{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;align-items:start;}
+  @media(max-width:740px){.risk{grid-template-columns:1fr;}}
+  .risk .fail{color:var(--ink);font-weight:700;font-size:14.5px;}
+  .risk .fix{color:var(--muted);font-size:14px;}
+  .tl{display:flex;flex-direction:column;gap:0;}
+  .tl .step{display:grid;grid-template-columns:104px 1fr;gap:16px;padding:13px 0;border-top:1px solid var(--line);}
+  .tl .step:first-child{border-top:0;}
+  .tl .when{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700;padding-top:2px;letter-spacing:.02em;}
+  .tl .what b{font-weight:750;}
+  .tl .what p{font-size:14px;color:var(--muted);margin:3px 0 0;}
+  .closer{background:var(--ink);color:var(--paper);border-radius:16px;padding:26px 30px;box-shadow:var(--shadow);}
+  .closer .eyebrow{color:var(--accent);}
+  .closer .big{font-size:clamp(20px,2.6vw,26px);font-weight:800;letter-spacing:-.02em;line-height:1.2;text-wrap:balance;}
+  .closer .big em{font-style:normal;color:var(--accent);}
+  .foot{color:var(--muted);font-size:12.5px;text-align:center;margin-top:30px;font-family:var(--mono);letter-spacing:.04em;}
+  .node{color:var(--accent);}
+</style>
+
+<div class="wrap">
+
+<!-- COVER -->
+<section class="slide" style="background:
+  radial-gradient(680px 320px at 12% -8%, var(--accent-soft), transparent 70%), var(--panel);">
+  <p class="eyebrow">Business plan · Bojji · 2026</p>
+  <h1>The ontology that<br>builds itself.</h1>
+  <p class="lede" style="margin-top:20px">Tell me which of our <strong>shipped products</strong> a vulnerability actually touches — and <strong>who to call</strong>. From a graph of the whole codebase that assembles and refreshes itself from your lockfiles. No server. Offline.</p>
+  <div class="cmd" style="margin-top:22px">
+    <span class="c">$</span> <span class="p">bojji</span> expose CVE-2024-3094
+    <br><span class="c"># 3 shipped products exposed · owners routed · path shown · fresh as of today</span>
+  </div>
+</section>
+
+<!-- WHY NOW -->
+<section class="slide">
+  <p class="eyebrow">The opening</p>
+  <h2>Ontology is hot — but nobody can keep one alive.</h2>
+  <p class="lede">The research hands us a wedge hiding in plain sight. Two facts sit right next to each other.</p>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card">
+      <span class="tag t-accent">Tailwind</span>
+      <h3 style="margin-top:10px">Ontology is the reliability layer for AI</h3>
+      <p>Gartner calls semantic budget "non-negotiable" and puts semantic layers and GraphRAG among its 2026 top trends. Grounding an LLM in a knowledge graph cuts hallucination hard. Everyone is racing to own it.</p>
+    </div>
+    <div class="card">
+      <span class="tag t-signal">The gap</span>
+      <h3 style="margin-top:10px">But building one is the unsolved problem</h3>
+      <p>Construction is "largely manual, iterative, resource-intensive." LLMs that auto-generate ontologies are weak and assistive-only. And maintenance is worse — <em>"no complete system for automated ontology evolution exists."</em> They go stale.</p>
+    </div>
+  </div>
+  <div class="card accent" style="margin-top:16px">
+    <p style="color:var(--ink);font-size:15.5px"><strong>Bojji's core mechanism is exactly the unsolved part.</strong> It builds its graph <strong>from code</strong> — lockfiles, CODEOWNERS — buildless, no curation, re-derived on every commit. Ownership isn't stored to rot; it's resolved live. Self-constructing, self-maintaining, always fresh.</p>
+  </div>
+  <hr class="rule">
+  <p class="eyebrow" style="color:var(--muted)">Where Bojji slips through</p>
+  <div class="stack" style="margin-top:8px">
+    <div class="band top"><span class="who">Palantir</span><span class="d">Owns the top. "Ontology" hand-built by architects over months. Powerful, expensive, top-down.</span></div>
+    <div class="band mid"><span class="who">Bojji →</span><span class="d"><strong>Self-building where Palantir is hand-built; product-and-owner-aware where the free tools are flat.</strong></span></div>
+    <div class="band bot"><span class="who">GitHub · npm</span><span class="d">Own the bottom. Free SBOMs and CVE scans — a commoditized, flat dependency list.</span></div>
+  </div>
+</section>
+
+<!-- THE FOCUS -->
+<section class="slide" style="border-color:color-mix(in srgb,var(--accent) 40%,var(--line));">
+  <p class="eyebrow">The focus — build one thing</p>
+  <h2>Name the exposed product, and the team to call.</h2>
+  <p class="lede">Reverse blast-radius plus live ownership routing. Nothing else earns a place in v1.</p>
+  <div class="cmd" style="margin-top:18px">
+    <span class="c">$</span> <span class="p">bojji</span> expose CVE-2024-3094
+  </div>
+  <div class="card" style="margin-top:14px">
+    <p class="mono" style="font-size:13.5px;color:var(--ink);margin:0">
+      <span class="node">▸ product</span> checkout-web  <span class="muted">→ owned by</span> team-payments
+      <br><span class="muted">   path:</span> checkout-web → build-tools → <span style="color:var(--signal)">xz-utils@5.6.1</span>
+      <br><span class="muted">   contact:</span> #payments-oncall  <span class="muted">·  fresh as of CODEOWNERS, 2 months ago</span>
+    </p>
+  </div>
+  <p style="margin-top:16px;font-size:16px"><strong>The SBOM is fuel. The graph is the engine. The exposed-product-plus-owner answer is the product.</strong> Everything Bojji does must make that one sentence faster, truer, or fresher.</p>
+</section>
+
+<!-- KILL LIST -->
+<section class="slide">
+  <p class="eyebrow" style="color:var(--danger)">And kill everything else</p>
+  <h2>The most important slide is the "no" list.</h2>
+  <p class="lede">Focus is what you refuse to build. Six things go in the bin.</p>
+  <ul class="kill" style="margin-top:16px">
+    <li><span class="k">"We generate SBOMs."</span> <b>→</b> GitLab and <code>npm sbom</code> already do, free. Consume theirs; keep our generator only as an air-gap fallback.</li>
+    <li><span class="k">"AI knowledge graph" as the pitch.</span> <b>→</b> MCP and "query your catalog with AI" are table stakes. Keep MCP as an optional, secondary surface. Never the headline.</li>
+    <li><span class="k">The general org-catalog ambition.</span> <b>→</b> Backstage, Cortex, Port own "software catalog," and it doesn't sell alone. The ontology rides along only because it makes exposure routable.</li>
+    <li><span class="k">"What breaks if I upgrade."</span> <b>→</b> That needs code-usage analysis — Moderne's heavy game, and metadata literally can't answer it. Verb discipline: <strong>exposure, never breakage.</strong></li>
+    <li><span class="k">Stored ownership.</span> <b>→</b> A stored owner is a future wrong answer. Derive live, stamp freshness, point at a team — never a person.</li>
+    <li><span class="k">The word "compliance."</span> <b>→</b> Until the signed attestation is proven air-gapped. Until then it's "inventory and exposure." Honest, still valuable.</li>
+  </ul>
+</section>
+
+<!-- DEMO / WEDGE -->
+<section class="slide">
+  <p class="eyebrow">The demo that sells it</p>
+  <h2>Beat the incumbent on its home turf.</h2>
+  <p class="lede">Same real CVE, same real dependency set. One is a list you still have to triage. The other is a decision.</p>
+  <div class="vs" style="margin-top:18px">
+    <div class="a">
+      <h3 class="muted">GitLab (already on)</h3>
+      <p class="muted" style="font-size:14.5px;margin:0">A flat, group-wide list of <strong>repos</strong> that contain the package. A human still has to work out which shipped products those roll up into, and who owns them.</p>
+    </div>
+    <div class="b">
+      <h3 style="color:var(--accent)">Bojji</h3>
+      <p style="font-size:14.5px;margin:0;color:var(--ink)"><strong>3 shipped products</strong> exposed. Each with its owning team, the dependency path that proves it, and how fresh the answer is. Actionable before lunch.</p>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:16px">
+    <div class="card"><h3>The wedge customer</h3><p><strong>SWWC v2</strong> — Victor's own codebase, already on self-hosted GitLab. Zero sales cycle, and the perfect adversary: GitLab Ultimate is <em>already on</em>, so the demo must beat the incumbent or die honestly.</p></div>
+    <div class="card"><h3>The buyer</h3><p>The <strong>security or platform lead</strong> at an on-prem, air-gapped, regulated org. Siemens-shaped. The buyer SaaS structurally cannot serve, and where "nothing leaves the perimeter, no server" is a feature you can't buy from Snyk.</p></div>
+  </div>
+</section>
+
+<!-- BUSINESS MODEL -->
+<section class="slide">
+  <p class="eyebrow">How it makes money</p>
+  <h2>Open-core. The money is the org-wide answer.</h2>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card">
+      <span class="tag t-accent">Free forever</span>
+      <h3 style="margin-top:10px">The portable package</h3>
+      <p><code>bojji audit</code> and <code>bojji expose &lt;CVE&gt;</code> for one project, offline. The reason a developer installs it without asking anyone. It has to be genuinely great alone — it's the funnel.</p>
+    </div>
+    <div class="card accent">
+      <span class="tag t-accent">The revenue</span>
+      <h3 style="margin-top:10px;color:var(--ink)">Enterprise, on-prem, per repo</h3>
+      <p style="color:var(--ink)">The <strong>org-wide</strong> answer: cross-product exposure across the whole company, the central crawler that seeds it, live ownership resolution, dated "what did we know at release vX" snapshots, and the attestation that unlocks "compliance." A self-hosted license, priced per participating repo.</p>
+    </div>
+  </div>
+  <p style="margin-top:16px"><strong>Why per-repo on-prem, not per-seat SaaS:</strong> the buyer is air-gapped, so SaaS is a non-starter — the deployment model <em>is</em> the differentiator. Per-repo maps price to the exact thing that grows the graph's value. Start with three repos, expand without renegotiating seats. Value compounds with coverage; so should the bill.</p>
+</section>
+
+<!-- MOAT -->
+<section class="slide">
+  <p class="eyebrow">Why we win</p>
+  <h2>Between the giant and the floor.</h2>
+  <div class="grid3" style="margin-top:18px">
+    <div class="card"><h3>vs Palantir</h3><p>Hand-built by architects over months, priced for the Fortune 100. Bojji builds itself from code in seconds for the price of an <code>npm install</code>. Different planet, different buyer.</p></div>
+    <div class="card"><h3>vs GitHub · Backstage · Cortex</h3><p>A flat dependency list or a catalog someone must maintain. Bojji gives the product-and-owner-routed answer they do poorly — and its graph never goes stale, because it's re-derived, not curated.</p></div>
+    <div class="card"><h3>vs Moderne</h3><p>Genuinely answers org-wide impact — but via heavyweight code ingestion. Bojji is instant, no-ingestion, self-serve, air-gap-ready. It answers "what breaks"; we answer "who's exposed," cheaply and now.</p></div>
+  </div>
+  <div class="card accent" style="margin-top:16px">
+    <p style="color:var(--ink);font-size:15.5px"><strong>What compounds:</strong> every repo that adopts the free package makes the paid org graph more complete — a data network effect <em>inside a single customer</em>. And the whole edge rests on the one thing the field hasn't cracked: <strong>self-maintaining freshness.</strong> Hand-built catalogs decay; Bojji's answer stays current by construction. Time is on our side.</p>
+  </div>
+</section>
+
+<!-- RISKS -->
+<section class="slide">
+  <p class="eyebrow" style="color:var(--signal)">The pre-mortem, defused</p>
+  <h2>The focus and the risk-fix are the same decisions.</h2>
+  <p class="lede">Four scored ways Bojji dies — and how this focus neutralizes each.</p>
+  <hr class="rule">
+  <div class="risk">
+    <div><div class="dots">●●●●●</div><div class="fail">Commoditized by GitLab/npm</div></div>
+    <div class="fix">Refuse to compete on SBOMs — consume theirs — and bet the product on the product-plus-owner answer they do poorly. The week-one test faces this head-on.</div>
+    <div><div class="dots">●●●●○</div><div class="fail">Not actually compliance-grade</div></div>
+    <div class="fix">Claim discipline: never say "compliance" until the signed attestation is proven air-gapped. Sell the honest "inventory and exposure" until then. Can't be caught overclaiming.</div>
+    <div><div class="dots">●●●●○</div><div class="fail">Ownership rots and misroutes</div></div>
+    <div class="fix">Derive ownership live, stamp freshness, point at teams not people. No stored owner to go stale; a wrong answer fails soft.</div>
+    <div><div class="dots">●●●○○</div><div class="fail">Org graph never fills</div></div>
+    <div class="fix">Seed centrally: one read-only crawler reads every lockfile in a pass, so the org graph is full and demoable on day one — not waiting for opt-in that never comes.</div>
+  </div>
+</section>
+
+<!-- 90 DAYS + ASK -->
+<section class="slide">
+  <p class="eyebrow">The first 90 days</p>
+  <h2>Week one is a single go/no-go. Nothing else matters until it's passed.</h2>
+  <div class="tl" style="margin-top:16px">
+    <div class="step"><div class="when">Days 1–5</div><div class="what"><b>The kill switch.</b><p>Thinnest <code>bojji expose &lt;CVE&gt;</code> on the real SWWC v2 lockfile, next to GitLab's view. If a security lead can't instantly call Bojji's the more actionable answer — <strong>stop.</strong></p></div></div>
+    <div class="step"><div class="when">Wk 2–4</div><div class="what"><b>Make the single-project answer excellent.</b><p>Offline exposure report: owner, path, confidence, freshness. Zero setup, never blocks a build. The open-source funnel.</p></div></div>
+    <div class="step"><div class="when">Wk 5–8</div><div class="what"><b>Prove the org graph exists on day one.</b><p>Build the read-only crawler; seed a private index across the real SWWC repos; demo org-wide exposure with live ownership. The paid differentiator.</p></div></div>
+    <div class="step"><div class="when">Wk 9–12</div><div class="what"><b>Earn the word "compliance."</b><p>Signed keyless attestation; prove the trust chain on one real release against true air-gap. The day it works, the pitch upgrades. Not one day before.</p></div></div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section class="slide closer">
+  <p class="eyebrow">The ask — do this Monday</p>
+  <p class="big" style="margin:0 0 14px">Run the week-one test. Clone SWWC v2, wire <span class="mono" style="color:var(--accent)">bojji expose &lt;CVE&gt;</span> against its real lockfile, put it beside GitLab's view, and get an honest verdict from someone who isn't you.</p>
+  <p style="color:var(--paper);opacity:.8;margin:0 0 20px">Don't build the crawler. Don't write the MCP server. Don't touch attestation. Prove — or kill — the one answer first. If it wins that comparison, you have a company. If it doesn't, you've saved six months.</p>
+  <hr style="border:0;border-top:1px solid rgba(255,255,255,.14);margin:0 0 18px">
+  <p class="eyebrow" style="margin-bottom:8px">Gut-check</p>
+  <p class="big" style="margin:0">If Bojji only ever did one thing: <em>name the shipped products a vulnerability actually touches, and the team to call — from a graph that stays true on its own.</em></p>
+</section>
+
+<p class="foot">Bojji · business plan · focus over features · 2026</p>
+
+</div>
+</body></html>

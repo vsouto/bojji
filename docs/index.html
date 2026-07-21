@@ -167,7 +167,8 @@
 const NAV = [
   { id: 'home', title: 'Home', type: 'dashboard' },
   { title: 'Plan', children: [
-    { id: 'solution', title: 'Solution shape (current)', md: 'content/solution.md' },
+    { id: 'focus', title: 'Focus (business plan)', md: 'content/focus.md' },
+    { id: 'solution', title: 'Solution shape', md: 'content/solution.md' },
   ]},
   { title: 'Confirmed specs', children: [
     { id: 'confirmed', title: 'All confirmed specs', md: 'content/confirmed.md' },
@@ -180,11 +181,14 @@ const NAV = [
   { title: 'Analysis', children: [
     { id: 'heavy-light', title: 'Heavy vs Light & dry-run', md: 'content/heavy-light.md' },
     { id: 'audit', title: 'Audit & compliance (worked analysis)', md: 'content/audit.md' },
+    { id: 'rejected', title: 'Rejected & superseded', md: 'content/rejected.md' },
   ]},
 ];
 
 const CONFIRMED = [
-  'Strategy "b" — on-prem, compliance-grade, ontology-backed dependency inventory',
+  'THE FOCUS — bojji expose &lt;CVE&gt; → exposed products + owning team + path + freshness (the one thing to build)',
+  'Business model — open-core: free portable package (funnel) → paid enterprise on-prem, per-repo license',
+  'Strategy "b" — on-prem, ontology-backed dependency exposure inventory ("compliance" earned via attestation)',
   'C1–C5 — core contract (canonical ontology, single flow, scan-on-adopt, report-at-release, personal ownership)',
   'Solution shape (Plan 004) — portable-first, no central service',
   'Two modes — default portable package; optional extended (shared index repo)',
@@ -320,6 +324,7 @@ function renderDashboard(){
     '<div class="dash-hero">'+
       '<p class="eyebrow">Bojji · project documentation</p>'+
       '<h1>Where the project stands</h1>'+
+      '<p style="font-size:17px;color:var(--ink)"><strong>The focus:</strong> name the shipped products a vulnerability touches, and the team to call — from a graph that stays fresh on its own. See <a href="business-plan.html">the business plan</a>, or <b>Plan → Focus</b>.</p>'+
       '<p>A living record of what Bojji is and what’s decided. Everything here is rendered from Markdown in <code>docs/content/</code> — edit those files to update the docs.</p>'+
     '</div>'+
     '<div class="blocks">'+
