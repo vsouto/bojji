@@ -1,5 +1,7 @@
 # Adversarial — pre-mortem
 
+> [!WARNING] **Archived — worked analysis, superseded.** This pre-mortem did its job: every hedge below has already been folded into the live plan. The four failure modes became the pivots **P1–P4** in **Confirmed specs → Pivots**, and their conclusions are baked into **Plan → Focus (the business plan)** (SBOM is input, product-level exposure + ownership routing, derive ownership on-read, central seed for extended mode). Kept for provenance. **The current direction lives on those two pages, not here.**
+
 > [!NOTE] A pre-mortem run **before** implementation. The frame: *"It's 6 months later. Bojji has failed. Why?"* Reasoned through orthogonal lenses — the developer who must adopt it, the buyer who must justify it, the incumbent competitor, and the auditor who must trust it — then ranked. The top two most-probable failures for each of the two aspects.
 
 > [!KEY] **The single biggest way Bojji dies:** the audit product is a thinner version of what the first customer's own platform already ships. SWWC v2 is on self-hosted GitLab, which already emits CycloneDX SBOMs, scans dependencies, and shows a group-wide dependency list — and npm has native `npm sbom` plus free `npm audit`. With EU CRA's SBOM mandate not binding until Dec 2027, there's no forcing function to adopt a solo-maintained tool over a vendor-supported feature already turned on. Bojji never clears the "why not just use what we have" bar, and the org-wide ontology that would have differentiated it never reaches critical mass.
