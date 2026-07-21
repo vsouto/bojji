@@ -1,0 +1,4 @@
+# Demo ownership for the service repo. Last matching pattern wins.
+* @svc/platform
+/packages/gateway/ @svc/gateway-team
+/packages/worker/ @svc/platform

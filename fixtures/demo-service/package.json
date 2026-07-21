@@ -1,0 +1,9 @@
+{
+  "name": "demo-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fixture: a second npm-workspaces repo so bojji's org-wide compose spans >=2 repos. Gateway ships a transitively-vulnerable minimist (via mkdirp); worker is clean.",
+  "workspaces": [
+    "packages/*"
+  ]
+}

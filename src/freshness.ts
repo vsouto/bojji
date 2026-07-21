@@ -3,10 +3,12 @@ import type { Freshness } from './types.js';
 
 function git(repoRoot: string, args: string[]): string | null {
   try {
-    return execFileSync('git', ['-C', repoRoot, ...args], {
+    const out = execFileSync('git', ['-C', repoRoot, ...args], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     }).trim();
+    // An untracked/uncommitted path yields empty output; treat that as "unknown".
+    return out === '' ? null : out;
   } catch {
     return null;
   }

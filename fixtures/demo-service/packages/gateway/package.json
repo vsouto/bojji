@@ -1,0 +1,7 @@
+{
+  "name": "@svc/gateway",
+  "version": "1.0.0",
+  "dependencies": {
+    "mkdirp": "0.5.1"
+  }
+}

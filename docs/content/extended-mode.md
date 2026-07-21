@@ -1,8 +1,10 @@
 # Extended mode spec (M5) — org-wide exposure
 
-> [!KEY] **The one new answer.** `bojji expose &lt;CVE&gt; --index &lt;org-index&gt;` → every exposed **product across every repo in the org**, each with its owning team, the proving path, and how fresh the slice is. Same engine as portable mode, wrapped in an emit → seed → compose loop over a thin git index. This is the paid, on-prem tier. **Not built yet — this is the plan.**
+> [!KEY] **The one new answer.** `bojji expose &lt;CVE&gt; --index &lt;org-index&gt;` → every exposed **product across every repo in the org**, each with its owning team, the proving path, and how fresh the slice is. Same engine as portable mode, wrapped in an emit → seed → compose loop over a thin git index. This is the paid, on-prem tier.
 
-> [!NOTE] Status: spec only. Portable mode (M0–M4) is shipped and stays free and standalone. Extended mode is strictly additive.
+> [!OK] **Status: core built (2026-07-21).** M5.0 (slice + `index emit`), M5.1 (`expose --index` compose), M5.3 (`index publish`), M5.4-local (`index crawl --repos`), and M5.5 (`--as-of`) are implemented and validated on two local fixtures. The GitLab crawl code path is written but **guarded and not executed** (personal project — no employer data). M5.2 (positioning gate) is a human call, not code. This doc has been reconciled to describe what was actually built; deviations from the original plan are flagged inline with **[as built]**.
+
+> [!NOTE] Portable mode (M0–M4) is shipped and stays free and standalone. Extended mode is strictly additive and reuses the portable engine verbatim (see `src/analyze.ts` — the shared `analyzeRepo` / `buildReport` seam both modes call).
 
 ## The core insight: the slice is CVE-agnostic
 
@@ -36,33 +38,46 @@ org-wide query (paid):
     every exposed PRODUCT across all repos + owner + path + freshness + "as of"
 ```
 
-## The slice format
+## The slice format **[as built]**
 
-A versioned JSON document, one per repo, structure-only:
+A versioned JSON document, one per repo, structure-only. This is the schema `bojji index emit` actually produces (`src/slice.ts`):
 
 ```
 {
   "sliceVersion": 1,
-  "repo": "swwc/sw-web-components",
-  "commit": "646fd7a75",
+  "repo": "demo-monorepo",              // slug/name — the index identity
+  "commit": "6ecf3cb",                  // lockfile's last commit, else HEAD, else null
   "generatedAt": "2026-07-21",
-  "fidelity": "nx",                     // nx | workspace | root  (attribution available)
-  "graph": {
-    "nodes": [ { "key": "...", "name": "nth-check", "version": "1.0.2", "purl": "pkg:npm/nth-check@1.0.2" } ],
-    "edges": [ ["fromKey", "toKey"] ]
+  "fidelity": "workspace",              // nx | workspace | root
+  "freshness": {                        // git provenance, stamped at emit
+    "lockfileCommit": "6ecf3cb", "lockfileDate": "2026-07-20", "head": "e09ebe4"
   },
-  "products": [
-    { "name": "swwc-core-styles", "dir": "libs/swwc-core-styles",
-      "kind": "nx-lib", "imports": ["cssnano", "glob", "..."] }
-  ],
-  "ownership": [
-    { "pattern": "/apps/storybook/", "owners": ["@vicmeljl"], "kinds": ["individual"] }
-  ],
-  "coverage": [ "3 internal-registry packages not in public OSV" ]
+  "graph": {
+    "nodes": [ { "key": "node_modules/minimist", "name": "minimist", "version": "1.2.5" } ],
+    "edges": [ ["packages/web", "node_modules/minimist", "minimist"] ],  // [from, to, depName]
+    "unresolved": 0                     // declared edges absent from the lockfile (coverage)
+  },
+  "products": [ { "name": "@acme/web", "dir": "packages/web", "isRoot": false } ],
+  "nx": null,                           // NxProject[] (name, root, npmDeps) when fidelity==="nx", else null
+  "ownership": {                        // raw CODEOWNERS references; kinds derived on read
+    "relPath": "CODEOWNERS",
+    "rules": [ { "pattern": "/packages/web/", "owners": ["@acme/frontend-team"], "line": 3 } ]
+  },
+  "codeownersDate": "2026-07-20",
+  "coverage": [ ]                       // human notes (e.g. unresolved edges), for the org view
 }
 ```
 
-The `graph` + `products` are what M0–M3 already compute; `emit` just serializes them. `ownership` stores CODEOWNERS **patterns and tokens** (references), never resolved people.
+The `graph` + `products` + `nx` are what M0–M3 already compute; `emit` just serializes them via `analyzeRepo`. `ownership` stores CODEOWNERS **patterns and tokens** (references), never resolved people — team-vs-individual is classified on read, exactly as portable mode does.
+
+> [!NOTE] **[as built] Deviations from the original sketch, each deliberate:**
+> - **Node shape is `{key, name, version}` — no `purl`.** `isRoot`/`isLocal` are *derived from the key* on load (the same rule `buildGraph` uses), so they need not be stored. `purl` was decorative: the engine's join key is `name@version`, which is already present. Dropped to keep the slice minimal and the CVE-agnostic keystone clean.
+> - **Edges carry `depName`** (`[from, to, depName]`), not bare `[from, to]` — matches the engine's `Edge` type. It isn't required for the round-trip (traversal keys on nodes) but it's cheap provenance.
+> - **Added `freshness`, `codeownersDate`, `nx`, and `graph.unresolved`.** These are load-bearing for reproducing an *identical* M3 answer offline: freshness/codeownersDate feed the "as of" stamps; `nx` is the per-library attribution data; `unresolved` feeds the coverage line. Without them the round-trip could not be byte-identical.
+> - **`ownership` is an object `{relPath, rules[]}`**, not a flat array, and stores no per-rule `kinds` — kinds are derived on read (`ownerKind`), preserving "store references, derive on read."
+> - **`products` store `{name, dir, isRoot}`**, not `kind`/`imports`. Per-lib imports live in `nx.npmDeps` (the real source); a product's `kind` is implied by its attribution at query time.
+
+> [!WARNING] **[as built] Known limitation inherited from portable mode.** Product discovery (`discoverProducts`) enumerates units by scanning `packages/`, `libs/`, `apps/` — so a workspace under a *different* directory (e.g. `services/*`) is not registered as a product and its exposures collapse to the repo root, even though the proving path still resolves correctly. This is a portable-mode gap, not an extended-mode one; the fix (also honor workspace roots declared in the lockfile) is noted for a future milestone. The `demo-service` fixture uses `packages/*` to stay within the supported convention.
 
 ## The index repo
 
@@ -76,18 +91,24 @@ A normal git repo (`&lt;org&gt;/bojji-index`), on-prem inside the org's own GitL
     swwc__another-repo/latest.json
 ```
 
-- **No database, no service.** Composition is "read every `latest.json`, union the graphs."
+- **No database, no service.** Composition is "read every `latest.json`, run the engine per slice, union the results."
 - **Its git history is the dated snapshot store** (see below).
 - On-prem and read-only-seeded, so it never leaves the org boundary.
 
-## The four commands
+> [!NOTE] **[as built] Compose is a union of results, not a physically merged graph.** For each slice, `composeOrg` (`src/compose.ts`) reconstructs that repo's graph and runs the *same* `matchAdvisories` + `computeExposures` + `resolveOwner` as portable mode, then unions the per-repo exposures (deduped per repo × product × culprit). Because separate repos' lockfile graphs never share keys and never have cross-repo edges, a physically merged/namespaced graph would add a collision hazard for zero benefit — the answer is identical and the engine is reused verbatim. The original "union the graphs" phrasing is realized as "union the answers."
+
+## The commands **[as built]**
 
 | Command | Tier | What it does |
 |---|---|---|
-| `bojji index emit` | free | Print this repo's slice (structure only). Runnable in CI or by hand. |
-| `bojji index publish --index &lt;path&gt;` | paid | Write/commit this repo's slice into the index repo. |
-| `bojji index crawl --gitlab &lt;url&gt; --group &lt;g&gt;` | paid | Read every repo's lockfile/package.json/CODEOWNERS via the GitLab API, emit slices, seed the index in one pass. |
-| `bojji expose &lt;CVE&gt; --index &lt;path&gt;` | paid | Compose all slices → org-wide exposed products + owners + paths + freshness. |
+| `bojji index emit [--out &lt;file&gt;]` | free | Print (or write) this repo's slice (structure only). Runnable in CI or by hand. `--out` writes a file; default prints to stdout. |
+| `bojji index publish --index &lt;path&gt;` | paid | Write this repo's slice into the index dir (`slices/&lt;slug&gt;/latest.json` + `manifest.json`). Committing is left to the user (`git add/commit`). |
+| `bojji index crawl --index &lt;path&gt; --repos &lt;p1,p2,...&gt;` | paid | **Local mode (validated):** emit+publish slices for several local repo paths in one pass, fidelity set honestly per repo. |
+| `bojji index crawl --index &lt;path&gt; --gitlab &lt;url&gt; --group &lt;g&gt;` | paid | **GitLab mode (written, guarded, unexecuted):** read every repo's lockfile/package.json/CODEOWNERS via the GitLab API and seed the index. Refuses to run unless `BOJJI_GITLAB_TOKEN` is set — the token is **never** a flag. |
+| `bojji expose &lt;CVE&gt; --index &lt;path&gt; [--as-of &lt;ref&gt;]` | paid | Compose all slices → org-wide exposed products + owners + paths + freshness. `--as-of` reads the index at a past git ref. |
+| `bojji expose &lt;CVE&gt; --slice &lt;file&gt;` | free | Run the engine against one stored slice (offline round-trip / debugging). |
+
+> [!NOTE] **[as built]** The original sketch named only four commands and put the token on the `--gitlab` command. As built there are two `crawl` modes (local vs GitLab) and a `--slice` query for the M5.0 round-trip; the crawler token is read strictly from the `BOJJI_GITLAB_TOKEN` environment variable and the GitLab path throws immediately if it is absent.
 
 ## Ownership & freshness in extended mode
 
@@ -115,12 +136,12 @@ Open-core, per the business plan. `expose` (portable) and `index emit` are **fre
 
 > [!NOTE] Sequenced so each step is demoable and the risky positioning question gets tested early, before the crawler is built.
 
-- **M5.0 — Slice + `index emit` (1.5 d).** Serialize the structure M0–M3 already build; round-trip it (load a slice, run `expose` against it, get the same answer as running live). *Done when:* `expose &lt;CVE&gt; --slice slice.json` matches `expose &lt;CVE&gt; --dir repo`.
-- **M5.1 — `expose --index &lt;dir&gt;` compose (2 d).** Union many slices; org-wide exposed products with per-slice attribution, owners, paths, freshness, and cross-repo dedup by product. *Done when:* a directory of hand-emitted slices yields a correct org-wide answer for one CVE.
-- **M5.2 — Positioning check (0.5 d, gate).** Put the M5.1 org answer beside GitLab's group security dashboard on a real set of repos. *Go/no-go:* is product-granularity + owner routing clearly more actionable? If not, stop before building the crawler.
-- **M5.3 — Index repo + `publish` (1 d).** Conventions, `manifest.json`, commit a slice, refresh it.
-- **M5.4 — Seed crawler (2.5 d).** Read-only over the GitLab API: enumerate a group's repos, pull each default branch's lockfile/package.json/CODEOWNERS, emit + publish slices in one pass. *Done when:* one command seeds an index for a real group and `expose --index` answers org-wide.
-- **M5.5 — Dated snapshots (0.5 d).** `--as-of &lt;date|ref&gt;` reads the index at a past commit. *Done when:* a past release's exposure is reproducible.
+- **M5.0 — Slice + `index emit`.** ✅ **Built.** Serialize the structure M0–M3 build; round-trip it. *Verified:* `expose CVE-2021-44906 --slice` is **byte-identical** to `expose CVE-2021-44906 --dir fixtures/demo-monorepo` for both human and `--json` output.
+- **M5.1 — `expose --index &lt;dir&gt;` compose.** ✅ **Built.** Per-slice engine run unioned into an org-wide answer with per-slice attribution, owners, paths, freshness, and dedup by repo × product. *Verified:* a two-repo index (`demo-monorepo`, `demo-service`) answers CVE-2021-44906 org-wide — `@acme/web` (direct) and `@svc/gateway` (via `mkdirp`), each with owner + path.
+- **M5.2 — Positioning check (gate).** ⏸ **Human call, not code.** The compose output is built to support it; deferred to a human comparison against GitLab's group dashboard on real repos.
+- **M5.3 — Index repo + `publish`.** ✅ **Built.** `manifest.json` + `slices/&lt;slug&gt;/latest.json`; `index publish` writes/refreshes a slice; the user commits.
+- **M5.4 — Seed crawler.** ✅ **Local mode built & validated** (`index crawl --repos` seeds a 2-repo index in one pass, fidelity set honestly). ⏸ **GitLab mode written but not executed** — guarded behind `BOJJI_GITLAB_TOKEN`; no employer infra was touched (personal-project boundary).
+- **M5.5 — Dated snapshots.** ✅ **Built.** `--as-of &lt;ref&gt;` reads the manifest + slices at a past git ref via `git show`. *Verified:* an older index commit reproduces the 2-repo answer while HEAD shows 3.
 
 ## Open questions & risks (each with a default)
 
