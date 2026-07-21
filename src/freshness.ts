@@ -1,0 +1,21 @@
+import { execFileSync } from 'node:child_process';
+import type { Freshness } from './types.js';
+
+function git(repoRoot: string, args: string[]): string | null {
+  try {
+    return execFileSync('git', ['-C', repoRoot, ...args], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
+/** Git provenance for the lockfile: last commit that touched it, and current HEAD. */
+export function lockfileFreshness(repoRoot: string, lockfileRelPath: string): Freshness {
+  const lockfileCommit = git(repoRoot, ['log', '-1', '--format=%h', '--', lockfileRelPath]);
+  const lockfileDate = git(repoRoot, ['log', '-1', '--format=%cs', '--', lockfileRelPath]);
+  const head = git(repoRoot, ['rev-parse', '--short', 'HEAD']);
+  return { lockfileCommit, lockfileDate, head };
+}

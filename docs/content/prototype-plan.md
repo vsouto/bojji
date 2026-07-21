@@ -104,6 +104,21 @@ Everything is a pure function from files → an answer. No state survives the pr
 Scaffold the TS package + `expose` command. Hand-parse `package-lock.json` v3 → graph → reverse-traverse. Take the vulnerable package + range **as flags** (`--package axios --range "&lt;1.6.0"`), *not* OSV yet. Run on the **real SWWC v2 clone lockfile** and print the exposed product(s) + the transitive path.
 *Done when:* on the real lockfile, `bojji expose` with a package/range prints at least one real product with a correct proving path. Proves the two riskiest unknowns up front (real lockfile parses; transitive path reconstructs).
 
+> [!OK] **M0 — shipped (2026-07-20).** Built as a buildless TS CLI (`src/` → `dist/`, one runtime dep: `semver`). Runs on the **real SWWC v2 lockfile (4752 entries, v3)** and reconstructs correct transitive paths, cross-checked against npm's own resolver (`npm ls`). Validated: negative answers (no false positives), multi-copy version discipline (only `ws@7.5.10` matched the range, not the safe 8.13.0 copy), and **multiple distinct exposure routes** for one package, the "which direct dep drags it in" value GitLab's flat row can't give.
+
+```
+$ bojji expose CVE-2021-44906 --package minimist --range "<1.2.6" --dir …/sw-web-components
+
+Exposed: sw-web-components is exposed to minimist (1 vulnerable copy in the tree).
+● minimist@1.2.5   pulled in via: commitizen
+    path: (root) → commitizen@4.2.4 → minimist@1.2.5
+    product: sw-web-components (root project)
+```
+
+> [!WARNING] **M0 reality-checks that reshape the later milestones (real findings, not assumptions):**
+> - **SWWC v2 is an Nx monorepo, and its npm `workspaces` glob is stale** (`packages/**` matches nothing; the real units live under `libs/` and `apps/`). So product discovery is convention-based (scan `libs/*`, `apps/*`, `packages/*`), **not** workspace-based. This retires risk 1's original default.
+> - **Dependencies are declared at the root, not per-lib** (the root `package.json` holds ~191 deps; most libs declare `0`). The lockfile is therefore one hoisted root tree. True per-product routing needs the **Nx project graph** (which lib imports which), which is now firmly **M3** work — per-lib attribution from `package.json` deps alone would under-report.
+
 **M1 — Wire OSV so a CVE works end-to-end (1 d).**
 `bojji expose CVE-…`: fetch OSV `/v1/vulns/{id}` (CVE or GHSA), extract affected npm package + ranges, `semver`-match against the graph, reuse M0's traversal.
 *Done when:* `bojji expose CVE-2023-45857` on the real lockfile returns the correct exposed product(s) with no manual flags. Single product, no owner yet.
@@ -169,8 +184,8 @@ That output — product-granular, owner-routed, path-proven, freshness-stamped �
 
 ## 7. Open questions & risks (each with a default so nothing blocks)
 
-1. **What is a "product" in a monorepo?** *Default:* every workspace `package.json` is a product; the root is a product only if it is itself publishable/deployable. Exposure is attributed per-workspace by resolving each workspace's own dependency closure. `product.yaml` can override. (This is the E12 modelling that makes Bojji beat GitLab's flat view — so it's core, not deferred.)
-2. **Transitive path from a hoisted/flat lockfile.** Hoisting flattens the tree, so edges aren't literal. *Default:* reconstruct edges by resolving each node's declared `dependencies` to the nearest satisfying installed version, key nodes by `name@version` (multiple concurrent versions are real). If hand-resolution proves unreliable on the real lockfile, fall back to `@npmcli/arborist` — but only then.
+1. **What is a "product" in a monorepo?** *Default (revised after M0):* discover units by **convention scan** of `libs/*`, `apps/*`, `packages/*`, not by the root `workspaces` glob (it was stale on the real repo). The root is always a product. **M0 found** deps are declared at the root here, so per-lib attribution is best-effort until the Nx project graph lands in M3 — Bojji is honest about that in its output rather than guessing.
+2. **Transitive path from a hoisted/flat lockfile.** Hoisting flattens the tree, so edges aren't literal. *Default:* reconstruct edges by resolving each node's declared `dependencies` to the nearest satisfying installed version (nearest-ancestor `node_modules` rule), key nodes by `name@version` (multiple concurrent versions are real). **Validated in M0** on 4752 real entries, cross-checked against `npm ls` — the hand-resolver was reliable, so `@npmcli/arborist` stays unused.
 3. **CVE → version-range matching.** *Default:* OSV is the source of ranges; accept CVE or GHSA (OSV aliases unify them); check with `semver`. If an advisory enumerates specific versions instead of a SEMVER range, match exact versions. Never hand-roll comparison.
 4. **Consume vs. generate the SBOM.** *Default:* parse the lockfile directly (buildless plumbing, allowed) and accept a platform CycloneDX SBOM via `--sbom`. We do not pitch generation — kill-list.
 5. **Ownership freshness offline.** Person-level resolution needs a live directory (out of prototype). *Default:* emit the **team/role** alias straight from in-repo CODEOWNERS (works fully offline) stamped "as of CODEOWNERS last commit."

@@ -1,0 +1,28 @@
+{
+  "name": "bojji",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Name the shipped products a vulnerability touches, and the team to call, from a graph that stays fresh on its own.",
+  "type": "module",
+  "bin": {
+    "bojji": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc",
+    "expose": "node dist/cli.js expose"
+  },
+  "dependencies": {
+    "semver": "^7.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/semver": "^7.5.8",
+    "typescript": "^5.6.3"
+  }
+}
