@@ -7,6 +7,7 @@ import { discoverProducts } from './products.js';
 import { matchAdvisories, computeExposures } from './expose.js';
 import { resolveAdvisories, type Advisory } from './osv.js';
 import { loadCodeowners } from './codeowners.js';
+import { loadNxGraph } from './nx.js';
 import { lockfileFreshness, lastCommitDate } from './freshness.js';
 import { renderHuman, renderJson, type Report } from './render.js';
 
@@ -50,6 +51,8 @@ Options:
   --package <name>    Skip OSV; treat this package as vulnerable
   --range <semver>    Vulnerable range for --package, e.g. "<1.2.6"
   --offline           Fail instead of calling OSV (requires --package/--range)
+  --nx-graph <path>   Use a specific Nx project-graph JSON (default: auto-detect .nx cache)
+  --no-nx             Ignore the Nx graph (attribute to the root instead of libs)
   --json              Machine-readable output
   --help              Show this help
 `;
@@ -121,8 +124,13 @@ async function cmdExpose(args: Args): Promise<void> {
   const lock = loadLockfile(lockfilePath);
   const graph = buildGraph(lock);
   const products = discoverProducts(dir);
+  const nx = args.flags['nx-graph']
+    ? loadNxGraph(dir, resolve(String(args.flags['nx-graph'])))
+    : args.flags['no-nx']
+      ? null
+      : loadNxGraph(dir);
   const matches = matchAdvisories(graph, advisories);
-  const exposures = computeExposures(graph, matches, products);
+  const exposures = computeExposures(graph, matches, products, nx);
   const freshness = lockfileFreshness(dir, relative(dir, lockfilePath) || 'package-lock.json');
   const codeowners = loadCodeowners(dir);
   const codeownersDate = codeowners ? lastCommitDate(dir, codeowners.relPath) : null;
@@ -138,6 +146,7 @@ async function cmdExpose(args: Args): Promise<void> {
     freshness,
     codeowners,
     codeownersDate,
+    nx,
   };
   process.stdout.write((args.flags.json ? renderJson(report) : renderHuman(report)) + '\n');
 }

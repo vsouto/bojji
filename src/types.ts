@@ -51,15 +51,24 @@ export interface AdvisoryInfo {
   rangeText: string;
 }
 
+/** How an exposure was attributed to its product. */
+export type Attribution = 'workspace' | 'nx-lib' | 'root-tooling';
+
 /** One proof that a product is exposed to the vulnerable package. */
 export interface Exposure {
   culprit: PkgNode;
-  /** root ... culprit, in dependency order. */
+  /** product ... culprit, in dependency order. */
   path: PkgNode[];
-  /** The root's direct dependency at the head of the path (path[1]), if any. */
+  /** The direct dependency at the head of the path (path[1]) when there's a hop, else null. */
   directDep: PkgNode | null;
-  /** Products whose declared deps include `directDep` (best-effort M0 attribution). */
+  /** The releasable unit(s) this exposure lands on. */
   products: Product[];
+  /**
+   * workspace = a real npm-workspace package pulls it in;
+   * nx-lib = an Nx library imports it (root-hoisted deps, resolved via the Nx graph);
+   * root-tooling = only the root / dev tooling pulls it in, no shipped unit.
+   */
+  attribution: Attribution;
 }
 
 export interface Freshness {

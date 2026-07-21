@@ -6,20 +6,25 @@ Bojji answers one question well: **`bojji expose <CVE>`** → the products a vul
 
 See the plan in [`docs/`](docs/) (open `docs/index.html` in a browser, served) — the north star is **Plan → Focus** and the build order is **Plan → Prototype build plan**.
 
-## Status: M2 (ownership on-read)
+## Status: M3 (per-library attribution via the Nx graph)
 
 Buildable and running on real lockfiles. Give it a **CVE or GHSA id** and it
 resolves the affected npm package(s) and version ranges from [OSV](https://osv.dev)
 (following GHSA aliases when the CVE record itself carries no npm data), parses the
 npm `package-lock.json` (v2/v3), builds the resolved dependency graph, and
-reverse-traverses to the **releasable unit** (workspace package, or the root) that
-pulls the vulnerability in. It then **derives ownership live from CODEOWNERS** —
-never stored — pointing at a team/role, flagging individuals, stamping "as of", and
-saying "no rule" honestly when nothing covers the path. `--package/--range` remain
-an offline override.
+reverse-traverses to the **releasable unit** that pulls the vulnerability in:
 
-Next: M3 (Nx project graph for true per-lib attribution on Nx repos, then the
-go/no-go beside GitLab's dependency view).
+- **npm-workspaces repos** → the workspace package.
+- **Nx repos** (deps declared at the root) → the actual **shipped library** that
+  imports it, resolved via the Nx project graph, or flagged as **root/dev tooling**
+  when no shipped library uses it. Produces an exposed / not-exposed breakdown.
+
+It then **derives ownership live from CODEOWNERS** — never stored — pointing at a
+team/role, flagging individuals, stamping "as of", and saying "no rule" honestly.
+`--package/--range` is an offline override; `--no-nx` / `--nx-graph <file>` control
+Nx attribution.
+
+Next: M4 — the go/no-go, `bojji expose` beside GitLab's dependency view on the real repo.
 
 ## Build & run
 
