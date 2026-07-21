@@ -1,13 +1,16 @@
-import semver from 'semver';
 import type { Graph, PkgNode, Product, Exposure } from './types.js';
+import type { Advisory } from './osv.js';
 
-/** Every graph node whose name matches `pkg` and whose version is in `range`. */
-export function findMatches(graph: Graph, pkg: string, range: string): PkgNode[] {
+/** Every graph node an advisory flags as vulnerable (matched by name + version). */
+export function matchAdvisories(graph: Graph, advisories: Advisory[]): PkgNode[] {
   const out: PkgNode[] = [];
   for (const node of graph.nodes.values()) {
-    if (node.name !== pkg) continue;
-    if (!semver.valid(node.version)) continue;
-    if (semver.satisfies(node.version, range, { includePrerelease: true })) out.push(node);
+    for (const adv of advisories) {
+      if (node.name === adv.packageName && adv.matches(node.version)) {
+        out.push(node);
+        break;
+      }
+    }
   }
   return out;
 }

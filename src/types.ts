@@ -39,6 +39,18 @@ export interface Product {
   declaredDeps: Set<string>;
 }
 
+/** Display info for a resolved advisory (one affected npm package). */
+export interface AdvisoryInfo {
+  /** The OSV/GHSA record id that carried the data. */
+  id: string;
+  /** The id the user queried (CVE or GHSA). */
+  cve: string;
+  summary: string;
+  packageName: string;
+  /** Human-readable affected range, e.g. ">=1.0.0 <1.2.6". */
+  rangeText: string;
+}
+
 /** One proof that a product is exposed to the vulnerable package. */
 export interface Exposure {
   culprit: PkgNode;

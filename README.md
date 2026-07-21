@@ -6,9 +6,17 @@ Bojji answers one question well: **`bojji expose <CVE>`** → the products a vul
 
 See the plan in [`docs/`](docs/) (open `docs/index.html` in a browser, served) — the north star is **Plan → Focus** and the build order is **Plan → Prototype build plan**.
 
-## Status: M0 (walking skeleton)
+## Status: M1 (CVE via OSV)
 
-The first milestone is buildable and runs on a real lockfile. It parses an npm `package-lock.json` (v2/v3), builds the resolved dependency graph, and — given a package + vulnerable range — reverse-traverses to the products, printing the transitive path that proves each exposure. CVE→range resolution via OSV (so the bare `<CVE>` works) is M1.
+Buildable and running on a real lockfile. Give it a **CVE or GHSA id** and it
+resolves the affected npm package(s) and version ranges from [OSV](https://osv.dev)
+(following GHSA aliases when the CVE record itself carries no npm data), parses the
+npm `package-lock.json` (v2/v3), builds the resolved dependency graph, and
+reverse-traverses to the products, printing the transitive path that proves each
+exposure plus a freshness stamp. `--package/--range` remain as an offline override.
+
+Next: M2 (ownership-on-read from CODEOWNERS) and M3 (Nx project graph for true
+per-lib attribution, then the go/no-go beside GitLab's dependency view).
 
 ## Build & run
 
@@ -16,7 +24,10 @@ The first milestone is buildable and runs on a real lockfile. It parses an npm `
 npm install
 npm run build
 
-# M0: match by --package / --range against a real repo's lockfile
+# M1: give a CVE, OSV resolves the package + range
+node dist/cli.js expose CVE-2021-44906 --dir /path/to/a/repo
+
+# offline override: skip OSV, match by package + range
 node dist/cli.js expose CVE-2021-44906 \
   --package minimist --range "<1.2.6" \
   --dir /path/to/a/repo

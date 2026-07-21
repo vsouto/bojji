@@ -1,9 +1,10 @@
-import type { Exposure, Graph, Product, Freshness } from './types.js';
+import type { Exposure, Graph, Product, Freshness, AdvisoryInfo } from './types.js';
 
 export interface Report {
   label: string;
-  pkg: string;
-  range: string;
+  /** How the advisory was sourced: an OSV lookup or manual --package/--range. */
+  source: 'osv' | 'manual';
+  advisories: AdvisoryInfo[];
   repoRoot: string;
   graph: Graph;
   products: Product[];
@@ -14,31 +15,50 @@ export interface Report {
 const pathStr = (e: Exposure): string =>
   e.path.map((n) => (n.isRoot ? '(root)' : `${n.name}@${n.version}`)).join(' → ');
 
-export function renderHuman(r: Report): string {
+function advisoryHeader(r: Report): string[] {
   const lines: string[] = [];
-  const rootProduct = r.products.find((p) => p.isRoot);
-  const rootName = rootProduct?.name ?? '(root)';
-
   lines.push(`  ${r.label}`);
-  lines.push(`  matching ${r.pkg} in range "${r.range}"`);
-  lines.push('');
-
-  if (r.exposures.length === 0) {
-    lines.push(`Not exposed: no package matching ${r.pkg}@"${r.range}" is reachable from ${rootName}.`);
-  } else {
-    // Group exposures by attributed product name (M0: usually the root project).
-    const exposedNames = new Set<string>();
-    for (const e of r.exposures) for (const p of e.products) exposedNames.add(p.name);
+  const summary = r.advisories.find((a) => a.summary)?.summary;
+  if (summary) lines.push(`  ${summary}`);
+  if (r.advisories.length === 0) {
     lines.push(
-      `Exposed: ${rootName} is exposed to ${r.pkg} (${r.exposures.length} vulnerable ` +
-        `cop${r.exposures.length === 1 ? 'y' : 'ies'} in the tree).`,
+      r.source === 'osv'
+        ? '  (OSV returned no npm-affected packages for this id)'
+        : '  (no advisory)',
+    );
+  } else {
+    for (const a of r.advisories) {
+      const src = r.source === 'osv' && a.id !== a.cve ? `  [${a.id}]` : '';
+      lines.push(`  affected: ${a.packageName}  ${a.rangeText}${src}`);
+    }
+  }
+  return lines;
+}
+
+export function renderHuman(r: Report): string {
+  const lines: string[] = advisoryHeader(r);
+  lines.push('');
+  const rootName = r.products.find((p) => p.isRoot)?.name ?? '(root)';
+
+  if (r.advisories.length === 0) {
+    lines.push(`Nothing to check.`);
+  } else if (r.exposures.length === 0) {
+    const names = [...new Set(r.advisories.map((a) => a.packageName))].join(', ');
+    lines.push(`Not exposed: no vulnerable copy of ${names} is reachable from ${rootName}.`);
+  } else {
+    const copies = r.exposures.length;
+    lines.push(
+      `Exposed: ${rootName} is exposed (${copies} vulnerable ` +
+        `cop${copies === 1 ? 'y' : 'ies'} in the tree).`,
     );
     lines.push('');
     for (const e of r.exposures) {
       const via = e.directDep ? e.directDep.name : '(direct)';
       lines.push(`● ${e.culprit.name}@${e.culprit.version}   pulled in via: ${via}`);
       lines.push(`    path: ${pathStr(e)}`);
-      const attributed = e.products.map((p) => (p.isRoot ? `${p.name} (root project)` : p.name)).join(', ');
+      const attributed = e.products
+        .map((p) => (p.isRoot ? `${p.name} (root project)` : p.name))
+        .join(', ');
       lines.push(`    product: ${attributed}`);
       lines.push('');
     }
@@ -49,11 +69,11 @@ export function renderHuman(r: Report): string {
     `lockfile @ ${f.head ?? '?'}` +
     (f.lockfileCommit ? `, last touched ${f.lockfileCommit}` : '') +
     (f.lockfileDate ? ` (${f.lockfileDate})` : '');
-  lines.push(`Freshness: ${fresh}`);
+  lines.push(`Freshness: ${fresh}` + (r.source === 'osv' ? ', advisory from OSV (live)' : ''));
   lines.push(
     `Scope: this repo only (portable mode). Products discovered: ${r.products.length} ` +
       `(root + ${r.products.length - 1} lib/app units). Per-lib attribution is best-effort in ` +
-      `M0 (deps are declared at the root here); true per-product routing is M3.`,
+      `M0/M1 (deps are declared at the root here); true per-product routing is M3.`,
   );
   if (r.graph.unresolved > 0) {
     lines.push(
@@ -68,8 +88,14 @@ export function renderJson(r: Report): string {
   return JSON.stringify(
     {
       label: r.label,
-      package: r.pkg,
-      range: r.range,
+      source: r.source,
+      advisories: r.advisories.map((a) => ({
+        id: a.id,
+        queried: a.cve,
+        package: a.packageName,
+        range: a.rangeText,
+        summary: a.summary,
+      })),
       scope: 'repo',
       root: r.products.find((p) => p.isRoot)?.name ?? '(root)',
       exposed: r.exposures.length > 0,

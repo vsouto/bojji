@@ -1,9 +1,11 @@
 #!/usr/bin/env node
+import semver from 'semver';
 import { existsSync } from 'node:fs';
 import { join, resolve, relative } from 'node:path';
 import { loadLockfile, buildGraph } from './lockfile.js';
 import { discoverProducts } from './products.js';
-import { findMatches, computeExposures } from './expose.js';
+import { matchAdvisories, computeExposures } from './expose.js';
+import { resolveAdvisories, type Advisory } from './osv.js';
 import { lockfileFreshness } from './freshness.js';
 import { renderHuman, renderJson, type Report } from './render.js';
 
@@ -38,17 +40,15 @@ function parseArgs(argv: string[]): Args {
 const USAGE = `bojji — name the shipped products a vulnerability touches.
 
 Usage:
-  bojji expose [<CVE|label>] --package <name> --range <semver> [options]
-
-M0 (walking skeleton): match by --package/--range against a real lockfile and
-print the exposed product(s) with the transitive path that proves it. OSV
-lookup (resolving a CVE to package+range automatically) arrives in M1.
+  bojji expose <CVE|GHSA> [options]           # resolves the package + range via OSV
+  bojji expose <label> --package <n> --range <r> [options]   # offline override
 
 Options:
   --dir <path>        Repo root to analyze (default: cwd)
   --lockfile <path>   Path to package-lock.json (default: <dir>/package-lock.json)
-  --package <name>    Package name to treat as vulnerable (required in M0)
-  --range <semver>    Vulnerable version range, e.g. "<1.2.6" (required in M0)
+  --package <name>    Skip OSV; treat this package as vulnerable
+  --range <semver>    Vulnerable range for --package, e.g. "<1.2.6"
+  --offline           Fail instead of calling OSV (requires --package/--range)
   --json              Machine-readable output
   --help              Show this help
 `;
@@ -58,7 +58,20 @@ function fail(msg: string): never {
   process.exit(1);
 }
 
-function cmdExpose(args: Args): void {
+/** Build a single advisory from --package/--range (offline mode). */
+function manualAdvisory(pkg: string, range: string): Advisory {
+  if (!semver.validRange(range)) fail(`--range "${range}" is not a valid semver range`);
+  return {
+    id: 'manual',
+    cve: 'manual',
+    summary: '',
+    packageName: pkg,
+    rangeText: range,
+    matches: (v) => semver.valid(v) !== null && semver.satisfies(v, range, { includePrerelease: true }),
+  };
+}
+
+async function cmdExpose(args: Args): Promise<void> {
   if (args.flags.help) {
     process.stdout.write(USAGE);
     return;
@@ -69,28 +82,66 @@ function cmdExpose(args: Args): void {
     : join(dir, 'package-lock.json');
   const pkg = args.flags.package;
   const range = args.flags.range;
-  const label = args.positional[0] ?? '(no CVE given — M0 matches by --package/--range)';
-
-  if (typeof pkg !== 'string') fail('--package <name> is required in M0');
-  if (typeof range !== 'string') fail('--range <semver> is required in M0');
+  const id = args.positional[0];
   if (!existsSync(lockfilePath)) fail(`lockfile not found: ${lockfilePath}`);
+
+  // Decide the advisory source: manual flags win; otherwise resolve via OSV.
+  let advisories: Advisory[];
+  let source: 'osv' | 'manual';
+  let label: string;
+
+  if (typeof pkg === 'string' || typeof range === 'string') {
+    if (typeof pkg !== 'string' || typeof range !== 'string') {
+      fail('offline mode needs both --package and --range');
+    }
+    advisories = [manualAdvisory(pkg, range)];
+    source = 'manual';
+    label = id ?? `${pkg} @ ${range}`;
+  } else {
+    if (typeof id !== 'string') fail('give a CVE/GHSA id, or use --package with --range');
+    if (args.flags.offline) fail('--offline set but no --package/--range given');
+    source = 'osv';
+    label = id;
+    try {
+      advisories = await resolveAdvisories(id);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      fail(`${msg}\n       (no network? re-run with --package <name> --range <semver>)`);
+    }
+    if (advisories.length === 0) {
+      process.stdout.write(
+        `  ${id}\n  OSV has no npm-affected packages for this id.\n` +
+          `  If you know the package, re-run with --package <name> --range <semver>.\n`,
+      );
+      return;
+    }
+  }
 
   const lock = loadLockfile(lockfilePath);
   const graph = buildGraph(lock);
   const products = discoverProducts(dir);
-  const matches = findMatches(graph, pkg, range);
+  const matches = matchAdvisories(graph, advisories);
   const exposures = computeExposures(graph, matches, products);
   const freshness = lockfileFreshness(dir, relative(dir, lockfilePath) || 'package-lock.json');
 
-  const report: Report = { label, pkg, range, repoRoot: dir, graph, products, exposures, freshness };
+  const report: Report = {
+    label,
+    source,
+    advisories: advisories.map(({ matches: _m, ...info }) => info),
+    repoRoot: dir,
+    graph,
+    products,
+    exposures,
+    freshness,
+  };
   process.stdout.write((args.flags.json ? renderJson(report) : renderHuman(report)) + '\n');
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   switch (args.cmd) {
     case 'expose':
-      cmdExpose(args);
+      await cmdExpose(args);
       break;
     case undefined:
     case 'help':
@@ -102,4 +153,7 @@ function main(): void {
   }
 }
 
-main();
+main().catch((err) => {
+  process.stderr.write(`bojji: ${err instanceof Error ? err.stack ?? err.message : String(err)}\n`);
+  process.exit(1);
+});
