@@ -6,7 +6,7 @@ No subscription and no Bojji servers holding your data. Each note and task is a 
 
 **[Try the demo](https://vsouto.github.io/bojji/)**: it runs on sample data and saves nothing.
 
-![Bojji showing the #Siemens tag with a task open](docs/screenshots/tag-light.webp)
+![Bojji on a laptop in light mode and a phone in dark mode](docs/screenshots/hero.webp)
 
 ## What it does
 
