@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bojji</title>
+<style>
+  :root { --bg: #fbfaf7; --fg: #1f1d1a; --muted: #6b665e; --line: #e4e0d8; --card: #fff; --accent: #2f6f5e; --error: #a23b3b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #161513; --fg: #ece8e1; --muted: #a39d93; --line: #2e2b27; --card: #1e1c19; --accent: #6fc2a8; --error: #e07a7a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 1.5rem; }
+  h2 { font-size: 1rem; margin: 0 0 12px; }
+  #status { color: var(--muted); font-size: .875rem; }
+  #status.error { color: var(--error); }
+  .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+  @media (max-width: 720px) { .columns { grid-template-columns: 1fr; } }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+  form { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  input, textarea, button { font: inherit; color: inherit; }
+  input[type=text], input[type=date], textarea { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
+  input[type=text] { flex: 1; min-width: 0; }
+  textarea { width: 100%; min-height: 160px; resize: vertical; }
+  button { background: var(--accent); color: var(--bg); border: 0; border-radius: 6px; padding: 8px 14px; cursor: pointer; }
+  button.quiet { background: none; color: var(--muted); padding: 4px 8px; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+  li .title { flex: 1; cursor: pointer; overflow-wrap: anywhere; }
+  li.done .title { text-decoration: line-through; color: var(--muted); }
+  .due { font-size: .8125rem; color: var(--muted); }
+  .editor { display: grid; gap: 8px; margin-top: 12px; }
+  .empty { color: var(--muted); padding: 8px 0; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Bojji</h1>
+    <span id="status">Connecting…</span>
+    <button id="reload" class="quiet">Reload from GitHub</button>
+  </header>
+
+  <div class="columns">
+    <section>
+      <h2>Tasks</h2>
+      <form id="task-form">
+        <input type="text" name="title" placeholder="New task" required>
+        <input type="date" name="due" aria-label="Due date">
+        <button>Add</button>
+      </form>
+      <ul id="tasks"></ul>
+    </section>
+
+    <section>
+      <h2>Notes</h2>
+      <form id="note-form">
+        <input type="text" name="title" placeholder="New note title" required>
+        <button>Add</button>
+      </form>
+      <ul id="notes"></ul>
+      <div id="editor" class="editor" hidden>
+        <input type="text" id="note-title" aria-label="Note title">
+        <textarea id="note-body" placeholder="Write in Markdown…"></textarea>
+        <div><button id="note-save">Save note</button> <button id="note-close" class="quiet">Close</button></div>
+      </div>
+    </section>
+  </div>
+</main>
+<script type="module" src="/public/app.js"></script>
+</body>
+</html>

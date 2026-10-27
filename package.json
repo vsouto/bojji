@@ -1,0 +1,12 @@
+{
+  "name": "bojji",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Free, open-source notes and tasks stored in your own GitHub repo",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server.mjs",
+    "smoke": "node scripts/smoke.mjs"
+  }
+}

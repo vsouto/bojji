@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "references/free-notes-tasks-apps-research.html"
+        ],
+        "createdAt": "2026-10-27T17:10:54.322Z",
+        "reason": "Claude: .table-wrap is a scroll wrapper with zero padding by design; its table cells carry 10px/14px padding, so text is not flush with the border"
+      }
+    ]
+  }
+}

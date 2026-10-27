@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Notes Apps Research</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --fg: #1f1d1a; --muted: #6b665e; --line: #e4e0d8;
+    --card: #ffffff; --accent: #2f6f5e; --yes: #2f6f5e; --mid: #9a6b12; --no: #a23b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161513; --fg: #ece8e1; --muted: #a39d93; --line: #2e2b27;
+      --card: #1e1c19; --accent: #6fc2a8; --yes: #6fc2a8; --mid: #e0b04f; --no: #e07a7a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161513; --fg: #ece8e1; --muted: #a39d93; --line: #2e2b27;
+    --card: #1e1c19; --accent: #6fc2a8; --yes: #6fc2a8; --mid: #e0b04f; --no: #e07a7a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 48px 16px 64px; }
+  header p { color: var(--muted); margin: 4px 0 0; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0; }
+  h2 { font-size: 1.25rem; margin: 48px 0 12px; }
+  .meta { font-size: .875rem; color: var(--muted); margin-top: 12px; }
+  .question {
+    margin-top: 32px; padding: 16px 20px; border: 1px solid var(--line);
+    background: var(--card); border-radius: 8px;
+  }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+  table { border-collapse: collapse; width: 100%; min-width: 680px; font-size: .9375rem; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  th { font-size: .8125rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+  .yes { color: var(--yes); font-weight: 600; }
+  .mid { color: var(--mid); font-weight: 600; }
+  .no  { color: var(--no);  font-weight: 600; }
+  ul.takeaways { padding-left: 20px; }
+  ul.takeaways li { margin-bottom: 10px; }
+  .note { font-size: .875rem; color: var(--muted); }
+  ol.sources { font-size: .875rem; padding-left: 20px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Free notes &amp; task apps with cloud sync</h1>
+    <p>Market research for Bojji, an open-source alternative to paid notes and task tools</p>
+    <div class="meta">Research date: 2026-10-27 · Depth: light (third-party roundups, not vendor pricing pages)</div>
+  </header>
+
+  <div class="question">
+    <strong>Question:</strong> What are the truly free apps for managing personal tasks and notes, like Evernote and Obsidian, that store your data in the cloud so you can reach it from any device?
+  </div>
+
+  <h2>Comparison</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>App</th><th>Open source</th><th>Free cloud sync to any device</th><th>Catch</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Notesnook</td><td class="yes">Yes (GPL client, MIT server)</td><td class="yes">Yes: unlimited notes and devices, end-to-end encrypted</td><td>Only 50 MB of attachments per month on free; no task features</td></tr>
+        <tr><td>Anytype</td><td class="mid">Source-available</td><td class="yes">Yes</td><td>Small free file storage (sources say 100 MB or 1 GB). Notes themselves don't count toward it, but new files stop syncing past the limit</td></tr>
+        <tr><td>Joplin</td><td class="yes">Yes</td><td class="mid">Only through your own storage (Dropbox, OneDrive, Nextcloud, WebDAV)</td><td>Official Joplin Cloud is paid (about €2.40–3/mo)</td></tr>
+        <tr><td>Obsidian</td><td class="no">No (free for personal use)</td><td class="mid">Only through your own storage (iCloud, Dropbox, Git)</td><td>Official Sync is paid; mobile setup is fiddly</td></tr>
+        <tr><td>SiYuan / AppFlowy / Standard Notes</td><td class="yes">Yes</td><td class="mid">Free sync means self-hosting or a basic tier</td><td>Official sync is paid or limited; current free limits not confirmed</td></tr>
+        <tr><td>Google Keep</td><td class="no">No</td><td class="yes">Yes, unlimited</td><td>Very basic notes, no real organization, tied to Google</td></tr>
+        <tr><td>Microsoft To Do</td><td class="no">No</td><td class="yes">Yes, fully free</td><td>Tasks only, not notes</td></tr>
+        <tr><td>Todoist</td><td class="no">No</td><td class="yes">Yes</td><td>Free plan capped at about 5 projects</td></tr>
+        <tr><td>Evernote / UpNote</td><td class="no">No</td><td class="yes">Yes</td><td>Free plan capped at about 50 notes</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Sources disagree on several limits (Todoist, Anytype, Notesnook pricing). Check vendor pages before relying on exact numbers.</p>
+
+  <h2>What this means for Bojji</h2>
+  <ul class="takeaways">
+    <li><strong>Nothing does notes plus tasks, open source, with real free cloud sync and no strings.</strong> Notesnook comes closest but caps attachments and doesn't do tasks. Anytype caps file storage.</li>
+    <li><strong>Most of the free options make you bring your own storage.</strong> Joplin and Obsidian are free if you hook up Dropbox, Drive or Git yourself. That works, but it's fiddly, especially on mobile.</li>
+    <li><strong>Free sync costs someone money.</strong> That's why every hosted free tier has a cap. To stay truly free, Bojji could store your data in cloud storage you already have (Google Drive, Dropbox, GitHub or S3) instead of running its own servers. The goal would be to make that setup painless, which is where Joplin and Obsidian fall short.</li>
+  </ul>
+
+  <h2>Sources</h2>
+  <ol class="sources">
+    <li><a href="https://affine.pro/blog/best-free-note-taking-apps">AFFiNE – best free note taking apps</a></li>
+    <li><a href="https://toolradar.com/guides/best-open-source-note-taking-apps">Toolradar – best open source note taking apps</a></li>
+    <li><a href="https://toolradar.com/guides/best-self-hosted-note-taking">Toolradar – best self-hosted note taking</a></li>
+    <li><a href="https://www.toolfinder.com/best/open-source-note-taking-apps">Toolfinder – open source note taking apps 2026</a></li>
+    <li><a href="https://saascrmreview.com/best-note-taking-apps/">SaaS CRM Review – 10 best note-taking apps 2026</a></li>
+    <li><a href="https://www.atlasworkspace.ai/blog/best-cross-platform-note-taking-apps">Atlas – best cross-platform note-taking apps</a></li>
+    <li><a href="https://ossalt.com/guides/joplin-vs-standard-notes-vs-notesnook-2026">OSSAlt – Joplin vs Standard Notes vs Notesnook</a></li>
+    <li><a href="https://www.softwareadvice.com/product/527527-Joplin/">Software Advice – Joplin pricing</a></li>
+    <li><a href="https://doc.anytype.io/anytype/data/sync-and-backup">Anytype docs – sync and backup</a></li>
+    <li><a href="https://checkthat.ai/brands/anytype/pricing">Anytype pricing 2026</a></li>
+    <li><a href="https://super-productivity.com/blog/best-free-online-task-managers-2026/">Super Productivity – best free online task managers 2026</a></li>
+    <li><a href="https://agentdeals.dev/vendor/microsoft-to-do">AgentDeals – Microsoft To Do free tier</a></li>
+    <li><a href="https://agentdeals.dev/category/productivity-notes">AgentDeals – free productivity &amp; notes tools</a></li>
+  </ol>
+</main>
+</body>
+</html>
