@@ -20,7 +20,7 @@ try {
   const { created: repoCreated } = await laptop.ensureRepo();
   step(`data repo ${owner}/${repo} ${repoCreated ? 'created (private)' : 'already exists'}`);
 
-  const task = await laptop.save(newItem('task', { title: 'Smoke: buy milk', due: '2026-11-01' }));
+  const task = await laptop.save(newItem('task', { title: 'Smoke: buy milk', due: '2026-11-01', tags: ['Siemens', 'Home'] }));
   const note = await laptop.save(newItem('note', { title: 'Smoke: ideas ☕', body: '# Ideas\n\nAcentuação: ção, ü, 日本語' }));
   created.push(task, note);
   step('laptop created a task and a note');
@@ -29,12 +29,14 @@ try {
   const phoneTask = seen.find((i) => i.id === task.id);
   const phoneNote = seen.find((i) => i.id === note.id);
   assert.equal(phoneTask?.title, 'Smoke: buy milk');
-  assert.equal(phoneTask.status, 'todo');
+  assert.equal(phoneTask.done, false);
+  assert.deepEqual(phoneTask.tags, ['Siemens', 'Home']);
   assert.equal(phoneTask.due, '2026-11-01');
   assert.equal(phoneNote?.body, '# Ideas\n\nAcentuação: ção, ü, 日本語');
-  step('phone listed both items with identical content (including non-ASCII)');
+  assert.deepEqual(phoneNote.tags, []);
+  step('phone listed both items with identical content (including tags and non-ASCII)');
 
-  const done = await phone.save({ ...phoneTask, status: 'done' }, phoneTask.sha);
+  const done = await phone.save({ ...phoneTask, done: true }, phoneTask.sha);
   created[0] = done;
   step('phone marked the task done');
 
@@ -42,7 +44,7 @@ try {
   step('laptop edit with a stale version was rejected as a conflict (no silent overwrite)');
 
   const fresh = (await laptop.list()).find((i) => i.id === task.id);
-  assert.equal(fresh.status, 'done');
+  assert.equal(fresh.done, true);
   const renamed = await laptop.save({ ...fresh, title: 'Smoke: buy oat milk' }, fresh.sha);
   created[0] = renamed;
   step('laptop reloaded, saw "done", and saved its edit on top');

@@ -1,0 +1,1158 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-27T19:41:53+00:00",
+  "title": "Design System: Bojji",
+  "extensions": {
+    "colorMeta": {
+      "pane": {
+        "role": "neutral",
+        "displayName": "Pane White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "sidebar-grey": {
+        "role": "neutral",
+        "displayName": "Sidebar Grey",
+        "canonical": "#f2f1f6",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252428",
+          "#424145",
+          "#616065",
+          "#828286",
+          "#a5a4a9",
+          "#c9c8cd",
+          "#efeef3"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1d1d1f",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252527",
+          "#424244",
+          "#616163",
+          "#828284",
+          "#a5a5a7",
+          "#c9c9cb",
+          "#eeeef1"
+        ]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "canonical": "#6e6e73",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252529",
+          "#414146",
+          "#616165",
+          "#828287",
+          "#a4a4aa",
+          "#c8c8ce",
+          "#eeeef4"
+        ]
+      },
+      "ink-tertiary": {
+        "role": "neutral",
+        "displayName": "Ink Tertiary",
+        "canonical": "#66666b",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252529",
+          "#414146",
+          "#616166",
+          "#828287",
+          "#a4a4aa",
+          "#c8c8ce",
+          "#eeeef4"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#e5e5ea",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252528",
+          "#414145",
+          "#616165",
+          "#828286",
+          "#a4a4a9",
+          "#c8c8cd",
+          "#eeeef3"
+        ]
+      },
+      "fill-grey": {
+        "role": "neutral",
+        "displayName": "Fill Grey",
+        "canonical": "#f2f2f5",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252527",
+          "#424244",
+          "#616163",
+          "#828285",
+          "#a5a5a7",
+          "#c9c9cc",
+          "#eeeef1"
+        ]
+      },
+      "notes-yellow": {
+        "role": "primary",
+        "displayName": "Notes Yellow",
+        "canonical": "#ffe27a",
+        "tonalRamp": [
+          "#0f0b00",
+          "#2d2402",
+          "#504100",
+          "#745f04",
+          "#998017",
+          "#bfa337",
+          "#e4c85f",
+          "#feefb8"
+        ]
+      },
+      "ink-on-yellow": {
+        "role": "neutral",
+        "displayName": "Ink on Yellow",
+        "canonical": "#1d1d1f",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252527",
+          "#424244",
+          "#616163",
+          "#828284",
+          "#a5a5a7",
+          "#c9c9cb",
+          "#eeeef1"
+        ]
+      },
+      "quiet-select": {
+        "role": "neutral",
+        "displayName": "Quiet Select",
+        "canonical": "#e8e7ec",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252428",
+          "#424145",
+          "#616065",
+          "#828186",
+          "#a5a4a9",
+          "#c9c8cd",
+          "#efeef3"
+        ]
+      },
+      "ink-on-quiet": {
+        "role": "neutral",
+        "displayName": "Ink on Quiet",
+        "canonical": "#5c5c61",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252529",
+          "#414146",
+          "#616166",
+          "#828287",
+          "#a4a4aa",
+          "#c8c8ce",
+          "#eeeef4"
+        ]
+      },
+      "deep-mustard": {
+        "role": "primary",
+        "displayName": "Deep Mustard",
+        "canonical": "#b07d00",
+        "tonalRamp": [
+          "#120900",
+          "#322202",
+          "#583c00",
+          "#7f5a04",
+          "#a77917",
+          "#cf9b36",
+          "#f5bf5f",
+          "#feecce"
+        ]
+      },
+      "check-gold": {
+        "role": "primary",
+        "displayName": "Check Gold",
+        "canonical": "#e0a800",
+        "tonalRamp": [
+          "#110a00",
+          "#312201",
+          "#543e06",
+          "#7a5c10",
+          "#a47b0b",
+          "#cf9c14",
+          "#f8bf36",
+          "#feedca"
+        ]
+      },
+      "overdue-red": {
+        "role": "tertiary",
+        "displayName": "Overdue Red",
+        "canonical": "#b8000f",
+        "tonalRamp": [
+          "#1f0000",
+          "#4c0304",
+          "#7d0e0f",
+          "#b8010f",
+          "#e13e37",
+          "#fe7468",
+          "#fdb4aa",
+          "#fee9e6"
+        ]
+      },
+      "focus-blue": {
+        "role": "neutral",
+        "displayName": "Focus Blue",
+        "canonical": "#0071e3",
+        "tonalRamp": [
+          "#000a20",
+          "#002350",
+          "#034083",
+          "#095ebb",
+          "#1d7ff2",
+          "#68a7fa",
+          "#a9ccfc",
+          "#e4f0ff"
+        ]
+      },
+      "pane-dark": {
+        "role": "neutral",
+        "displayName": "Pane White (Dark)",
+        "canonical": "#1c1c1e",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252527",
+          "#424244",
+          "#616163",
+          "#828284",
+          "#a5a5a7",
+          "#c9c9cb",
+          "#eeeef1"
+        ]
+      },
+      "sidebar-grey-dark": {
+        "role": "neutral",
+        "displayName": "Sidebar Grey (Dark)",
+        "canonical": "#252528",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252528",
+          "#424245",
+          "#616164",
+          "#828286",
+          "#a4a4a8",
+          "#c9c9cd",
+          "#eeeef2"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Ink (Dark)",
+        "canonical": "#f5f5f7",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#252526",
+          "#424243",
+          "#616163",
+          "#828284",
+          "#a5a5a7",
+          "#c9c9cb",
+          "#eeeef0"
+        ]
+      },
+      "ink-secondary-dark": {
+        "role": "neutral",
+        "displayName": "Ink Secondary (Dark)",
+        "canonical": "#a1a1a6",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252528",
+          "#414146",
+          "#616165",
+          "#828287",
+          "#a4a4a9",
+          "#c8c8ce",
+          "#eeeef3"
+        ]
+      },
+      "ink-tertiary-dark": {
+        "role": "neutral",
+        "displayName": "Ink Tertiary (Dark)",
+        "canonical": "#8e8e93",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252529",
+          "#414146",
+          "#616165",
+          "#828287",
+          "#a4a4a9",
+          "#c8c8ce",
+          "#eeeef3"
+        ]
+      },
+      "hairline-dark": {
+        "role": "neutral",
+        "displayName": "Hairline (Dark)",
+        "canonical": "#38383a",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252527",
+          "#424244",
+          "#616163",
+          "#828284",
+          "#a5a5a7",
+          "#c9c9cb",
+          "#eeeef1"
+        ]
+      },
+      "fill-grey-dark": {
+        "role": "neutral",
+        "displayName": "Fill Grey (Dark)",
+        "canonical": "#2c2c2e",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252527",
+          "#424244",
+          "#616163",
+          "#828284",
+          "#a5a5a7",
+          "#c9c9cb",
+          "#eeeef1"
+        ]
+      },
+      "notes-yellow-dark": {
+        "role": "primary",
+        "displayName": "Notes Yellow (Dark)",
+        "canonical": "#6b5410",
+        "tonalRamp": [
+          "#110a00",
+          "#2f2301",
+          "#523f07",
+          "#755e1d",
+          "#987f41",
+          "#bba264",
+          "#e0c787",
+          "#feedc4"
+        ]
+      },
+      "ink-on-yellow-dark": {
+        "role": "neutral",
+        "displayName": "Ink on Yellow (Dark)",
+        "canonical": "#fff6d6",
+        "tonalRamp": [
+          "#0f0b00",
+          "#2c250a",
+          "#494227",
+          "#696145",
+          "#8b8265",
+          "#aea587",
+          "#d2c9aa",
+          "#f8efcf"
+        ]
+      },
+      "quiet-select-dark": {
+        "role": "neutral",
+        "displayName": "Quiet Select (Dark)",
+        "canonical": "#3a3a3c",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#252527",
+          "#424244",
+          "#616163",
+          "#828284",
+          "#a5a5a7",
+          "#c9c9cb",
+          "#eeeef1"
+        ]
+      },
+      "ink-on-quiet-dark": {
+        "role": "neutral",
+        "displayName": "Ink on Quiet (Dark)",
+        "canonical": "#c7c7cc",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#252528",
+          "#414146",
+          "#616165",
+          "#828286",
+          "#a4a4a9",
+          "#c8c8cd",
+          "#eeeef3"
+        ]
+      },
+      "deep-mustard-dark": {
+        "role": "primary",
+        "displayName": "Deep Mustard (Dark)",
+        "canonical": "#ffd426",
+        "tonalRamp": [
+          "#0f0b00",
+          "#2e2400",
+          "#504104",
+          "#745f0c",
+          "#9c8000",
+          "#c4a206",
+          "#edc62f",
+          "#feeeba"
+        ]
+      },
+      "check-gold-dark": {
+        "role": "primary",
+        "displayName": "Check Gold (Dark)",
+        "canonical": "#ffcc00",
+        "tonalRamp": [
+          "#100a00",
+          "#2e2403",
+          "#524001",
+          "#775e06",
+          "#9d7e19",
+          "#c6a024",
+          "#f2c327",
+          "#feeec1"
+        ]
+      },
+      "overdue-red-dark": {
+        "role": "tertiary",
+        "displayName": "Overdue Red (Dark)",
+        "canonical": "#ff6961",
+        "tonalRamp": [
+          "#1f0001",
+          "#4c0306",
+          "#7d0d13",
+          "#b21b21",
+          "#db4843",
+          "#fe746b",
+          "#fdb4ac",
+          "#fee9e6"
+        ]
+      },
+      "focus-blue-dark": {
+        "role": "neutral",
+        "displayName": "Focus Blue (Dark)",
+        "canonical": "#4da3ff",
+        "tonalRamp": [
+          "#000b1d",
+          "#032548",
+          "#01427c",
+          "#0662b1",
+          "#2b84de",
+          "#5ba9fd",
+          "#a3cdfd",
+          "#e4f0fe"
+        ]
+      },
+      "tag-sage-bg": {
+        "role": "tertiary",
+        "displayName": "Tag Sage Background",
+        "canonical": "#e3ebe1",
+        "tonalRamp": [
+          "#080d07",
+          "#212720",
+          "#3e443c",
+          "#5d645b",
+          "#7e857c",
+          "#a0a89e",
+          "#c4ccc2",
+          "#e9f1e7"
+        ]
+      },
+      "tag-sage-fg": {
+        "role": "tertiary",
+        "displayName": "Tag Sage Text",
+        "canonical": "#3d5a3a",
+        "tonalRamp": [
+          "#001000",
+          "#112c0f",
+          "#2e4a2b",
+          "#4d6a4a",
+          "#6d8c6a",
+          "#8faf8c",
+          "#b3d4af",
+          "#d8fad4"
+        ]
+      },
+      "tag-clay-bg": {
+        "role": "tertiary",
+        "displayName": "Tag Clay Background",
+        "canonical": "#f1e2da",
+        "tonalRamp": [
+          "#120905",
+          "#2d221d",
+          "#4b3f39",
+          "#6b5e57",
+          "#8d7f78",
+          "#b0a29a",
+          "#d4c6be",
+          "#faebe3"
+        ]
+      },
+      "tag-clay-fg": {
+        "role": "tertiary",
+        "displayName": "Tag Clay Text",
+        "canonical": "#7a3f26",
+        "tonalRamp": [
+          "#1a0400",
+          "#421501",
+          "#682f16",
+          "#8b4f36",
+          "#b07056",
+          "#d59277",
+          "#fcb69a",
+          "#ffe9e1"
+        ]
+      },
+      "tag-slate-bg": {
+        "role": "tertiary",
+        "displayName": "Tag Slate Background",
+        "canonical": "#e0e6ef",
+        "tonalRamp": [
+          "#080b11",
+          "#21252c",
+          "#3e4249",
+          "#5c6269",
+          "#7d838b",
+          "#a0a5ae",
+          "#c4cad2",
+          "#e9eff8"
+        ]
+      },
+      "tag-slate-fg": {
+        "role": "tertiary",
+        "displayName": "Tag Slate Text",
+        "canonical": "#34507a",
+        "tonalRamp": [
+          "#000a22",
+          "#0a244a",
+          "#27426b",
+          "#45628d",
+          "#6584b1",
+          "#87a7d6",
+          "#aacbfc",
+          "#e6effe"
+        ]
+      },
+      "tag-mustard-bg": {
+        "role": "tertiary",
+        "displayName": "Tag Mustard Background",
+        "canonical": "#f0e8d2",
+        "tonalRamp": [
+          "#100a00",
+          "#2b2413",
+          "#48422f",
+          "#68614e",
+          "#89826e",
+          "#aca590",
+          "#d1c9b3",
+          "#f6eed8"
+        ]
+      },
+      "tag-mustard-fg": {
+        "role": "tertiary",
+        "displayName": "Tag Mustard Text",
+        "canonical": "#6b5410",
+        "tonalRamp": [
+          "#110a00",
+          "#2f2301",
+          "#523f07",
+          "#755e1d",
+          "#987f41",
+          "#bba264",
+          "#e0c787",
+          "#feedc4"
+        ]
+      },
+      "tag-plum-bg": {
+        "role": "tertiary",
+        "displayName": "Tag Plum Background",
+        "canonical": "#ebe0ea",
+        "tonalRamp": [
+          "#0f090f",
+          "#2a2229",
+          "#473f47",
+          "#675e66",
+          "#897f88",
+          "#aca1ab",
+          "#d0c5cf",
+          "#f6eaf5"
+        ]
+      },
+      "tag-plum-fg": {
+        "role": "tertiary",
+        "displayName": "Tag Plum Text",
+        "canonical": "#6a3762",
+        "tonalRamp": [
+          "#1a0017",
+          "#3e0d38",
+          "#5e2c57",
+          "#814c78",
+          "#a46d9a",
+          "#c98fbe",
+          "#efb3e3",
+          "#ffe6f9"
+        ]
+      },
+      "tag-teal-bg": {
+        "role": "tertiary",
+        "displayName": "Tag Teal Background",
+        "canonical": "#dceceb",
+        "tonalRamp": [
+          "#040d0d",
+          "#1b2827",
+          "#384544",
+          "#576464",
+          "#778685",
+          "#9aa9a8",
+          "#bdcdcc",
+          "#e2f2f1"
+        ]
+      },
+      "tag-teal-fg": {
+        "role": "tertiary",
+        "displayName": "Tag Teal Text",
+        "canonical": "#23595a",
+        "tonalRamp": [
+          "#000e0f",
+          "#012b2c",
+          "#124b4c",
+          "#366b6c",
+          "#588d8e",
+          "#7ab0b1",
+          "#9ed5d6",
+          "#c3fbfb"
+        ]
+      },
+      "tag-rose-bg": {
+        "role": "tertiary",
+        "displayName": "Tag Rose Background",
+        "canonical": "#f2e0e2",
+        "tonalRamp": [
+          "#120809",
+          "#2e2123",
+          "#4c3e40",
+          "#6c5d5f",
+          "#8e7e80",
+          "#b1a0a2",
+          "#d6c4c6",
+          "#fbe9eb"
+        ]
+      },
+      "tag-rose-fg": {
+        "role": "tertiary",
+        "displayName": "Tag Rose Text",
+        "canonical": "#823a46",
+        "tonalRamp": [
+          "#1e0005",
+          "#4a0418",
+          "#6d2734",
+          "#904752",
+          "#b66873",
+          "#dc8a95",
+          "#ffb1ba",
+          "#fee8ea"
+        ]
+      },
+      "tag-stone-bg": {
+        "role": "tertiary",
+        "displayName": "Tag Stone Background",
+        "canonical": "#e8e6e1",
+        "tonalRamp": [
+          "#0c0b08",
+          "#262521",
+          "#43423e",
+          "#63615d",
+          "#84827e",
+          "#a7a5a0",
+          "#cbc9c4",
+          "#f0eee9"
+        ]
+      },
+      "tag-stone-fg": {
+        "role": "tertiary",
+        "displayName": "Tag Stone Text",
+        "canonical": "#55524a",
+        "tonalRamp": [
+          "#0d0b05",
+          "#28251e",
+          "#45423a",
+          "#646159",
+          "#858279",
+          "#a8a59c",
+          "#ccc9c0",
+          "#f2eee5"
+        ]
+      },
+      "tag-sage-bg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Sage Background (Dark)",
+        "canonical": "#2f3a2e",
+        "tonalRamp": [
+          "#050e05",
+          "#1e281d",
+          "#3a4639",
+          "#596558",
+          "#7a8679",
+          "#9ca99b",
+          "#c0cebf",
+          "#e5f3e4"
+        ]
+      },
+      "tag-sage-fg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Sage Text (Dark)",
+        "canonical": "#b9d1b4",
+        "tonalRamp": [
+          "#011000",
+          "#182b14",
+          "#344830",
+          "#53684f",
+          "#738a6f",
+          "#96ad91",
+          "#b9d1b4",
+          "#def7d9"
+        ]
+      },
+      "tag-clay-bg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Clay Background (Dark)",
+        "canonical": "#3d2c25",
+        "tonalRamp": [
+          "#150703",
+          "#31211a",
+          "#4f3d36",
+          "#705c55",
+          "#927d75",
+          "#b5a097",
+          "#dac4bb",
+          "#ffe9e1"
+        ]
+      },
+      "tag-clay-fg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Clay Text (Dark)",
+        "canonical": "#e6b9a2",
+        "tonalRamp": [
+          "#180500",
+          "#3c1a06",
+          "#5c3824",
+          "#7e5742",
+          "#a17862",
+          "#c69a84",
+          "#ebbea7",
+          "#feeadf"
+        ]
+      },
+      "tag-slate-bg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Slate Background (Dark)",
+        "canonical": "#283241",
+        "tonalRamp": [
+          "#040b18",
+          "#1c2534",
+          "#384352",
+          "#576273",
+          "#778395",
+          "#9aa6b8",
+          "#bdcadd",
+          "#e5efff"
+        ]
+      },
+      "tag-slate-fg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Slate Text (Dark)",
+        "canonical": "#b0c3e3",
+        "tonalRamp": [
+          "#020a20",
+          "#17253d",
+          "#33425d",
+          "#51627e",
+          "#7283a1",
+          "#94a6c5",
+          "#b7caea",
+          "#e6efff"
+        ]
+      },
+      "tag-mustard-bg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Mustard Background (Dark)",
+        "canonical": "#3a3220",
+        "tonalRamp": [
+          "#110a00",
+          "#2c2412",
+          "#49412f",
+          "#69604d",
+          "#8b816d",
+          "#aea48f",
+          "#d2c8b2",
+          "#f8eed7"
+        ]
+      },
+      "tag-mustard-fg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Mustard Text (Dark)",
+        "canonical": "#e3cd8d",
+        "tonalRamp": [
+          "#100a00",
+          "#2e2402",
+          "#504008",
+          "#735f1f",
+          "#958142",
+          "#b9a365",
+          "#dec888",
+          "#ffeebc"
+        ]
+      },
+      "tag-plum-bg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Plum Background (Dark)",
+        "canonical": "#382a37",
+        "tonalRamp": [
+          "#120711",
+          "#2d202c",
+          "#4b3c4a",
+          "#6b5b6a",
+          "#8d7c8b",
+          "#b09faf",
+          "#d5c3d3",
+          "#fae8f9"
+        ]
+      },
+      "tag-plum-fg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Plum Text (Dark)",
+        "canonical": "#dcb6d6",
+        "tonalRamp": [
+          "#180116",
+          "#361932",
+          "#553651",
+          "#765471",
+          "#987593",
+          "#bc97b7",
+          "#e1bbdb",
+          "#fee6fa"
+        ]
+      },
+      "tag-teal-bg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Teal Background (Dark)",
+        "canonical": "#223635",
+        "tonalRamp": [
+          "#000e0e",
+          "#152928",
+          "#324745",
+          "#516665",
+          "#718886",
+          "#93aaa9",
+          "#b7cfcd",
+          "#dcf4f3"
+        ]
+      },
+      "tag-teal-fg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Teal Text (Dark)",
+        "canonical": "#a6d4d2",
+        "tonalRamp": [
+          "#000e0e",
+          "#012c2b",
+          "#1f4a49",
+          "#3f6a69",
+          "#608c8a",
+          "#82afad",
+          "#a6d4d2",
+          "#caf9f7"
+        ]
+      },
+      "tag-rose-bg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Rose Background (Dark)",
+        "canonical": "#3d2a2d",
+        "tonalRamp": [
+          "#150609",
+          "#311f22",
+          "#503c3f",
+          "#705b5e",
+          "#937c7f",
+          "#b69ea1",
+          "#dbc2c5",
+          "#fee8eb"
+        ]
+      },
+      "tag-rose-fg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Rose Text (Dark)",
+        "canonical": "#e8b3bb",
+        "tonalRamp": [
+          "#1d0107",
+          "#3d161f",
+          "#5e333b",
+          "#80525a",
+          "#a4737b",
+          "#c8959d",
+          "#eeb9c1",
+          "#ffe8eb"
+        ]
+      },
+      "tag-stone-bg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Stone Background (Dark)",
+        "canonical": "#34332f",
+        "tonalRamp": [
+          "#0c0b08",
+          "#262521",
+          "#43423e",
+          "#62615d",
+          "#83827e",
+          "#a6a5a0",
+          "#cac9c4",
+          "#f0eee9"
+        ]
+      },
+      "tag-stone-fg-dark": {
+        "role": "tertiary",
+        "displayName": "Tag Stone Text (Dark)",
+        "canonical": "#cfccc3",
+        "tonalRamp": [
+          "#0d0b06",
+          "#27251e",
+          "#44423a",
+          "#646159",
+          "#85827a",
+          "#a8a59c",
+          "#ccc9c0",
+          "#f1eee5"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "list-title": {
+        "displayName": "List Title",
+        "purpose": "List pane heading; count beside it at 26px/600 Ink Tertiary, tabular."
+      },
+      "item-title": {
+        "displayName": "Item Title",
+        "purpose": "Editable title in the detail pane."
+      },
+      "body-heading": {
+        "displayName": "Body Heading",
+        "purpose": "Rendered Markdown ## inside notes."
+      },
+      "body-subheading": {
+        "displayName": "Body Subheading",
+        "purpose": "Rendered Markdown ### inside notes."
+      },
+      "group-head": {
+        "displayName": "Group Head",
+        "purpose": "Week schedule day headings and in-list section heads."
+      },
+      "reading": {
+        "displayName": "Reading",
+        "purpose": "Note body at a 68ch measure."
+      },
+      "ui": {
+        "displayName": "UI",
+        "purpose": "Rows, sidebar items, fields; base body text."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "Row previews, counts, date range, toggles, brand."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Due dates, stamp, sync footer."
+      },
+      "tag-label": {
+        "displayName": "Tag Label",
+        "purpose": "Tag chip text; 13px in the tag editor."
+      },
+      "sidebar-label": {
+        "displayName": "Sidebar Label",
+        "purpose": "Sentence-case sidebar group headings (Tasks, Notes, Tags)."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "System ease for row exit and checkmark scale-in."
+      },
+      {
+        "name": "check-fill",
+        "value": "background .2s, border-color .2s; tick opacity .2s, transform .25s ease (scale .6 to 1)",
+        "purpose": "Checkbox completing."
+      },
+      {
+        "name": "row-leave",
+        "value": "450ms hold, then opacity 0 and translateX(8px) over .35s ease",
+        "purpose": "A ticked task leaving an open list."
+      },
+      {
+        "name": "sync-spin",
+        "value": "rotate 360deg, 1s linear infinite",
+        "purpose": "Sync glyph while saving or loading."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "transition: none; animation: none",
+        "purpose": "Applied to everything under prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "760px",
+        "purpose": "At and below: one pane at a time via data-view, 44px sidebar rows, safe-area toolbars, 16px paper padding."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Sidebar Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "32px sidebar row with a Deep Mustard glyph, label and tabular count; quiet grey on hover and when active.",
+      "html": "<nav class=\"ds-side\"><button class=\"ds-nav-item\" aria-current=\"true\"><svg class=\"ds-i\" viewBox=\"0 0 24 24\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15.5\" rx=\"3\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/><circle cx=\"12\" cy=\"15\" r=\"1.6\" fill=\"currentColor\" stroke=\"none\"/></svg><span>Today</span><span class=\"ds-count\">4</span></button><button class=\"ds-nav-item\"><svg class=\"ds-i\" viewBox=\"0 0 24 24\"><path d=\"M9 6.5h11M9 12h11M9 17.5h11\"/><circle cx=\"4.75\" cy=\"6.5\" r=\"1\" fill=\"currentColor\"/><circle cx=\"4.75\" cy=\"12\" r=\"1\" fill=\"currentColor\"/><circle cx=\"4.75\" cy=\"17.5\" r=\"1\" fill=\"currentColor\"/></svg><span>All tasks</span><span class=\"ds-count\">11</span></button></nav>",
+      "css": ".ds-side { background: var(--sidebar, #f2f1f6); padding: 12px; width: 240px; font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; } .ds-nav-item { width: 100%; display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--fg, #1d1d1f); font: inherit; text-align: left; cursor: pointer; } .ds-nav-item:hover, .ds-nav-item[aria-current=\"true\"] { background: var(--select-quiet, #e8e7ec); } .ds-nav-item[aria-current=\"true\"] { font-weight: 600; } .ds-nav-item:focus-visible { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; border-radius: 6px; } .ds-i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; color: var(--accent, #b07d00); } .ds-count { margin-left: auto; color: var(--fg-3, #66666b); font-size: 13px; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Note Row",
+      "kind": "card",
+      "refersTo": "note-row-selected",
+      "description": "List row for a note; the selected note fills Notes Yellow, others are separated by inset hairlines.",
+      "html": "<div class=\"ds-rows\"><div class=\"ds-note-row\" aria-current=\"true\" tabindex=\"0\"><div class=\"ds-title\">Weekend in Porto</div><div class=\"ds-meta\"><time>15:18</time><span>Train leaves at 8:12 from Santa Apolónia</span></div></div><div class=\"ds-note-row\" tabindex=\"0\"><div class=\"ds-title\">Reading list</div><div class=\"ds-meta\"><time>Yesterday</time><span>Four Thousand Weeks, Oliver Burkeman</span></div></div><div class=\"ds-note-row\" tabindex=\"0\"><div class=\"ds-title\">Gift ideas</div><div class=\"ds-meta\"><time>Thursday</time><span>Ana: a good chef's knife</span></div></div></div>",
+      "css": ".ds-rows { width: 304px; font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; color: var(--fg, #1d1d1f); } .ds-note-row { position: relative; padding: 8px 12px; border-radius: 8px; cursor: pointer; } .ds-note-row + .ds-note-row::before { content: ''; position: absolute; top: 0; left: 12px; right: 12px; border-top: 1px solid var(--line, #e5e5ea); } .ds-note-row[aria-current=\"true\"]::before, .ds-note-row[aria-current=\"true\"] + .ds-note-row::before { display: none; } .ds-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-meta { display: flex; gap: 8px; font-size: 13px; color: var(--fg-2, #6e6e73); } .ds-meta time { color: var(--fg, #1d1d1f); flex: none; } .ds-meta span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-note-row[aria-current=\"true\"] { background: var(--select, #ffe27a); color: var(--select-fg, #1d1d1f); } .ds-note-row[aria-current=\"true\"] .ds-meta, .ds-note-row[aria-current=\"true\"] .ds-meta time { color: var(--select-fg, #1d1d1f); } .ds-note-row:focus-visible { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; }"
+    },
+    {
+      "name": "Task Row with Checkbox",
+      "kind": "custom",
+      "refersTo": "task-row",
+      "description": "Round grey-ring checkbox that fills Check Gold, title, due date (red when overdue) and tag chip; selected task uses Quiet Select.",
+      "html": "<div class=\"ds-tasks\"><div class=\"ds-task\"><button class=\"ds-check\" role=\"checkbox\" aria-checked=\"false\" aria-label=\"Ask legal about the NDA\"><svg viewBox=\"0 0 24 24\"><path d=\"m6 12.5 4 4 8-9\"/></svg></button><div class=\"ds-body\"><div>Ask legal about the NDA</div><div class=\"ds-row-meta\"><span class=\"ds-due ds-overdue\">Yesterday</span></div></div></div><div class=\"ds-task\" aria-current=\"true\"><button class=\"ds-check\" role=\"checkbox\" aria-checked=\"false\" aria-label=\"Send the Q4 proposal\"><svg viewBox=\"0 0 24 24\"><path d=\"m6 12.5 4 4 8-9\"/></svg></button><div class=\"ds-body\"><div>Send the Q4 proposal</div><div class=\"ds-row-meta\"><span class=\"ds-due\">Thursday 29 Oct</span><span class=\"ds-tag\">#Proposals</span></div></div></div><div class=\"ds-task ds-done\"><button class=\"ds-check\" role=\"checkbox\" aria-checked=\"true\" aria-label=\"Draft the agenda\"><svg viewBox=\"0 0 24 24\"><path d=\"m6 12.5 4 4 8-9\"/></svg></button><div class=\"ds-body\"><div>Draft the agenda</div><div class=\"ds-row-meta\"><span class=\"ds-due\">23 Oct</span></div></div></div></div>",
+      "css": ".ds-tasks { width: 304px; font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; color: var(--fg, #1d1d1f); } .ds-task { display: flex; gap: 12px; align-items: flex-start; padding: 8px 12px 0; border-radius: 8px; } .ds-body { flex: 1; min-width: 0; padding-bottom: 8px; border-bottom: 1px solid var(--line, #e5e5ea); } .ds-task[aria-current=\"true\"] { background: var(--select-quiet, #e8e7ec); } .ds-task[aria-current=\"true\"] .ds-body { border-color: transparent; } .ds-task[aria-current=\"true\"] .ds-due:not(.ds-overdue) { color: var(--fg-on-quiet, #5c5c61); } .ds-done .ds-body > div:first-child { color: var(--fg-3, #66666b); } .ds-row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 2px; } .ds-due { font-size: 12px; color: var(--fg-2, #6e6e73); } .ds-overdue { color: var(--danger, #b8000f); } .ds-check { position: relative; width: 20px; height: 20px; margin-top: 1px; padding: 0; flex: none; border-radius: 50%; border: 1.5px solid var(--fg-3, #66666b); background: none; display: grid; place-items: center; cursor: pointer; transition: background .2s, border-color .2s; } .ds-check::after { content: ''; position: absolute; inset: -12px; } .ds-check:hover { border-color: var(--check, #e0a800); } .ds-check:focus-visible { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; } .ds-check svg { width: 12px; height: 12px; fill: none; stroke: var(--check-mark, #1d1d1f); stroke-width: 2.4; opacity: 0; transform: scale(.6); transition: opacity .2s, transform .25s cubic-bezier(.22,1,.36,1); } .ds-check[aria-checked=\"true\"] { background: var(--check, #e0a800); border-color: var(--check, #e0a800); } .ds-check[aria-checked=\"true\"] svg { opacity: 1; transform: none; } .ds-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 10px; background: #e0e6ef; color: #34507a; font-size: 12px; font-weight: 500; line-height: 1; }"
+    },
+    {
+      "name": "Tag Chips",
+      "kind": "chip",
+      "refersTo": "tag-chip",
+      "description": "Matte 20px pills, one hue per tag chosen by hashing the tag name; hover mixes the text hue into the fill.",
+      "html": "<div class=\"ds-tags\"><button class=\"ds-tag\" style=\"--tbg:#e3ebe1;--tfg:#3d5a3a\">#Home</button><button class=\"ds-tag\" style=\"--tbg:#f1e2da;--tfg:#7a3f26\">#Travel</button><button class=\"ds-tag\" style=\"--tbg:#e0e6ef;--tfg:#34507a\">#Proposals</button><button class=\"ds-tag\" style=\"--tbg:#f0e8d2;--tfg:#6b5410\">#Personal</button><button class=\"ds-tag\" style=\"--tbg:#ebe0ea;--tfg:#6a3762\">#Reading</button><button class=\"ds-tag\" style=\"--tbg:#dceceb;--tfg:#23595a\">#Siemens</button><button class=\"ds-tag\" style=\"--tbg:#f2e0e2;--tfg:#823a46\">#Gifts</button><button class=\"ds-tag\" style=\"--tbg:#e8e6e1;--tfg:#55524a\">#Admin</button></div>",
+      "css": ".ds-tags { display: flex; flex-wrap: wrap; gap: 6px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; } .ds-tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border: 0; border-radius: 10px; background: var(--tbg, #f2f2f5); color: var(--tfg, #6e6e73); font-family: inherit; font-size: 12px; font-weight: 500; line-height: 1; white-space: nowrap; cursor: pointer; } .ds-tag:hover { background: color-mix(in srgb, var(--tbg) 82%, var(--tfg)); } .ds-tag:focus-visible { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; border-radius: 6px; }"
+    },
+    {
+      "name": "Tag Editor",
+      "kind": "input",
+      "refersTo": "tag-chip-editable",
+      "description": "Detail-pane field row: 26px removable tag pills followed by an inline borderless add input.",
+      "html": "<div class=\"ds-field-row\"><span class=\"ds-label\">Tags</span><div class=\"ds-tag-editor\"><span class=\"ds-etag\" style=\"--tbg:#dceceb;--tfg:#23595a\"><span>#Siemens</span><button class=\"ds-remove\" aria-label=\"Remove tag Siemens\"><svg viewBox=\"0 0 24 24\"><path d=\"m7 7 10 10M17 7 7 17\"/></svg></button></span><span class=\"ds-etag\" style=\"--tbg:#e0e6ef;--tfg:#34507a\"><span>#Proposals</span><button class=\"ds-remove\" aria-label=\"Remove tag Proposals\"><svg viewBox=\"0 0 24 24\"><path d=\"m7 7 10 10M17 7 7 17\"/></svg></button></span><input placeholder=\"Add\" aria-label=\"Add a tag\"></div></div>",
+      "css": ".ds-field-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; width: 600px; border-top: 1px solid var(--line, #e5e5ea); border-bottom: 1px solid var(--line, #e5e5ea); color: var(--fg-2, #6e6e73); font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; } .ds-label { width: 72px; flex: none; } .ds-tag-editor { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; } .ds-etag { display: inline-flex; align-items: center; gap: 2px; height: 26px; padding: 0 4px 0 10px; border-radius: 13px; background: var(--tbg); color: var(--tfg); font-size: 13px; font-weight: 500; line-height: 1; } .ds-remove { width: 20px; height: 20px; padding: 0; border: 0; display: grid; place-items: center; border-radius: 50%; background: none; color: inherit; opacity: .7; cursor: pointer; } .ds-remove:hover { opacity: 1; background: color-mix(in srgb, var(--tbg) 70%, var(--tfg)); } .ds-remove:focus-visible { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; } .ds-remove svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; } .ds-tag-editor input { flex: 1; min-width: 10ch; border: 0; background: none; outline: none; padding: 4px 0; font: inherit; color: var(--fg, #1d1d1f); } .ds-tag-editor input::placeholder { color: var(--fg-3, #66666b); }"
+    },
+    {
+      "name": "Search Field and Compose",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "52px list toolbar: a 30px Fill Grey search well and a 32px icon button for the context-aware compose action.",
+      "html": "<div class=\"ds-toolbar\"><label class=\"ds-search\"><svg viewBox=\"0 0 24 24\"><circle cx=\"10.5\" cy=\"10.5\" r=\"6\"/><path d=\"m15 15 5 5\"/></svg><input type=\"search\" placeholder=\"Search\" aria-label=\"Search\"></label><button class=\"ds-icon-btn\" aria-label=\"New note\"><svg viewBox=\"0 0 24 24\"><path d=\"M11 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V13\"/><path d=\"M17.6 3.9a1.9 1.9 0 0 1 2.7 2.7L12.5 14.4 9 15l.6-3.5z\"/></svg></button></div>",
+      "css": ".ds-toolbar { display: flex; align-items: center; gap: 8px; height: 52px; width: 320px; padding: 0 12px 0 16px; font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; } .ds-search { flex: 1; display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 8px; background: var(--fill, #f2f2f5); border-radius: 9px; color: var(--fg-3, #66666b); } .ds-search:focus-within { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; } .ds-search svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; } .ds-search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font: inherit; color: var(--fg, #1d1d1f); } .ds-search input::placeholder { color: var(--fg-3, #66666b); } .ds-icon-btn { width: 32px; height: 32px; padding: 0; border: 0; display: grid; place-items: center; border-radius: 8px; background: none; color: var(--fg-2, #6e6e73); cursor: pointer; } .ds-icon-btn:hover { background: var(--fill, #f2f2f5); color: var(--fg, #1d1d1f); } .ds-icon-btn:focus-visible { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; border-radius: 6px; } .ds-icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Date Chip",
+      "kind": "chip",
+      "refersTo": "date-chip-set",
+      "description": "26px pill wrapping a native date input; transparent until a date is set, then Ink on Fill Grey.",
+      "html": "<div class=\"ds-chips\"><label class=\"ds-date\"><svg viewBox=\"0 0 24 24\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15.5\" rx=\"3\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/><circle cx=\"12\" cy=\"15\" r=\"1.6\" fill=\"currentColor\" stroke=\"none\"/></svg><input type=\"date\" aria-label=\"Due date\"></label><label class=\"ds-date ds-set\"><svg viewBox=\"0 0 24 24\"><rect x=\"3.5\" y=\"5\" width=\"17\" height=\"15.5\" rx=\"3\"/><path d=\"M3.5 10h17M8 3v4M16 3v4\"/><circle cx=\"12\" cy=\"15\" r=\"1.6\" fill=\"currentColor\" stroke=\"none\"/></svg><span>Thursday 29 Oct</span><input type=\"date\" aria-label=\"Due date\"></label></div>",
+      "css": ".ds-chips { display: flex; gap: 12px; align-items: center; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; } .ds-date { position: relative; display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 8px; border-radius: 13px; color: var(--fg-2, #6e6e73); font-size: 12px; cursor: pointer; } .ds-date:hover, .ds-set { background: var(--fill, #f2f2f5); color: var(--fg, #1d1d1f); } .ds-date:focus-within { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; } .ds-date svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } .ds-date input { position: absolute; inset: 0; opacity: 0; pointer-events: none; }"
+    },
+    {
+      "name": "Sync Footer",
+      "kind": "custom",
+      "refersTo": "sync-footer",
+      "description": "Sidebar foot: state glyph, user name and time, and the \"Kept in your GitHub\" link to the storage repo.",
+      "html": "<div class=\"ds-sync-wrap\"><div class=\"ds-sync\" role=\"status\"><svg class=\"ds-glyph\" viewBox=\"0 0 24 24\"><path d=\"M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4.5 4.5 0 0 1-.5 9H7z\"/><path d=\"m9.5 13.6 1.8 1.8 3.4-3.6\"/></svg><span class=\"ds-text\"><span class=\"ds-who\"><span class=\"ds-name\">Victor Souto</span><time>Just now</time></span><span class=\"ds-where\"><a href=\"#\">Kept in your GitHub<svg viewBox=\"0 0 24 24\"><path d=\"M14 5h5v5M19 5l-8 8M17 14v3.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 5 17.5v-9A1.5 1.5 0 0 1 6.5 7H10\"/></svg></a></span></span></div></div>",
+      "css": ".ds-sync-wrap { width: 240px; padding: 0 12px 12px; background: var(--sidebar, #f2f1f6); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif; } .ds-sync { display: flex; align-items: center; gap: 8px; padding: 12px 8px 4px; border-top: 1px solid var(--line, #e5e5ea); color: var(--fg-2, #6e6e73); font-size: 12px; } .ds-sync svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } .ds-glyph { width: 16px; height: 16px; flex: none; align-self: flex-start; margin-top: 2px; } .ds-text { display: grid; line-height: 1.4; min-width: 0; flex: 1; } .ds-who { display: flex; align-items: baseline; gap: 8px; } .ds-name { color: var(--fg, #1d1d1f); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-who time { margin-left: auto; color: var(--fg-3, #66666b); font-variant-numeric: tabular-nums; } .ds-where { color: var(--fg-3, #66666b); } .ds-where a { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 3px; border-radius: 4px; } .ds-where a svg { width: 12px; height: 12px; } .ds-where a:hover { color: var(--fg, #1d1d1f); text-decoration: underline; text-underline-offset: 2px; } .ds-where a:focus-visible { outline: 2px solid var(--focus, #0071e3); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Familiar Three Panes",
+    "overview": "Bojji is the Apple Notes and Reminders layout played straight: a light grey sidebar, a white list pane and a white detail pane, divided by hairlines and set in the system face. Nothing on the surface is invented for its own sake. Someone who has used Notes or Reminders on a Mac knows where everything is before reading a word. The one new idea is the sync footer, where every edit settles into \"Kept in your GitHub\" next to the user's name.\n\nThe density is a native desktop app's: 14px UI text, 32px sidebar rows, 52px toolbars, and type weight and grey steps carrying the hierarchy instead of boxes or colour. Colour is rationed. One warm Notes yellow marks the selected note, fills the completed checkbox and tints the non-text glyphs (sidebar icons, back chevron, text caret, the Today dot) in a deeper tone. The only other hues are the matte tag pairs, each tag keeping one hue everywhere it appears, and the overdue red. Dark mode keeps the same roles in graphite.\n\nThe world is flat and quiet. Depth comes from the tonal step between the sidebar and the panes and from inset hairlines, never from cards or shadows. Motion is brief and functional: a ticked task fades and slides 8px out of the list, and the sync glyph spins while saving.",
+    "keyCharacteristics": [
+      "Three panes (240px sidebar, 320px list, fluid detail) on desktop; one pane at a time on phones.",
+      "System SF type with self-hosted Inter as the fallback; bold, tightly tracked titles over plain 14px UI text.",
+      "A single warm yellow, kept off text; matte per-tag hues; red only for overdue.",
+      "Hairline separators inset to the text column; flat panes, no shadows.",
+      "Thin 1.6-stroke line icons on a 24px grid, drawn as inline SVG symbols."
+    ],
+    "rules": [
+      {
+        "name": "The One Yellow Rule",
+        "body": "Yellow appears in three tones and only in these places: selected note fill, checkbox fill, and non-text glyphs. It never colours text. If a new surface wants an accent, it uses one of these roles or none.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Selections Rule",
+        "body": "A selected note is yellow; a selected task and the active sidebar item are quiet grey. Notes and Reminders each select this way, and the difference tells the user which kind of item is open.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Hue Per Tag Rule",
+        "body": "A tag's colour is derived from its name, never chosen per screen, and tag hues are used only for that tag's chip and its sidebar icon, never for other chrome.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Count Rule",
+        "body": "Counts, times and totals use `font-variant-numeric: tabular-nums` so columns of numbers don't shift.",
+        "section": "typography"
+      },
+      {
+        "name": "The Weight Before Colour Rule",
+        "body": "Hierarchy comes from weight (700/600/400) and the three ink steps. Headings get no colour or decoration.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Pane At A Time Rule",
+        "body": "On phones, never show two panes side by side. New pages extend the same three views and the back-chevron chain.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Panes Rule",
+        "body": "Panes and rows stay flat at rest and when selected; selection is a fill, never a lift. A shadow may only appear on a real floating layer (a menu, popover or sheet, as in Apple's own apps), and the first one needs a review before it becomes a token.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Inset Hairline Rule",
+        "body": "List separators begin at the text column, not the pane edge. Note rows draw the line 12px in from both sides; task rows draw it under the title body only, so it starts after the checkbox. The separators next to a selected row disappear so the selection fill reads as one piece.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do take every colour from the role tokens and their `-dark` pair; new surfaces inherit dark mode by using the same custom properties.",
+      "Do select notes in Notes Yellow and tasks and sidebar items in Quiet Select.",
+      "Do derive a tag's hue from its name with the shared hash and reuse the same `t0` to `t7` pair everywhere that tag appears.",
+      "Do inset hairlines to the text column and hide them next to a selected row.",
+      "Do make every chip a pill whose radius is half its height, and keep rows and icon buttons at 8px.",
+      "Do draw icons as 24px-grid inline SVG symbols with a 1.6 stroke and round caps, at 18px in rows and toolbars.",
+      "Do give touch targets at least 44px on phones (sidebar rows) and extend small hit areas such as the checkbox's.",
+      "Do keep reading text at 15px/1.6 within a 68ch measure.",
+      "Do honour `prefers-reduced-motion` by removing all transitions and animations."
+    ],
+    "donts": [
+      "Don't put yellow (any of its three tones) on text.",
+      "Don't add shadows, cards or raised panels to panes or rows; selection is a fill.",
+      "Don't use tag hues for anything other than the tag's own chip and sidebar icon, and don't add hues beyond the eight.",
+      "Don't colour due dates except Overdue Red for late tasks.",
+      "Don't introduce a second accent, a display face, or emoji and text glyphs as icons.",
+      "Don't show more than one pane at a time at 760px and below."
+    ]
+  }
+}
