@@ -20,6 +20,15 @@
         ],
         "createdAt": "2026-10-27T18:54:24.375Z",
         "reason": "Claude: 10-sample heuristic hit the 4px gaps inside tag chips and row meta; captures show grouped rhythm (4/8px inside rows, 16-24px between sections)"
+      },
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "worker/register-app.html"
+        ],
+        "createdAt": "2026-11-03T20:10:45.888Z",
+        "reason": "Claude: detector mixes light and dark tokens on this local-only registration page; Playwright computed contrast is >=5.1:1 for every text element in both schemes (light muted #6e6e73 on #fff 5.1:1, dark muted #a1a1a6 on #1c1c1e 6.6:1)"
       }
     ]
   }

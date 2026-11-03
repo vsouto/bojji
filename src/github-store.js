@@ -13,12 +13,14 @@ export class ConflictError extends Error {
   }
 }
 
+// `token` is a string, or a function returning one (so it can be refreshed).
 export function createGitHubStore({ token, owner, repo }) {
   async function request(method, url, body) {
+    const bearer = typeof token === 'function' ? await token() : token;
     const res = await fetch(url.startsWith('http') ? url : `${API}${url}`, {
       method,
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${bearer}`,
         Accept: 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
         ...(body && { 'Content-Type': 'application/json' }),
@@ -48,15 +50,42 @@ export function createGitHubStore({ token, owner, repo }) {
     }
   }
 
+  const createRepo = () => request('POST', '/user/repos', {
+    name: repo,
+    private: true,
+    auto_init: true,
+    description: 'Bojji notes and tasks',
+  });
+
   return {
+    owner,
+    repo,
+
+    // The signed-in account. Works with any token.
+    async user() {
+      const me = await request('GET', '/user');
+      return { login: me.login, name: me.name || me.login };
+    },
+
+    // Where this GitHub App is installed for the user (null if nowhere). A user
+    // token from a GitHub App only reaches repositories in the installation.
+    async installation(appSlug) {
+      const { installations = [] } = (await request('GET', '/user/installations?per_page=100')) ?? {};
+      const found = installations.find((i) => !appSlug || i.app_slug === appSlug);
+      return found ? { id: found.id, selection: found.repository_selection } : null;
+    },
+
+    // Whether the data repo exists and the token can see it. A repo outside
+    // the installation also reads as 404, so "missing" may mean "not shared".
+    async hasRepo() {
+      return Boolean(await request('GET', `/repos/${owner}/${repo}`));
+    },
+
+    createRepo,
+
     async ensureRepo() {
-      if (await request('GET', `/repos/${owner}/${repo}`)) return { created: false };
-      await request('POST', '/user/repos', {
-        name: repo,
-        private: true,
-        auto_init: true,
-        description: 'Bojji notes and tasks',
-      });
+      if (await this.hasRepo()) return { created: false };
+      await createRepo();
       return { created: true };
     },
 

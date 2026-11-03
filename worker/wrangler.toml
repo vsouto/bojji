@@ -1,0 +1,14 @@
+# Bojji sign-in service. Deploy with `npx wrangler deploy` from this folder.
+name = "bojji-auth"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+# From the GitHub App's settings page (Client ID, and the slug in the app's public URL github.com/apps/<slug>).
+GITHUB_CLIENT_ID = "Iv23liQqWI894vobnfGZ"
+GITHUB_APP_SLUG = "bojji-app"
+# Browser origins allowed to use this service: the hosted app and local development.
+ALLOWED_ORIGINS = "https://vsouto.github.io,http://localhost:5173"
+
+# The client secret is never written here. Set it once with:
+#   npx wrangler secret put GITHUB_CLIENT_SECRET

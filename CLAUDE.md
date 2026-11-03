@@ -16,7 +16,7 @@ npm run smoke  # end-to-end test against real GitHub on <login>/bojji-dryrun-dat
 BOJJI_REPO=bojji-dryrun-data npm start   # point the app at another data repo
 ```
 
-Opening the app from anywhere other than localhost (e.g. the GitHub Pages build) runs it as a demo on `public/demo-data.js`, saving nothing.
+The app opens on a welcome screen: **Sign in with GitHub**, **Try the demo** (`public/demo-data.js`, saves nothing), and on localhost only **Continue as <you>** with the `gh` login. Sign-in needs `authUrl` in `public/config.js` (or `BOJJI_AUTH_URL` locally); without it the hosted copy offers only the demo. `npm run test:worker` tests the sign-in Worker offline.
 
 ## Architecture
 
@@ -24,7 +24,8 @@ Opening the app from anywhere other than localhost (e.g. the GitHub Pages build)
 - `src/github-store.js`: the only code that talks to GitHub. Lists with one recursive tree call plus a blob fetch per file; writes and deletes go through the Contents API. Plain `fetch`, so it runs in the browser and in Node.
 - **Conflicts:** every save or delete of an existing item must pass the `sha` it was read with. GitHub rejects a stale sha; the store raises `ConflictError`, and the app reloads instead of overwriting.
 - `public/index.html`: markup and all CSS (tokens on `:root`, light and dark). `public/app.js`: UI state and rendering, plus the save queue (one debounced job per item, so typing becomes one commit). Tag colours come from hashing the tag name into `.t0`–`.t7`.
-- `server.mjs`: local-only server. It serves `public/` as the site root with `src/` mounted beside it, the same layout as the Pages build. `/api/session` stands in for the future "Sign in with GitHub" by handing the browser the `gh` CLI token; that shortcut must not ship to a hosted version. Real auth is planned as a GitHub App limited to the user's data repo.
+- `src/github-auth.js` + `worker/`: "Sign in with GitHub" through a **GitHub App** (Contents write and Metadata read only), so a user token reaches only the repos where the user installed the app. The stateless Cloudflare Worker in `worker/worker.js` holds the client secret and does the code exchange, refresh and revoke. The browser keeps the session in `localStorage`, with 8-hour tokens refreshed on demand and one refresh at a time. First run: no installation, or the repo isn't shared, leads to a setup screen with create-repo and install steps. The chosen repo name is stored per login (`bojji.repo.<login>`). Setup steps for the app and Worker are in `worker/README.md`.
+- `server.mjs`: local-only server. It serves `public/` as the site root with `src/` mounted beside it, the same layout as the Pages build. `/api/session` hands the browser the `gh` CLI token for the dev-only "Continue as" path; that shortcut must never ship hosted. It also serves `worker/register-app.html` for one-click registration of the GitHub App from its manifest: GitHub returns to `/registered`, the server turns the code into credentials in `.bojji-app.json` (gitignored, never commit it) and opens the app. With that file present, the server runs `worker/worker.js` in-process at `/auth`, so real sign-in works locally without deploying the Worker.
 - `.github/workflows/pages.yml` publishes `public/` + `src/` as the demo at https://vsouto.github.io/bojji/.
 
-Not built yet: real sign-in, offline queueing beyond the current session, attachments, tag rename/merge.
+Not built yet: offline queueing beyond the current session, attachments, tag rename/merge.

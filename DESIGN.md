@@ -350,6 +350,12 @@ Quiet, chrome-free controls that look like part of the pane until hovered.
 - **Text actions:** "Remove" on a due date and the "Show/Hide completed (n)" toggle are plain text in Ink Secondary (13px; the toggle is 500) that turns Ink on hover. No fill, no underline.
 - **Focus:** a global 2px Focus Blue outline, offset 2px, 6px radius.
 
+- **Welcome button (primary):** the only filled button, used once per screen on the welcome and setup screens. It is a 44px pill (22px radius) at 15px/600, filled with Ink and labelled in the pane colour, so it inverts in dark mode. "Sign in with GitHub" carries the GitHub mark at 20px. Hover mixes 14% of the pane colour into the fill.
+- **Welcome button (secondary):** a 36px Fill Grey pill (18px radius) at 14px/500, Quiet Select on hover, used for the links out to GitHub in the setup steps, with a 14px external glyph.
+
+### Welcome and setup
+Before the three panes, signed-out users see one centred column, 360px wide on the pane colour. From the top: the cloud-tick glyph at 44px in Deep Mustard, the 13px brand name, a 26px list-title heading, a 15px/1.6 lede in Ink Secondary, the primary button, "Try the demo" as a plain text action, and 12px Ink Tertiary fine print. The setup screen keeps that column and lists numbered steps between hairlines. Each step has a 22px ring number that fills Check Gold with a tick when done, a 15px/600 title, 13px help text and a secondary button. A who-line closes the column with the login, the repository and the Change and Sign out actions. Signed in, the sync footer's name is a button that reveals "Change repository" and "Sign out" as 12px Ink Tertiary text actions.
+
 ### Chips
 - **Tag chip:** a 20px pill with a matte hue background and same-hue deep text, 12px/500, shown as `#name`. Clicking a chip opens that tag's view; hover mixes 18% of the text colour into the background. In a tag's own view, that tag's chip is left off the rows.
 - **Editable tag (detail pane):** a 26px pill at 13px with a 20px circular remove "×" at 70% opacity (100% with a tinted background on hover). The add input sits inline after the chips and uses the tag datalist; Enter adds a tag, and Backspace in an empty input removes the last one.

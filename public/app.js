@@ -1,6 +1,8 @@
 import { ConflictError, createGitHubStore } from './src/github-store.js';
+import { AuthError, createAuth } from './src/github-auth.js';
 import { newItem } from './src/items.js';
 import { demoItems } from './demo-data.js';
+import config from './config.js';
 
 const DAY = 864e5;
 const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -17,7 +19,9 @@ const state = {
   showDone: false,
   query: '',
   sync: { state: 'loading' },
-  user: null, // set when the local server hands over a GitHub session; null means demo mode
+  user: null, // { name, login, repo } once signed in; null means demo mode
+  account: false, // the account actions under the sync footer are open
+  repoEdit: false,
   items: [],
 };
 
@@ -114,9 +118,25 @@ function renderSync() {
   const sync = $('#sync');
   sync.dataset.state = s.state;
   sync.title = s.detail ?? '';
+  const who = state.user ? `<button class="name" id="account-toggle" aria-expanded="${state.account}">${esc(name)}</button>` : `<span class="name">${esc(name)}</span>`;
   sync.innerHTML = `<svg class="i"><use href="#${copy[0]}"/></svg><span class="text">
-    <span class="who"><span class="name">${esc(name)}</span>${copy[2] ? `<time>${copy[2]}</time>` : ''}</span>
+    <span class="who">${who}${copy[2] ? `<time>${copy[2]}</time>` : ''}</span>
     <span class="where">${copy[1]}</span></span>`;
+  renderAccount();
+}
+
+// Discreet account actions: in demo mode a way in; when signed in, behind the name.
+function renderAccount() {
+  const el = $('#account');
+  if (!state.user) {
+    el.innerHTML = auth?.enabled ? '<div class="account"><button id="sign-in">Sign in with GitHub</button></div>' : '';
+    return;
+  }
+  if (!state.account) return (el.innerHTML = '');
+  el.innerHTML = state.repoEdit
+    ? `<form class="repo-form" id="repo-form"><input name="repo" value="${esc(state.user.repo)}" aria-label="Repository name" autocomplete="off" required pattern="[A-Za-z0-9._\\-]+"><button class="btn btn-secondary">Use</button></form>`
+    : `<div class="account"><button id="change-repo">Change repository</button><button id="sign-out">Sign out</button></div>`;
+  if (state.repoEdit) el.querySelector('input').focus();
 }
 
 function renderList() {
@@ -288,6 +308,7 @@ async function run(job) {
     else job.item.sha = (await store.save(job.item, job.item.sha)).sha;
   } catch (error) {
     job.running = false;
+    if (lostSession(error)) return;
     if (!(error instanceof ConflictError)) return setSync('error', error.message);
     jobs.delete(job.item.id);
     await reload();
@@ -421,6 +442,7 @@ document.addEventListener('input', (e) => {
 });
 
 document.addEventListener('keydown', (e) => {
+  if (app.hidden) return;
   const typing = e.target.matches('input, textarea');
   if (e.key === 'n' && !typing && !e.metaKey && !e.ctrlKey) { e.preventDefault(); create(state.view === 'notes' ? 'note' : 'task'); }
   if (e.key === 'Escape' && typing) e.target.blur();
@@ -447,30 +469,196 @@ document.addEventListener('visibilitychange', () => {
 });
 setInterval(renderSync, 3e4);
 
-async function boot() {
-  let session = null;
-  // Only the local server can hand over a session; anywhere else this is the public demo.
-  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  if (local) try {
-    const res = await fetch('api/session');
-    if (res.ok) session = await res.json();
-  } catch {}
-  if (!session) {
-    state.items = demoItems({ iso, ago });
-    state.selected = 't2';
-    state.sync = { state: 'kept', at: null };
-    return render();
-  }
-  state.user = { name: session.name || session.owner, login: session.owner, repo: session.repo };
+// Sign-in, welcome and setup. The app root stays hidden until we know where
+// the user's data is: a GitHub repo they signed in to, the local gh login
+// (development only), or the demo's sample data.
+const welcome = $('#welcome');
+const APP_URL = location.origin + location.pathname; // must match a callback URL registered on the GitHub App
+const prefs = {
+  get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
+  set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+};
+const repoFor = (login) => prefs.get(`bojji.repo.${login}`) || 'bojji-data';
+let auth = null;
+let dev = null; // session from the local server (your gh CLI token), if any
+let settingUp = false; // the setup screen is showing; re-check when the tab comes back
+let setup = null; // what the setup screen was last shown with
+
+function showWelcome(html) { welcome.innerHTML = `<div class="welcome-card">${html}</div>`; welcome.hidden = false; app.hidden = true; }
+// The mascot: a small, kind king holding his notes (an original drawing, not a copy of any character).
+const MASCOT = `<svg class="mascot" viewBox="0 0 120 120" aria-hidden="true">
+  <ellipse class="m-shadow" cx="60" cy="111" rx="24" ry="3.5"/>
+  <g class="m-bob">
+    <ellipse class="m-line m-body" cx="49" cy="106" rx="7" ry="4"/><ellipse class="m-line m-body" cx="71" cy="106" rx="7" ry="4"/>
+    <path class="m-line m-body" d="M60 40c21 0 33 15 33 35 0 19-13 30-33 30S27 94 27 75c0-20 12-35 33-35z"/>
+    <g class="m-crown"><path class="m-line m-gold" d="M45 43 47 23l8 9 5-13 5 13 8-9 2 20z"/><circle class="m-ink" cx="60" cy="36" r="2.2"/></g>
+    <g class="m-eyes"><ellipse class="m-ink" cx="50" cy="69" rx="2.6" ry="3.6"/><ellipse class="m-ink" cx="68" cy="69" rx="2.6" ry="3.6"/></g>
+    <circle class="m-blush" cx="43" cy="78" r="4.5"/><circle class="m-blush" cx="75" cy="78" r="4.5"/>
+    <path class="m-line" d="M55 79q4 4 8 0" fill="none"/>
+    <g class="m-note"><rect class="m-line m-paper" x="72" y="76" width="22" height="26" rx="3.5"/><path class="m-tick" d="m77 86 3 3 6-6"/><path class="m-line" d="M77 95h12" fill="none"/></g>
+    <circle class="m-line m-body" cx="74" cy="92" r="4"/>
+  </g>
+</svg>`;
+const head = (title, lede = '', small = false) => `<div class="mascot-wrap${small ? ' small' : ''}">${MASCOT}</div><h1>${title}</h1>${lede ? `<p class="lede">${lede}</p>` : ''}`;
+const ext = '<svg class="i"><use href="#i-external"/></svg>';
+
+function renderWelcome(error) {
+  settingUp = false;
+  const signIn = auth.enabled;
+  showWelcome(head('Your notes, kept in your GitHub.', 'Private, plain Markdown. Free, always.')
+    + (signIn ? '<button class="btn btn-primary" id="sign-in"><svg class="i"><use href="#i-github"/></svg>Sign in with GitHub</button><button class="alt" id="demo">Try the demo</button>'
+      : '<button class="btn btn-primary" id="demo">Try the demo</button><p class="note">Sign-in isn’t set up on this copy of Bojji yet.</p>')
+    + (dev ? `<button class="alt quiet" id="dev-in">Continue as ${esc(dev.name || dev.owner)} · local</button>` : '')
+    + (error ? `<p class="note error">${esc(error)}</p>` : ''));
+  welcome.insertAdjacentHTML('beforeend', '<button class="about-btn" id="about-open" aria-label="How Bojji keeps your data"><svg class="i"><use href="#i-info"/></svg></button>');
+}
+
+// Shown once per account: the app can't see a data repo yet.
+function renderSetup({ login, repo, installed, repoExists, error }) {
+  settingUp = true;
+  setup = { login, repo, installed, repoExists };
+  const newRepo = `https://github.com/new?name=${encodeURIComponent(repo)}&description=${encodeURIComponent('Bojji notes and tasks')}&visibility=private`;
+  const create = `<a class="btn btn-secondary" href="${newRepo}" target="_blank" rel="noopener">Create on GitHub ${ext}</a>`;
+  const step = (n, title, text, action, done) => `<li class="step ${done ? 'done' : ''}"><span class="num">${done ? '<svg class="i"><use href="#i-check"/></svg>' : n}</span><div><h2>${title}</h2>${text ? `<p>${text}</p>` : ''}${done ? '' : action}</div></li>`;
+  const steps = installed
+    ? step(1, `Create a private repository called ${esc(repo)}`, repoExists ? '' : 'It holds your notes and tasks as plain Markdown files, in your account.', create, repoExists)
+      + step(2, `Give Bojji access to ${esc(repo)}`, 'In the Bojji app settings on GitHub, add it under “Repository access”. Bojji never sees anything else.', `<a class="btn btn-secondary" href="https://github.com/settings/installations/${installed.id}" target="_blank" rel="noopener">Open GitHub settings ${ext}</a>`)
+    : step(1, `Create a private repository called ${esc(repo)}`, 'It holds your notes and tasks as plain Markdown files, in your account.', create)
+      + step(2, 'Let Bojji use it', `On GitHub, choose “Only select repositories” and pick ${esc(repo)}. Bojji never sees anything else.`, '<button class="btn btn-secondary" id="install">Continue on GitHub</button>');
+  showWelcome(head('Give Bojji a home in your GitHub', 'Two quick steps on GitHub, just this once.', true)
+    + `<ol class="steps">${steps}</ol>`
+    + (installed ? '<button class="btn btn-primary" id="recheck">I’ve done this</button>' : '')
+    + (error ? `<p class="note error">${esc(error)}</p>` : '')
+    + `<p class="who-line">Signed in as <b>${esc(login)}</b> · Repository <code>${esc(repo)}</code> <button id="change-repo">Change</button> · <button id="sign-out">Sign out</button></p>`
+    + (state.repoEdit ? `<form class="repo-form" id="repo-form"><input name="repo" value="${esc(repo)}" aria-label="Repository name" autocomplete="off" required pattern="[A-Za-z0-9._\\-]+"><button class="btn btn-secondary">Use</button></form>` : ''));
+  if (state.repoEdit) welcome.querySelector('input').focus();
+}
+
+// A 401 or a dead refresh token means the sign-in is gone: back to the start.
+function lostSession(error) {
+  if (!(error instanceof AuthError) && error?.status !== 401) return false;
+  leave().then(() => renderWelcome(error.message));
+  return true;
+}
+
+async function leave() {
+  jobs.forEach((job) => clearTimeout(job.timer));
+  jobs.clear();
+  store = null;
+  Object.assign(state, { user: null, items: [], selected: null, account: false, repoEdit: false, view: 'today' });
+  prefs.set('bojji.dev', null);
+  try { sessionStorage.removeItem('bojji.demo'); } catch {}
+  await auth.signOut();
+}
+
+// Everything is in place: show the app and load the items.
+async function enter(user, newStore, prepare) {
+  settingUp = false;
+  state.user = user;
+  store = newStore;
+  state.sync = { state: 'loading' };
+  welcome.hidden = true; app.hidden = false;
   render();
-  store = createGitHubStore(session);
   try {
-    await store.ensureRepo();
+    if (prepare) await prepare();
     await reload();
     state.sync = { state: 'kept', at: null };
   } catch (error) {
+    if (lostSession(error)) return;
     state.sync = { state: 'error', detail: error.message };
   }
   render();
+}
+
+function enterDemo() {
+  try { sessionStorage.setItem('bojji.demo', '1'); } catch {}
+  state.user = null;
+  state.items = demoItems({ iso, ago });
+  state.selected = 't2';
+  state.sync = { state: 'kept', at: null };
+  welcome.hidden = true; app.hidden = false;
+  render();
+}
+
+function enterDev() {
+  prefs.set('bojji.dev', '1');
+  const s = createGitHubStore(dev);
+  enter({ name: dev.name || dev.owner, login: dev.owner, repo: dev.repo }, s, () => s.ensureRepo());
+}
+
+// Signed in with GitHub: find the account, the installation and the data repo.
+async function start() {
+  showWelcome(head('Signing you in…', '', true));
+  try {
+    const token = () => auth.token();
+    const me = await createGitHubStore({ token, owner: '', repo: '' }).user();
+    const repo = repoFor(me.login);
+    const s = createGitHubStore({ token, owner: me.login, repo });
+    const installed = await s.installation((await auth.config()).app_slug);
+    if (!installed) return renderSetup({ login: me.login, repo, installed: null });
+    if (!(await s.hasRepo())) {
+      // Bojji asks GitHub only for Contents and Metadata, so this normally
+      // fails (403) and the setup screen guides the user to create the repo.
+      // It succeeds only if a fork of Bojji grants repository creation; GitHub
+      // then gives the app access to the repo it created. 422 means the repo
+      // exists but wasn't shared with Bojji.
+      try { await s.createRepo(); } catch (error) {
+        if (lostSession(error)) return;
+        return renderSetup({ login: me.login, repo, installed, repoExists: error.status === 422 });
+      }
+    }
+    enter({ name: me.name, login: me.login, repo }, s);
+  } catch (error) {
+    if (!lostSession(error)) renderWelcome(error.message);
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#sign-in')) return auth.signIn().catch((error) => renderWelcome(error.message));
+  if (e.target.closest('#demo')) return enterDemo();
+  if (e.target.closest('#about-open')) return $('#about').showModal();
+  if (e.target.closest('#about-close') || e.target.id === 'about') return $('#about').close();
+  if (e.target.closest('#dev-in')) return enterDev();
+  if (e.target.closest('#install')) return auth.install().catch((error) => renderWelcome(error.message));
+  if (e.target.closest('#recheck')) return start();
+  if (e.target.closest('#sign-out')) return leave().then(() => renderWelcome());
+  if (e.target.closest('#account-toggle')) { state.account = !state.account; state.repoEdit = false; return renderSync(); }
+  if (e.target.closest('#change-repo')) {
+    state.repoEdit = true;
+    return settingUp ? renderSetup(setup) : renderAccount();
+  }
+});
+
+document.addEventListener('submit', async (e) => {
+  if (e.target.id !== 'repo-form') return;
+  e.preventDefault();
+  const repo = e.target.repo.value.trim();
+  if (!repo) return;
+  state.repoEdit = false; state.account = false;
+  const login = state.user?.login ?? setup?.login;
+  prefs.set(`bojji.repo.${login}`, repo === 'bojji-data' ? null : repo);
+  if (dev && store && !auth.session()) { dev = { ...dev, repo }; return enterDev(); }
+  renderSetup({ ...setup, repo });
+  start();
+});
+
+// Coming back from GitHub during setup, re-check without a click.
+document.addEventListener('visibilitychange', () => { if (settingUp && !document.hidden && !state.repoEdit) start(); });
+
+async function boot() {
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  if (local) try {
+    const res = await fetch('api/session');
+    if (res.ok) dev = await res.json();
+  } catch {}
+  auth = createAuth({ authUrl: config.authUrl || dev?.authUrl || '', redirectUri: APP_URL });
+  let error = null;
+  try { await auth.handleRedirect(); } catch (e) { error = e.message; }
+  if (auth.session()) return start();
+  if (dev && prefs.get('bojji.dev')) return enterDev();
+  let demo = false;
+  try { demo = sessionStorage.getItem('bojji.demo') === '1'; } catch {}
+  if (demo && !error) return enterDemo();
+  renderWelcome(error);
 }
 boot();

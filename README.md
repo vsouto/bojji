@@ -41,22 +41,24 @@ Optional notes in Markdown.
 
 Bojji talks to the GitHub API directly from your browser, and every save is a commit.
 
-## Run it
+## Sign in
 
-Bojji is early: "Sign in with GitHub" for everyone isn't built yet. For now it runs on your own machine using your GitHub CLI login.
+Open Bojji and choose **Sign in with GitHub**. The first time, Bojji walks you through two steps on GitHub: create a private `bojji-data` repository, then let the Bojji GitHub App use only that repository. Bojji can't see anything else in your account, and you can remove its access any time in your GitHub settings.
+
+## Run it locally
 
 Requires Node 22+ and the [GitHub CLI](https://cli.github.com/), logged in (`gh auth login`).
 
 ```bash
-npm start      # open http://localhost:5173
+npm start      # open http://localhost:5173 and choose "Continue as <you>"
 npm run smoke  # end-to-end test against GitHub (uses bojji-dryrun-data, cleans up after itself)
+npm run test:worker   # the sign-in Worker against a fake GitHub
 ```
 
-The first run creates the private `bojji-data` repository in your account. Set `BOJJI_REPO=<name>` to use a different one.
+Locally, the welcome screen also offers **Continue as <you>**, which uses your GitHub CLI login and creates `bojji-data` if it's missing. Set `BOJJI_REPO=<name>` to use another repository. To host your own copy with real sign-in, see [worker/README.md](worker/README.md).
 
 ## Roadmap
 
-- Sign in with GitHub, so Bojji can be hosted for anyone
 - Offline edits that sync later
 - Renaming and merging tags
 - Native iOS and Android apps

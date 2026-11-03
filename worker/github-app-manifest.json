@@ -1,0 +1,21 @@
+{
+  "name": "Bojji",
+  "url": "https://vsouto.github.io/bojji/",
+  "description": "Free, open-source notes and tasks kept as Markdown in a private repository you own. Bojji only reads and writes the repository you give it.",
+  "public": true,
+  "request_oauth_on_install": true,
+  "callback_urls": [
+    "https://vsouto.github.io/bojji/",
+    "http://localhost:5173/"
+  ],
+  "redirect_url": "http://localhost:5173/registered",
+  "default_permissions": {
+    "contents": "write",
+    "metadata": "read"
+  },
+  "default_events": [],
+  "hook_attributes": {
+    "url": "https://bojji-auth.example.workers.dev/webhook",
+    "active": false
+  }
+}

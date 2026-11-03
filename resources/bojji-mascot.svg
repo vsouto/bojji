@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="512" height="512">
+<title>Bojji mascot</title>
+<style>.m-line{stroke:#1d1d1f;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.m-body{fill:#fff3cf}.m-gold{fill:#e0a800}.m-paper{fill:#ffffff}.m-ink{fill:#1d1d1f}.m-blush{fill:#f6b8ae}.m-shadow{fill:#e5e5ea}.m-tick{fill:none;stroke:#b07d00;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}</style>
+  <ellipse class="m-shadow" cx="60" cy="111" rx="24" ry="3.5"/>
+  <g class="m-bob">
+  <ellipse class="m-line m-body" cx="49" cy="106" rx="7" ry="4"/><ellipse class="m-line m-body" cx="71" cy="106" rx="7" ry="4"/>
+  <path class="m-line m-body" d="M60 40c21 0 33 15 33 35 0 19-13 30-33 30S27 94 27 75c0-20 12-35 33-35z"/>
+  <g class="m-crown"><path class="m-line m-gold" d="M45 43 47 23l8 9 5-13 5 13 8-9 2 20z"/><circle class="m-ink" cx="60" cy="36" r="2.2"/></g>
+  <g class="m-eyes"><ellipse class="m-ink" cx="50" cy="69" rx="2.6" ry="3.6"/><ellipse class="m-ink" cx="68" cy="69" rx="2.6" ry="3.6"/></g>
+  <circle class="m-blush" cx="43" cy="78" r="4.5"/><circle class="m-blush" cx="75" cy="78" r="4.5"/>
+  <path class="m-line" d="M55 79q4 4 8 0" fill="none"/>
+  <g class="m-note"><rect class="m-line m-paper" x="72" y="76" width="22" height="26" rx="3.5"/><path class="m-tick" d="m77 86 3 3 6-6"/><path class="m-line" d="M77 95h12" fill="none"/></g>
+  <circle class="m-line m-body" cx="74" cy="92" r="4"/>
+  </g>
+  
+</svg>

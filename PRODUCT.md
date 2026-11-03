@@ -38,7 +38,8 @@ Bojji runs no storage servers. Each user's notes and tasks live as plain Markdow
 - Tags on both tasks and notes (stored as a `tags:` line in the file header, matched case-insensitively). Clicking a tag shows everything with it: open tasks, notes, then completed tasks. Renaming or merging a tag across many files is not designed yet.
 - Each note and task is one Markdown file (`notes/<id>.md`, `tasks/<id>.md`) in the user's private GitHub repo (`bojji-data` by default, separate from the code repo).
 - Conflicts are detected and resolved by reloading; nothing is silently overwritten.
-- Not built yet: real "Sign in with GitHub" (the app uses the local `gh` login), offline mode, attachments.
+- Sign in with GitHub through the Bojji GitHub App, which only gets the one data repository the user picks. First run guides the user through creating the repo and granting access, in two steps on GitHub. A small stateless sign-in service (a Cloudflare Worker) only completes the sign-in. It never sees notes or tasks.
+- Not built yet: offline mode, attachments.
 - Undecided: whether storage backends other than GitHub (Google Drive, Dropbox) will be added for non-technical users.
 
 ## Brand Commitments
