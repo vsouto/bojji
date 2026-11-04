@@ -35,11 +35,12 @@ Bojji runs no storage servers. Each user's notes and tasks live as plain Markdow
 
 - Tasks: title, optional due date with an optional time, done or not done. A dated task can be added to Google Calendar through a pre-filled event link (one way; Bojji never reads or writes the calendar).
 - Notes: title and a Markdown body.
+- Manual order: drag a task within its day (or within "No date"), or a note in the notes list; Alt+ArrowUp/Down does the same from the keyboard, and a touch drag starts with a long press. The order is an `order:` key in the item's file, so a move rewrites one file and never changes a due date; the first arrangement of an old list may also write a few neighbours once. Within a day, manual order beats the time (times stay as labels). Notes have a sort control at the top of the list: "Date edited" (the default) or "Manual", remembered per account; dragging a note switches to Manual from the order on screen. Tasks have no sort control. Completed tasks can't be reordered.
 - Tags on both tasks and notes (stored as a `tags:` line in the file header, matched case-insensitively). Clicking a tag shows everything with it: open tasks, notes, then completed tasks. Renaming or merging a tag across many files is not designed yet.
 - Each note and task is one Markdown file (`notes/<id>.md`, `tasks/<id>.md`) in the user's private GitHub repo (`bojji-data` by default, separate from the code repo).
 - Conflicts are detected and resolved by reloading; nothing is silently overwritten.
 - Sign in with GitHub through the Bojji GitHub App, which only gets the one data repository the user picks. First run guides the user through creating the repo and granting access, in two steps on GitHub. A small stateless sign-in service (a Cloudflare Worker) only completes the sign-in. It never sees notes or tasks.
-- Not built yet: offline mode, attachments.
+- Not built yet: offline mode, attachments, dragging a task to another day (or from overdue into today), which would change its due date.
 - Undecided: whether storage backends other than GitHub (Google Drive, Dropbox) will be added for non-technical users.
 
 ## Brand Commitments

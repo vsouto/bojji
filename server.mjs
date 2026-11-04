@@ -12,7 +12,7 @@ import { extname, join, normalize } from 'node:path';
 
 const PORT = Number(process.env.PORT ?? 5173);
 const ROOT = import.meta.dirname;
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.txt': 'text/plain' };
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2', '.txt': 'text/plain', '.svg': 'image/svg+xml', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
 
 const gh = (...args) => execFileSync('gh', args, { encoding: 'utf8' }).trim();
 const APP_FILE = join(ROOT, '.bojji-app.json');

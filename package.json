@@ -9,6 +9,7 @@
     "start": "node server.mjs",
     "smoke": "node scripts/smoke.mjs",
     "test:worker": "node worker/test.mjs",
-    "test:calendar": "node scripts/test-calendar.mjs"
+    "test:calendar": "node scripts/test-calendar.mjs",
+    "test:order": "node scripts/test-order.mjs"
   }
 }

@@ -2,6 +2,7 @@ import { ConflictError, createGitHubStore } from './src/github-store.js';
 import { AuthError, createAuth } from './src/github-auth.js';
 import { newItem } from './src/items.js';
 import { googleCalendarUrl } from './src/calendar.js';
+import { NOTES, TASKS, byEdited, compareNotes, compareTasks, keyBetween, planMove } from './src/order.js';
 import { demoItems } from './demo-data.js';
 import config from './config.js';
 
@@ -23,6 +24,7 @@ const state = {
   user: null, // { name, login, repo } once signed in; null means demo mode
   account: false, // the account actions under the sync footer are open
   repoEdit: false,
+  noteSort: 'edited', // or 'manual'; remembered per login
   items: [],
 };
 
@@ -38,7 +40,7 @@ const $ = (s) => document.querySelector(s);
 const app = $('#app');
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const tasks = () => state.items.filter((i) => i.type === 'task');
-const notes = () => state.items.filter((i) => i.type === 'note').sort((a, b) => b.edited - a.edited);
+const notes = () => state.items.filter((i) => i.type === 'note').sort(state.noteSort === 'manual' ? compareNotes : byEdited);
 const byId = (id) => state.items.find((i) => i.id === id);
 const matches = (i) => !state.query || [i.title, i.body, ...(i.tags ?? [])].join(' ').toLowerCase().includes(state.query.toLowerCase());
 
@@ -61,14 +63,20 @@ function list(view = state.view) {
 const tagChips = (item) => (item.tags ?? []).filter((t) => !list().tag || !same(t, list().tag))
   .map((t) => `<button class="tag t${hue(t)}" data-tag="${esc(t)}">#${esc(t)}</button>`).join('');
 
-// Due date, then time (all-day first), then title.
-const byDue = (a, b) => (a.due ?? '9999').localeCompare(b.due ?? '9999') || (a.time ?? '').localeCompare(b.time ?? '') || a.title.localeCompare(b.title);
+// Rows that can be dragged share a group: one per due date for open tasks, one for notes.
+// Manual order only applies inside a group, so a move never changes a date.
+const groupOf = (item) => (item.type === 'note' ? 'notes' : `due:${item.due ?? 'none'}`);
+const SHORTCUTS = 'aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"';
 
 function visible() {
   if (state.view === 'notes') return notes().filter(matches);
-  return tasks().filter(list().filter).filter(matches)
-    .sort(byDue);
+  return tasks().filter(list().filter).filter(matches).sort(compareTasks);
 }
+
+// Notes sort by date edited (the default) or by the user's own order.
+const SORTS = [['edited', 'Date edited'], ['manual', 'Manual']];
+const sortControl = () => `<div class="sort" role="group" aria-label="Sort notes">${SORTS.map(([value, label]) =>
+  `<button data-sort="${value}" aria-pressed="${state.noteSort === value}">${label}</button>`).join('')}</div>`;
 
 function dueLabel(due) {
   if (!due) return '';
@@ -105,6 +113,7 @@ function renderSidebar() {
 }
 
 function renderSync() {
+  if (drag) { pendingRender = true; return; }
   const s = state.sync;
   const link = (href, text, title) => `<a href="${href}" target="_blank" rel="noopener" title="${title}">${text}<svg class="i"><use href="#i-external"/></svg></a>`;
   const name = state.user ? state.user.name : 'Demo';
@@ -144,6 +153,7 @@ function renderAccount() {
 }
 
 function renderList() {
+  if (drag) { pendingRender = true; return; }
   const items = visible();
   $('#list-title').textContent = list().label;
   const range = $('#list-range');
@@ -153,6 +163,8 @@ function renderList() {
     range.textContent = `${fmt(weekDays[0])} – ${fmt(weekDays[6])}`;
   }
   $('#list-total').textContent = state.view === 'notes' ? '' : items.length;
+  $('#list-sort').hidden = state.view !== 'notes';
+  $('#list-sort').innerHTML = state.view === 'notes' ? sortControl() : '';
   const what = state.view === 'notes' || list().tag ? 'New note' : 'New task';
   $('#compose').setAttribute('aria-label', what);
   $('#compose').title = `${what} (N)`;
@@ -160,10 +172,11 @@ function renderList() {
 
   const noteRow = (n) => {
     const chips = tagChips(n);
-    return `<div class="note-row" role="button" tabindex="0" data-id="${n.id}" aria-current="${state.selected === n.id}">
+    return `<div class="note-row" role="button" tabindex="0" data-id="${n.id}" data-group="notes" ${SHORTCUTS} aria-current="${state.selected === n.id}">
       <div class="title">${esc(n.title || 'New note')}</div>
       <div class="meta"><time>${when(n.edited)}</time><span>${esc(n.body.replace(/[#*_>-]/g, ' ').trim().split('\n')[0] || 'No additional text')}</span></div>
       ${chips ? `<div class="row-meta">${chips}</div>` : ''}
+      <span class="grip" aria-hidden="true"><svg class="i"><use href="#i-grip"/></svg></span>
     </div>`;
   };
   if (state.view === 'notes') {
@@ -182,21 +195,21 @@ function renderList() {
     const label = [date, t.due && t.time].filter(Boolean).join(', '); // the Week view shows only the time
     const tone = t.done ? '' : due;
     const chips = tagChips(t);
-    return `<div class="task-row ${t.done ? 'done' : ''}" data-id="${t.id}" aria-current="${state.selected === t.id}">
+    return `<div class="task-row ${t.done ? 'done' : ''}" data-id="${t.id}"${t.done ? '' : ` data-group="${groupOf(t)}"`} aria-current="${state.selected === t.id}">
       <button class="check" role="checkbox" aria-checked="${t.done}" aria-label="${esc(t.title)}" data-check="${t.id}"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></button>
-      <div class="body"><button class="title" data-id="${t.id}">${esc(t.title)}</button>${label || chips ? `<div class="row-meta">${label ? `<span class="due ${tone}">${label}</span>` : ''}${chips}</div>` : ''}</div>
+      <div class="body"><button class="title" data-id="${t.id}"${t.done ? '' : ` ${SHORTCUTS}`}>${esc(t.title)}</button>${label || chips ? `<div class="row-meta">${label ? `<span class="due ${tone}">${label}</span>` : ''}${chips}</div>` : ''}</div>${t.done ? '' : `
+      <span class="grip" aria-hidden="true"><svg class="i"><use href="#i-grip"/></svg></span>`}
     </div>`;
   };
   const { tag } = list();
   if (tag) {
     const tagged = state.items.filter((i) => hasTag(i, tag) && matches(i));
-    const open = tagged.filter((i) => i.type === 'task' && !i.done)
-      .sort(byDue);
-    const tagNotes = tagged.filter((i) => i.type === 'note').sort((a, b) => b.edited - a.edited);
+    const open = tagged.filter((i) => i.type === 'task' && !i.done).sort(compareTasks);
+    const tagNotes = tagged.filter((i) => i.type === 'note').sort(state.noteSort === 'manual' ? compareNotes : byEdited);
     const done = tagged.filter((i) => i.type === 'task' && i.done);
     $('#list-total').textContent = open.length;
     rows.innerHTML = open.map((t) => taskRow(t)).join('') + add
-      + (tagNotes.length ? `<h3 class="section-head">Notes</h3>${tagNotes.map(noteRow).join('')}` : '')
+      + (tagNotes.length ? `<div class="section-bar"><h3 class="section-head">Notes</h3>${sortControl()}</div>${tagNotes.map(noteRow).join('')}` : '')
       + (done.length ? `<button class="section-toggle" id="toggle-done" aria-expanded="${state.showDone}">${state.showDone ? 'Hide' : 'Show'} completed (${done.length})</button>${state.showDone ? done.map((t) => taskRow(t)).join('') : ''}` : '')
       + (tagged.length ? '' : `<p class="empty">${state.query ? 'Nothing matches.' : `Nothing tagged ${esc(tag)} yet.`}</p>`);
     return;
@@ -243,6 +256,7 @@ function renderDetail() {
 }
 
 function render() {
+  if (drag) { pendingRender = true; return; } // a drag holds the list still; it renders once dropped
   renderSidebar(); renderList(); renderDetail(); renderSync();
 }
 
@@ -298,6 +312,7 @@ function setSync(next, detail) {
 }
 
 function changed(item) {
+  item.updated = new Date().toISOString(); // so a later move (which keeps `updated`) writes this edit's time
   if (item.type === 'note') item.edited = new Date();
   queue(item, 'save');
 }
@@ -306,9 +321,12 @@ function removed(item) {
   queue(item, 'remove');
 }
 
-function queue(item, op) {
-  const job = jobs.get(item.id) ?? { item };
+// `touch: false` is a move: the file keeps its `updated`. A move and an edit
+// waiting together become one commit that does update it.
+function queue(item, op, { touch = true } = {}) {
+  const job = jobs.get(item.id) ?? { item, touch: false };
   Object.assign(job, { item, op });
+  job.touch ||= touch;
   jobs.set(item.id, job);
   clearTimeout(job.timer);
   setSync('saving');
@@ -319,12 +337,15 @@ async function run(job) {
   if (job.running) { job.again = true; return; }
   if (store && !navigator.onLine) return setSync('offline');
   job.running = true;
+  const { touch } = job;
+  job.touch = false;
   try {
     if (!store) await new Promise((done) => setTimeout(done, 400));
     else if (job.op === 'remove') { if (job.item.sha) await store.remove(job.item, job.item.sha); }
-    else job.item.sha = (await store.save(job.item, job.item.sha)).sha;
+    else job.item.sha = (await store.save(job.item, job.item.sha, { touch })).sha;
   } catch (error) {
     job.running = false;
+    job.touch ||= touch;
     if (lostSession(error)) return;
     if (!(error instanceof ConflictError)) return setSync('error', error.message);
     jobs.delete(job.item.id);
@@ -375,10 +396,16 @@ function setView(view) {
   render();
 }
 
+// New tasks go to the bottom of their day, new notes to the top.
+const keysOf = (items) => items.map((i) => i.order).filter(Boolean);
+const endOfDay = (task) => keyBetween(keysOf(tasks().filter((t) => t.id !== task.id && (t.due ?? null) === (task.due ?? null))).reduce((max, k) => (max === null || k > max ? k : max), null), null);
+const topOfNotes = (note) => keyBetween(null, keysOf(state.items.filter((i) => i.type === 'note' && i.id !== note.id)).reduce((min, k) => (min === null || k < min ? k : min), null));
+
 function create(type) {
   const item = newItem(type, type === 'note' ? { edited: new Date() } : { due: state.view === 'today' ? iso(0) : null });
   const { tag } = list();
   if (tag) item.tags = [tag];
+  item.order = type === 'note' ? topOfNotes(item) : endOfDay(item);
   state.items.push(item);
   if (type === 'note' && state.view !== 'notes' && !tag) state.view = 'notes';
   if (type === 'task' && !tag && !['today', 'week', 'all'].includes(state.view)) state.view = 'all';
@@ -390,6 +417,8 @@ function create(type) {
 document.addEventListener('click', (e) => {
   const nav = e.target.closest('.nav-item');
   if (nav) return setView(nav.dataset.view);
+  const sort = e.target.closest('[data-sort]');
+  if (sort) { setNoteSort(sort.dataset.sort); return render(); }
 
   const check = e.target.closest('[data-check]');
   if (check) {
@@ -414,7 +443,7 @@ document.addEventListener('click', (e) => {
   if (e.target.closest('#clear-time')) { const item = byId(state.selected); item.time = null; render(); return changed(item); }
   const chipEl = e.target.closest('.date-chip');
   if (chipEl) { e.preventDefault(); const input = chipEl.querySelector('input'); try { input.showPicker(); } catch { input.focus(); } return; }
-  if (e.target.closest('#clear-due')) { const item = byId(state.selected); item.due = null; item.time = null; render(); return changed(item); }
+  if (e.target.closest('#clear-due')) { const item = byId(state.selected); item.due = null; item.time = null; item.order = endOfDay(item); render(); return changed(item); }
   if (e.target.closest('#f-rendered')) return editBody();
   if (e.target.closest('#compose')) return create(state.view === 'notes' || list().tag ? 'note' : 'task');
   if (e.target.closest('#to-sidebar')) { app.dataset.view = 'sidebar'; return; }
@@ -435,6 +464,7 @@ document.addEventListener('submit', (e) => {
   if (!title) return;
   const { tag } = list();
   const task = newItem('task', { title, due: state.draftDue, tags: tag ? [tag] : [] });
+  task.order = endOfDay(task);
   state.items.push(task);
   state.draftDue = ['today', 'week'].includes(state.view) ? iso(0) : null;
   render(); changed(task);
@@ -456,7 +486,13 @@ document.addEventListener('input', (e) => {
   if (e.target.id === 'f-body') item.body = e.target.value;
   const cal = $('#to-calendar'); // title and body edits don't re-render the pane, so keep the link current
   if (cal) cal.href = calendarUrl(item);
-  if (e.target.id === 'f-due') { item.due = e.target.value || null; if (!item.due) item.time = null; render(); return changed(item); }
+  if (e.target.id === 'f-due') {
+    const due = e.target.value || null;
+    if (due !== item.due) item.order = endOfDay({ ...item, due }); // a new day: its end, in the same save
+    item.due = due;
+    if (!item.due) item.time = null;
+    render(); return changed(item);
+  }
   if (e.target.id === 'f-time') { item.time = e.target.value || null; render(); return changed(item); }
   changed(item);
   renderSidebar(); renderList();
@@ -490,6 +526,213 @@ document.addEventListener('visibilitychange', () => {
 });
 setInterval(renderSync, 3e4);
 
+// Manual order. A move shows at once and rewrites only the moved file (plus,
+// the first time an old list is arranged, any keyless neighbours it passes).
+// The file keeps its `updated`, so a moved note doesn't look edited.
+const KIND = { note: NOTES, task: TASKS };
+const rowsEl = () => $('#rows');
+const groupRows = (group) => [...rowsEl().querySelectorAll(`[data-group="${CSS.escape(group)}"]`)].filter((el) => byId(el.dataset.id) && isOpen(byId(el.dataset.id)));
+const groupItems = (group) => groupRows(group).map((el) => byId(el.dataset.id));
+
+function groupLabel(group) {
+  if (group === 'notes') return state.view === 'notes' ? 'All notes' : 'Notes';
+  const due = group.slice('due:'.length);
+  if (due === 'none') return 'No date';
+  if (state.view === 'week' && due !== iso(0)) return new Date(due + 'T00:00').toLocaleDateString('en-GB', { weekday: 'long' });
+  return dueLabel(due)[0];
+}
+
+function announce(text) {
+  const el = $('#announce');
+  el.textContent = '';
+  setTimeout(() => { el.textContent = text; }, 50); // a fresh change, so a repeated message is read again
+}
+
+function moveItem(id, toIndex, group) {
+  const item = byId(id);
+  const items = groupItems(group);
+  const from = items.findIndex((i) => i.id === id);
+  if (!item || from < 0 || toIndex === from) return;
+  // A drag in "Date edited" keeps the order on screen and switches to Manual.
+  if (item.type === 'note' && state.noteSort !== 'manual') setNoteSort('manual');
+  for (const { id: changedId, order } of planMove(items, id, toIndex, KIND[item.type])) {
+    const moved = byId(changedId);
+    moved.order = order;
+    queue(moved, 'save', { touch: false });
+  }
+  render();
+  const now = groupItems(group);
+  announce(`Moved “${item.title || (item.type === 'note' ? 'New note' : 'Task')}” to position ${now.findIndex((i) => i.id === id) + 1} of ${now.length} in ${groupLabel(group)}`);
+}
+
+function focusRow(id) {
+  const rows = rowsEl();
+  (rows.querySelector(`.note-row[data-id="${CSS.escape(id)}"]`) ?? rows.querySelector(`.task-row[data-id="${CSS.escape(id)}"] .title`))?.focus();
+}
+
+// Keyboard: Alt+ArrowUp/Down moves the focused row within its group.
+document.addEventListener('keydown', (e) => {
+  if (!e.altKey || e.metaKey || e.ctrlKey || e.shiftKey || !['ArrowUp', 'ArrowDown'].includes(e.key)) return;
+  const row = e.target.closest?.('#rows [data-group]');
+  if (!row || e.target.matches('input, textarea')) return;
+  e.preventDefault();
+  const { id, group } = row.dataset;
+  const items = groupItems(group);
+  const from = items.findIndex((i) => i.id === id);
+  const to = from + (e.key === 'ArrowUp' ? -1 : 1);
+  if (to < 0 || to >= items.length) return announce(`Already at the ${to < 0 ? 'top' : 'bottom'} of ${groupLabel(group)}`);
+  moveItem(id, to, group);
+  focusRow(id);
+});
+
+// Pointer dragging, without HTML5 drag and drop: a mouse or pen lifts a row
+// after 4px of movement, a finger after a 400ms press (moving first scrolls).
+const NO_DRAG = '.check, .tag, a, input, textarea, select, label';
+const phone = matchMedia('(max-width: 760px)');
+let press = null; // a pointer is down on a row, not yet dragging
+let drag = null; // the lifted row
+let pendingRender = false; // render() was asked for during a drag
+let swallowClick = false; // the click that follows a drop must not open the item
+let dropLine = null;
+
+function cancelPress() {
+  if (press) clearTimeout(press.timer);
+  press = null;
+}
+
+document.addEventListener('pointerdown', (e) => {
+  swallowClick = false; // a new press is a new click (the drop's own click may never come)
+  if (drag || press || e.button !== 0 || !e.isPrimary) return;
+  const row = e.target.closest('#rows [data-group]');
+  if (!row || e.target.closest(NO_DRAG)) return;
+  press = { row, pointerId: e.pointerId, x: e.clientX, y: e.clientY, touch: e.pointerType === 'touch' };
+  // The grip lifts at once on touch (it has touch-action: none, so the page won't scroll);
+  // anywhere else on the row a long press does.
+  if (press.touch) { if (e.target.closest('.grip')) startDrag(); else press.timer = setTimeout(startDrag, 400); }
+});
+
+document.addEventListener('pointermove', (e) => {
+  if (drag) {
+    if (e.pointerId !== drag.pointerId) return;
+    drag.y = e.clientY;
+    return follow();
+  }
+  if (!press || e.pointerId !== press.pointerId) return;
+  const distance = Math.hypot(e.clientX - press.x, e.clientY - press.y);
+  if (press.touch) { if (distance > 8) cancelPress(); } // a swipe: let the page scroll
+  else if (distance > 4) startDrag();
+});
+
+document.addEventListener('pointerup', (e) => {
+  if (drag && e.pointerId === drag.pointerId) return endDrag(true);
+  if (press && e.pointerId === press.pointerId) cancelPress();
+  if (swallowClick === 'held') releaseSwallow();
+});
+document.addEventListener('pointercancel', (e) => {
+  if (drag && e.pointerId === drag.pointerId) endDrag(false);
+  cancelPress();
+});
+// One listener, never passive: it stops the page from scrolling only while a row is lifted.
+document.addEventListener('touchmove', (e) => { if (drag) e.preventDefault(); }, { passive: false });
+document.addEventListener('contextmenu', (e) => { if (press || drag) e.preventDefault(); });
+document.addEventListener('keydown', (e) => { if (drag && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); endDrag(false, true); } }, true);
+document.addEventListener('click', (e) => {
+  if (!swallowClick) return;
+  e.preventDefault(); e.stopPropagation();
+  swallowClick = false;
+}, true);
+addEventListener('blur', () => { if (drag) endDrag(false); cancelPress(); });
+
+function releaseSwallow() {
+  swallowClick = true;
+  setTimeout(() => { swallowClick = false; }, 300);
+}
+
+function startDrag() {
+  const p = press;
+  cancelPress();
+  const { row } = p;
+  if (!row.isConnected) return;
+  const { id, group } = row.dataset;
+  const others = groupRows(group).filter((el) => el !== row);
+  const from = groupRows(group).indexOf(row);
+  if (from < 0) return;
+  drag = { id, group, row, others, from, to: from, pointerId: p.pointerId, y: p.y };
+  try { row.setPointerCapture(p.pointerId); } catch {}
+  row.classList.add('lifted');
+  rowsEl().classList.add('dragging');
+  dropLine = document.createElement('div');
+  dropLine.className = 'drop-line';
+  dropLine.hidden = true;
+  rowsEl().append(dropLine);
+  drag.frame = requestAnimationFrame(autoScroll);
+  follow();
+}
+
+// The lifted row stays in its slot and the 2px line follows the pointer to
+// where it will land. (A row that followed the pointer would always cover the
+// line, or the line would run through its title like a strikethrough.)
+function follow() {
+  const { row, others } = drag;
+  let to = 0;
+  for (const el of others) { const r = el.getBoundingClientRect(); if (drag.y > r.top + r.height / 2) to++; }
+  drag.to = to;
+  if (to === drag.from || !others.length) { dropLine.hidden = true; return; }
+  const rows = rowsEl().getBoundingClientRect();
+  const anchor = (others[to] ?? others[to - 1]).getBoundingClientRect();
+  const edge = to < others.length ? anchor.top : anchor.bottom;
+  const text = row.querySelector('.title').getBoundingClientRect().left; // indented to the text column
+  dropLine.style.top = `${edge - rows.top + rowsEl().scrollTop - 1}px`;
+  dropLine.style.left = `${text - rows.left}px`;
+  dropLine.style.width = `${anchor.right - 12 - text}px`;
+  dropLine.hidden = false;
+}
+
+// Near the top or bottom edge (40px), scroll: the list pane on desktop, the page on a phone.
+function autoScroll() {
+  if (!drag) return;
+  const EDGE = 40;
+  const [top, bottom] = phone.matches ? [0, innerHeight] : ((r) => [r.top, r.bottom])(rowsEl().getBoundingClientRect());
+  const over = drag.y < top + EDGE ? drag.y - (top + EDGE) : drag.y > bottom - EDGE ? drag.y - (bottom - EDGE) : 0;
+  if (over) {
+    const step = Math.sign(over) * Math.min(16, Math.ceil(Math.abs(over) / 4));
+    if (phone.matches) scrollBy(0, step); else rowsEl().scrollTop += step;
+    follow();
+  }
+  drag.frame = requestAnimationFrame(autoScroll);
+}
+
+// `held`: Esc cancelled while the pointer is still down, so its click comes later.
+function endDrag(commit, held = false) {
+  const d = drag;
+  drag = null;
+  cancelAnimationFrame(d.frame);
+  dropLine?.remove();
+  dropLine = null;
+  rowsEl().classList.remove('dragging');
+  if (held) swallowClick = 'held'; else releaseSwallow();
+  const top = d.row.getBoundingClientRect().top;
+  d.row.classList.remove('lifted');
+  const waiting = pendingRender;
+  pendingRender = false;
+  if (commit && d.to !== d.from) { moveItem(d.id, d.to, d.group); settle(d.id, top); }
+  else if (waiting) render();
+}
+
+// The dropped row glides from its old slot to the new one (removed under reduced motion).
+function settle(id, fromTop) {
+  const row = rowsEl().querySelector(`[data-group][data-id="${CSS.escape(id)}"]`);
+  if (!row) return;
+  const dy = fromTop - row.getBoundingClientRect().top;
+  if (!dy) return;
+  row.style.transform = `translateY(${dy}px)`;
+  row.getBoundingClientRect();
+  row.classList.add('settling');
+  row.style.transform = '';
+  row.addEventListener('transitionend', () => row.classList.remove('settling'), { once: true });
+  setTimeout(() => row.classList.remove('settling'), 300);
+}
+
 // Sign-in, welcome and setup. The app root stays hidden until we know where
 // the user's data is: a GitHub repo they signed in to, the local gh login
 // (development only), or the demo's sample data.
@@ -500,6 +743,12 @@ const prefs = {
   set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
 };
 const repoFor = (login) => prefs.get(`bojji.repo.${login}`) || 'bojji-data';
+const sortPref = () => `bojji.noteSort.${state.user?.login ?? 'demo'}`;
+function loadNoteSort() { state.noteSort = prefs.get(sortPref()) === 'manual' ? 'manual' : 'edited'; }
+function setNoteSort(value) {
+  state.noteSort = value === 'manual' ? 'manual' : 'edited';
+  prefs.set(sortPref(), state.noteSort === 'manual' ? 'manual' : null);
+}
 let auth = null;
 let dev = null; // session from the local server (your gh CLI token), if any
 let settingUp = false; // the setup screen is showing; re-check when the tab comes back
@@ -577,6 +826,7 @@ async function enter(user, newStore, prepare) {
   settingUp = false;
   state.user = user;
   store = newStore;
+  loadNoteSort();
   state.sync = { state: 'loading' };
   welcome.hidden = true; app.hidden = false;
   render();
@@ -594,6 +844,7 @@ async function enter(user, newStore, prepare) {
 function enterDemo() {
   try { sessionStorage.setItem('bojji.demo', '1'); } catch {}
   state.user = null;
+  loadNoteSort();
   state.items = demoItems({ iso, ago });
   state.selected = 't2';
   state.sync = { state: 'kept', at: null };

@@ -101,10 +101,12 @@ export function createGitHubStore({ token, owner, repo }) {
     },
 
     // Pass the sha you read to update an existing item; omit it to create.
-    async save(item, sha) {
+    // `touch: false` is a move: the file keeps its `updated` time.
+    async save(item, sha, { touch = true } = {}) {
+      const verb = !sha ? 'Add' : touch ? 'Update' : 'Move';
       const result = await write('PUT', item, sha, {
-        message: `${sha ? 'Update' : 'Add'} ${item.type}: ${item.title || item.id}`,
-        content: encodeBase64(serialize(item)),
+        message: `${verb} ${item.type}: ${item.title || item.id}`,
+        content: encodeBase64(serialize(item, { touch })),
         ...(sha && { sha }),
       });
       return { ...item, path: pathFor(item), sha: result.content.sha };

@@ -286,7 +286,7 @@ A neutral Apple-grey system with one warm yellow accent, a small matte palette f
 - **Focus Blue** (`focus-blue` / `focus-blue-dark`): the 2px keyboard focus ring, offset 2px. This is the only blue in the system.
 
 ### Named Rules
-**The One Yellow Rule.** Yellow appears in three tones and only in these places: selected note fill, checkbox fill, and non-text glyphs. It never colours text. If a new surface wants an accent, it uses one of these roles or none.
+**The One Yellow Rule.** Yellow appears in three tones and only in these places: selected note fill, checkbox fill, non-text glyphs, and the 2px Deep Mustard drop line shown while reordering. It never colours text. If a new surface wants an accent, it uses one of these roles or none.
 
 **The Two Selections Rule.** A selected note is yellow; a selected task and the active sidebar item are quiet grey. Notes and Reminders each select this way, and the difference tells the user which kind of item is open.
 
@@ -367,6 +367,8 @@ Before the three panes, signed-out users see one centred column, 360px wide on t
 - **Add row:** a "+" glyph in Ink Tertiary aligned to the checkbox column, an inline borderless input ("New task"), and a date chip at the end.
 - **Day group (Week schedule):** a 15px/600 day name with its 13px date; past days in Ink Secondary; today labelled "Today" with a 6px Check Gold dot.
 - **Empty states:** centred Ink Tertiary text with 48px padding, phrased plainly ("Nothing due today.", "No notes match.").
+- **Reordering:** a lifted row keeps its slot as a flat Quiet Select fill with its content dimmed to 55% and its hairlines hidden (no shadow, per the Flat Panes Rule), so it reads differently from a selected row. A single 2px Deep Mustard line, indented to the text column and ending 12px before the row edge, follows the pointer between rows of the same group and is hidden over the row's own slot. On drop the row glides 150ms to its new place (removed under reduced motion). Rows can't be text-selected or long-press-called-out. Every row that can be dragged shows a grip on its right: six 16px dots in Ink Tertiary at 45% opacity (70% on touch screens), full strength on row hover, with a `grab` cursor. On touch the grip lifts the row at once, while elsewhere on the row a long press does.
+- **Notes sort control:** at the right of the All notes list head (and of the tag view's Notes section head), two 26px pills in a Fill Grey well with a 13px radius, "Date edited" and "Manual", 12px/500. The active one is Quiet Select with Ink text; the other is Ink Secondary, Ink on hover. Buttons with `aria-pressed` in a group labelled "Sort notes".
 
 ### Checkbox (signature)
 A 20px circle with a 1.5px Ink Tertiary ring and a hit area extended 12px on every side. Hover turns the ring Check Gold. When checked, it fills Check Gold and a 12px ink-coloured tick (`--check-mark`, about 8:1 on the gold in both modes) scales in from 0.6 (0.2s opacity, 0.25s transform on the system ease). A task ticked in an open list stays put for 450ms, then fades and slides 8px right over 350ms before the list re-renders.
