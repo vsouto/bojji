@@ -20,7 +20,7 @@ try {
   const { created: repoCreated } = await laptop.ensureRepo();
   step(`data repo ${owner}/${repo} ${repoCreated ? 'created (private)' : 'already exists'}`);
 
-  const task = await laptop.save(newItem('task', { title: 'Smoke: buy milk', due: '2026-11-01', tags: ['Siemens', 'Home'] }));
+  const task = await laptop.save(newItem('task', { title: 'Smoke: buy milk', due: '2026-11-01', time: '09:30', tags: ['Siemens', 'Home'] }));
   const note = await laptop.save(newItem('note', { title: 'Smoke: ideas ☕', body: '# Ideas\n\nAcentuação: ção, ü, 日本語' }));
   created.push(task, note);
   step('laptop created a task and a note');
@@ -32,9 +32,10 @@ try {
   assert.equal(phoneTask.done, false);
   assert.deepEqual(phoneTask.tags, ['Siemens', 'Home']);
   assert.equal(phoneTask.due, '2026-11-01');
+  assert.equal(phoneTask.time, '09:30');
   assert.equal(phoneNote?.body, '# Ideas\n\nAcentuação: ção, ü, 日本語');
   assert.deepEqual(phoneNote.tags, []);
-  step('phone listed both items with identical content (including tags and non-ASCII)');
+  step('phone listed both items with identical content (including tags, due time and non-ASCII)');
 
   const done = await phone.save({ ...phoneTask, done: true }, phoneTask.sha);
   created[0] = done;

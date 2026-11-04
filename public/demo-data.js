@@ -3,7 +3,7 @@ export function demoItems({ iso, ago }) {
   return [
     { id: 't1', type: 'task', title: 'Renew passport photos', due: iso(-1), done: false, body: 'The place on Rua Augusta closes at 6.', tags: ['Personal'] },
     { id: 't2', type: 'task', title: 'Pay the electricity bill', due: iso(0), done: false, body: '', tags: ['Home'] },
-    { id: 't3', type: 'task', title: 'Call Mum about Sunday lunch', due: iso(0), done: false, body: 'Ask if we should bring dessert.', tags: ['Personal'] },
+    { id: 't3', type: 'task', title: 'Call Mum about Sunday lunch', due: iso(0), time: '18:30', done: false, body: 'Ask if we should bring dessert.', tags: ['Personal'] },
     { id: 't4', type: 'task', title: 'Book the dentist', due: iso(3), done: false, body: '', tags: ['Personal'] },
     { id: 't5', type: 'task', title: 'Return the library books', due: iso(4), done: false, body: '' },
     { id: 't9', type: 'task', title: 'Pick up the dry cleaning', due: iso(1), done: false, body: '', tags: ['Home'] },
@@ -11,7 +11,7 @@ export function demoItems({ iso, ago }) {
     { id: 't7', type: 'task', title: 'Water the plants', due: iso(-2), done: true, body: '' },
     { id: 't8', type: 'task', title: 'Send the rent receipt', due: iso(-3), done: true, body: '' },
     { id: 's1', type: 'task', title: 'Ask legal about the Siemens NDA', due: iso(-1), done: false, body: '', tags: ['Siemens'] },
-    { id: 's2', type: 'task', title: 'Prepare the workshop demo', due: iso(1), done: false, body: 'Use the staging data set, not production.', tags: ['Siemens'] },
+    { id: 's2', type: 'task', title: 'Prepare the workshop demo', due: iso(1), time: '10:00', done: false, body: 'Use the staging data set, not production.', tags: ['Siemens'] },
     { id: 's3', type: 'task', title: 'Send the Q4 proposal', due: iso(2), done: false, body: '', tags: ['Siemens', 'Proposals'] },
     { id: 's4', type: 'task', title: 'Share the kickoff notes with the team', due: null, done: false, body: '', tags: ['Siemens'] },
     { id: 's5', type: 'task', title: 'Draft the kickoff agenda', due: iso(-4), done: true, body: '', tags: ['Siemens'] },

@@ -10,7 +10,8 @@ No subscription and no Bojji servers holding your data. Each note and task is a 
 
 ## What it does
 
-- **Tasks** with due dates, in Today, Week schedule (Monday to Sunday, including the days that already passed), All tasks and Completed.
+- **Tasks** with due dates and optional times, in Today, Week schedule (Monday to Sunday, including the days that already passed), All tasks and Completed.
+- **Add to Google Calendar** on any dated task: opens a pre-filled event (all-day, or one hour at the task's time). One way, no Google sign-in.
 - **Notes** in Markdown. Headings and lists render in place, and the file stays plain text.
 - **Tags** on tasks and notes, each with its own colour. Click a tag to see everything with it: open tasks, notes, then completed tasks.
 - **Sync you can see.** Every change settles to "Kept in your GitHub", which links to your storage. If another device changed the same item first, Bojji reloads instead of overwriting.
@@ -33,13 +34,14 @@ type: task
 title: Send the Q4 proposal
 status: todo
 due: 2026-10-29
+time: 14:30
 tags: Siemens, Proposals
 updated: 2026-10-27T19:40:12.000Z
 ---
 Optional notes in Markdown.
 ```
 
-Bojji talks to the GitHub API directly from your browser, and every save is a commit.
+`due` and `time` are optional; `time` only appears with a date. Bojji talks to the GitHub API directly from your browser, and every save is a commit.
 
 ## Sign in
 
@@ -53,6 +55,7 @@ Requires Node 22+ and the [GitHub CLI](https://cli.github.com/), logged in (`gh 
 npm start      # open http://localhost:5173 and choose "Continue as <you>"
 npm run smoke  # end-to-end test against GitHub (uses bojji-dryrun-data, cleans up after itself)
 npm run test:worker   # the sign-in Worker against a fake GitHub
+npm run test:calendar # calendar links and task times, offline
 ```
 
 Locally, the welcome screen also offers **Continue as <you>**, which uses your GitHub CLI login and creates `bojji-data` if it's missing. Set `BOJJI_REPO=<name>` to use another repository. To host your own copy with real sign-in, see [worker/README.md](worker/README.md).

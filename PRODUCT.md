@@ -33,7 +33,7 @@ Bojji runs no storage servers. Each user's notes and tasks live as plain Markdow
 
 ## Capabilities and Constraints
 
-- Tasks: title, optional due date, done or not done.
+- Tasks: title, optional due date with an optional time, done or not done. A dated task can be added to Google Calendar through a pre-filled event link (one way; Bojji never reads or writes the calendar).
 - Notes: title and a Markdown body.
 - Tags on both tasks and notes (stored as a `tags:` line in the file header, matched case-insensitively). Clicking a tag shows everything with it: open tasks, notes, then completed tasks. Renaming or merging a tag across many files is not designed yet.
 - Each note and task is one Markdown file (`notes/<id>.md`, `tasks/<id>.md`) in the user's private GitHub repo (`bojji-data` by default, separate from the code repo).

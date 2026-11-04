@@ -10,6 +10,7 @@ export function newItem(type, fields = {}) {
   if (type === 'task') {
     item.done ??= false;
     item.due ??= null;
+    item.time ??= null;
   }
   return item;
 }
@@ -28,6 +29,7 @@ export function serialize(item) {
   if (item.type === 'task') {
     meta.status = item.done ? 'done' : 'todo';
     if (item.due) meta.due = item.due;
+    if (item.due && item.time) meta.time = item.time; // optional HH:MM, only beside a date
   }
   if (item.tags?.length) meta.tags = item.tags.join(', ');
   meta.updated = new Date().toISOString();
@@ -56,6 +58,7 @@ export function parse(text) {
   if (item.type === 'task') {
     item.done = meta.status === 'done';
     item.due = meta.due || null;
+    item.time = meta.time || null;
   }
   return item;
 }

@@ -1,6 +1,7 @@
 import { ConflictError, createGitHubStore } from './src/github-store.js';
 import { AuthError, createAuth } from './src/github-auth.js';
 import { newItem } from './src/items.js';
+import { googleCalendarUrl } from './src/calendar.js';
 import { demoItems } from './demo-data.js';
 import config from './config.js';
 
@@ -60,10 +61,13 @@ function list(view = state.view) {
 const tagChips = (item) => (item.tags ?? []).filter((t) => !list().tag || !same(t, list().tag))
   .map((t) => `<button class="tag t${hue(t)}" data-tag="${esc(t)}">#${esc(t)}</button>`).join('');
 
+// Due date, then time (all-day first), then title.
+const byDue = (a, b) => (a.due ?? '9999').localeCompare(b.due ?? '9999') || (a.time ?? '').localeCompare(b.time ?? '') || a.title.localeCompare(b.title);
+
 function visible() {
   if (state.view === 'notes') return notes().filter(matches);
   return tasks().filter(list().filter).filter(matches)
-    .sort((a, b) => (a.due ?? '9999').localeCompare(b.due ?? '9999') || a.title.localeCompare(b.title));
+    .sort(byDue);
 }
 
 function dueLabel(due) {
@@ -174,7 +178,8 @@ function renderList() {
       ${chip('add-due', state.draftDue, 'Add date')}
     </form>`;
   const taskRow = (t, showDue = true) => {
-    const [label, due] = (showDue && dueLabel(t.due)) || [];
+    const [date, due] = (showDue && dueLabel(t.due)) || [];
+    const label = [date, t.due && t.time].filter(Boolean).join(', '); // the Week view shows only the time
     const tone = t.done ? '' : due;
     const chips = tagChips(t);
     return `<div class="task-row ${t.done ? 'done' : ''}" data-id="${t.id}" aria-current="${state.selected === t.id}">
@@ -186,7 +191,7 @@ function renderList() {
   if (tag) {
     const tagged = state.items.filter((i) => hasTag(i, tag) && matches(i));
     const open = tagged.filter((i) => i.type === 'task' && !i.done)
-      .sort((a, b) => (a.due ?? '9999').localeCompare(b.due ?? '9999') || a.title.localeCompare(b.title));
+      .sort(byDue);
     const tagNotes = tagged.filter((i) => i.type === 'note').sort((a, b) => b.edited - a.edited);
     const done = tagged.filter((i) => i.type === 'task' && i.done);
     $('#list-total').textContent = open.length;
@@ -230,7 +235,7 @@ function renderDetail() {
       ${stamp ? `<div class="stamp">${stamp}</div>` : '<div class="stamp-gap"></div>'}
       <input class="title-field" id="f-title" value="${esc(item.title)}" placeholder="${item.type === 'note' ? 'Title' : 'Task'}" aria-label="Title">
       <div class="field-row"><span class="label">Tags</span><div class="tag-editor">${(item.tags ?? []).map((t) => `<span class="tag t${hue(t)}"><button data-tag="${esc(t)}">#${esc(t)}</button><button class="tag-remove" data-remove-tag="${esc(t)}" aria-label="Remove tag ${esc(t)}"><svg class="i"><use href="#i-close"/></svg></button></span>`).join('')}<input id="f-tag" list="tag-options" placeholder="${item.tags?.length ? 'Add' : 'Add a tag'}" aria-label="Add a tag" autocomplete="off" enterkeyhint="done"></div></div>
-      ${item.type === 'task' ? `<div class="field-row"><span class="label">Due</span>${chip('f-due', item.due, 'Add date')}${item.due ? '<button class="clear" id="clear-due">Remove</button>' : ''}</div>` : ''}
+      ${item.type === 'task' ? `<div class="field-row"><span class="label">Due</span><div class="field-value">${chip('f-due', item.due, 'Add date')}${item.due ? timeChip(item.time) + '<button class="clear" id="clear-due">Remove</button>' + calendarLink(item) : ''}</div></div>` : ''}
       ${item.type === 'task' && item.done ? '<div class="field-row"><span class="label">Status</span><span>Completed</span></div>' : ''}
       <div class="rendered" id="f-rendered" tabindex="0" role="textbox" aria-label="Body, select to edit">${item.body ? markdown(item.body) : `<p class="placeholder">${item.type === 'note' ? 'Start writing…' : 'Notes'}</p>`}</div>
       <textarea class="body-field" id="f-body" hidden placeholder="${item.type === 'note' ? 'Start writing…' : 'Notes'}" aria-label="Body">${esc(item.body)}</textarea>
@@ -259,6 +264,18 @@ function markdown(text) {
 function chip(id, value, empty) {
   const label = value ? dueLabel(value)[0] : id === 'add-due' ? '' : empty;
   return `<label class="date-chip ${value ? 'set' : ''}"><svg class="i"><use href="#i-today"/></svg>${label ? `<span>${label}</span>` : ''}<input type="date" id="${id}" value="${value ?? ''}" aria-label="Due date"></label>`;
+}
+
+function timeChip(value) {
+  const clear = value ? '<button class="chip-clear" id="clear-time" aria-label="Remove time"><svg class="i"><use href="#i-close"/></svg></button>' : '';
+  return `<span class="date-chip time-chip ${value ? 'set' : ''}"><svg class="i"><use href="#i-clock"/></svg><span>${esc(value || 'Add time')}</span><input type="time" id="f-time" value="${esc(value ?? '')}" aria-label="Time">${clear}</span>`;
+}
+
+// Shown only once a task has a date: one-way, it opens a pre-filled event on Google.
+const calendarUrl = (task) => googleCalendarUrl(task, { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone });
+function calendarLink(task) {
+  const url = calendarUrl(task);
+  return url ? `<a class="cal-link" id="to-calendar" href="${esc(url)}" target="_blank" rel="noopener" title="Opens a new event in Google Calendar, filled in from this task">Add to Google Calendar<svg class="i"><use href="#i-external"/></svg></a>` : '';
 }
 
 function editBody() {
@@ -394,9 +411,10 @@ document.addEventListener('click', (e) => {
   const row = e.target.closest('.note-row, .task-row .title');
   if (row) return select(row.dataset.id);
 
+  if (e.target.closest('#clear-time')) { const item = byId(state.selected); item.time = null; render(); return changed(item); }
   const chipEl = e.target.closest('.date-chip');
   if (chipEl) { e.preventDefault(); const input = chipEl.querySelector('input'); try { input.showPicker(); } catch { input.focus(); } return; }
-  if (e.target.closest('#clear-due')) { const item = byId(state.selected); item.due = null; render(); return changed(item); }
+  if (e.target.closest('#clear-due')) { const item = byId(state.selected); item.due = null; item.time = null; render(); return changed(item); }
   if (e.target.closest('#f-rendered')) return editBody();
   if (e.target.closest('#compose')) return create(state.view === 'notes' || list().tag ? 'note' : 'task');
   if (e.target.closest('#to-sidebar')) { app.dataset.view = 'sidebar'; return; }
@@ -432,11 +450,14 @@ document.addEventListener('input', (e) => {
     if (e.inputType === 'insertReplacementText' || !e.inputType || e.target.value.includes(',')) addTag(item, e.target.value);
     return;
   }
-  if (!item || !['f-title', 'f-body', 'f-due'].includes(e.target.id)) return;
+  if (!item || !['f-title', 'f-body', 'f-due', 'f-time'].includes(e.target.id)) return;
   if (e.target.id === 'f-body') { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }
   if (e.target.id === 'f-title') item.title = e.target.value;
   if (e.target.id === 'f-body') item.body = e.target.value;
-  if (e.target.id === 'f-due') { item.due = e.target.value || null; render(); return changed(item); }
+  const cal = $('#to-calendar'); // title and body edits don't re-render the pane, so keep the link current
+  if (cal) cal.href = calendarUrl(item);
+  if (e.target.id === 'f-due') { item.due = e.target.value || null; if (!item.due) item.time = null; render(); return changed(item); }
+  if (e.target.id === 'f-time') { item.time = e.target.value || null; render(); return changed(item); }
   changed(item);
   renderSidebar(); renderList();
 });
