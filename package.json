@@ -10,6 +10,7 @@
     "smoke": "node scripts/smoke.mjs",
     "test:worker": "node worker/test.mjs",
     "test:calendar": "node scripts/test-calendar.mjs",
-    "test:order": "node scripts/test-order.mjs"
+    "test:order": "node scripts/test-order.mjs",
+    "test:dates": "node scripts/test-dates.mjs"
   }
 }

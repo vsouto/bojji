@@ -129,7 +129,35 @@
   .list-head { display: flex; align-items: baseline; justify-content: space-between; padding: var(--s2) var(--s4) var(--s3); flex: none; }
   .list-head h1 { margin: 0; font-size: 26px; line-height: 1.15; font-weight: 700; letter-spacing: -.02em; }
   .list-head .total { font-size: 26px; font-weight: 600; color: var(--fg-3); font-variant-numeric: tabular-nums; }
-  .list-head .range { margin: 2px 0 0; color: var(--fg-2); font-size: 13px; }
+  /* Week schedule navigation: ‹ range › and, away from this week, Today */
+  .week-nav { display: flex; align-items: center; gap: 2px; margin: var(--s1) 0 0 -6px; }
+  .week-nav[hidden] { display: none; }
+  .week-nav .icon-btn { position: relative; width: 28px; height: 28px; }
+  .week-nav .icon-btn .i { width: 16px; height: 16px; }
+  .range-wrap { position: relative; display: inline-flex; }
+  .range-btn { height: 26px; padding: 0 var(--s2); border-radius: 13px; color: var(--fg-2); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .range-btn:hover { background: var(--fill); color: var(--fg); }
+  .range-wrap input { position: absolute; inset: 0; width: 100%; opacity: 0; pointer-events: none; }
+  .week-today { margin-left: var(--s2); padding: var(--s1) var(--s1); color: var(--fg-2); font-size: 13px; font-weight: 500; }
+  .week-today:hover { color: var(--fg); }
+  .edge { display: flex; align-items: center; gap: var(--s2); width: 100%; padding: var(--s2) var(--s3) var(--s2) 22px; border-radius: var(--r-row); color: var(--fg-2); font-size: 13px; text-align: left; }
+  .edge:hover { background: var(--fill); color: var(--fg); }
+  .edge .i { width: 14px; height: 14px; }
+  .edge.before .i { transform: rotate(90deg); }
+  .edge.after { margin-top: var(--s2); }
+  .edge.after .i { transform: rotate(-90deg); }
+  /* Toast: the one floating layer, flat (inverted colours set it apart, not a shadow) */
+  .toast-wrap { position: fixed; z-index: 20; left: calc(var(--sidebar-w) + var(--list-w) / 2); bottom: var(--s5); transform: translateX(-50%); pointer-events: none; }
+  .toast { display: flex; align-items: center; gap: var(--s3); min-height: 40px; max-width: calc(100vw - 2 * var(--s4)); padding: var(--s1) var(--s1) var(--s1) var(--s4); border-radius: 20px; background: var(--fg); color: var(--bg); font-size: 13px; pointer-events: auto; white-space: nowrap; }
+  .toast[hidden] { display: none; }
+  .toast span { overflow: hidden; text-overflow: ellipsis; }
+  .toast button { height: 32px; padding: 0 var(--s3); border-radius: 16px; font-weight: 600; color: var(--bg); }
+  .toast button:hover { background: color-mix(in srgb, var(--bg) 16%, transparent); }
+  .toast:not(:has(button)) { padding-right: var(--s4); }
+  @media (prefers-reduced-motion: no-preference) {
+    .toast:not([hidden]) { animation: toast-in .2s var(--ease); }
+  }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
   .day { margin-bottom: var(--s2); }
   .day-head { display: flex; align-items: baseline; gap: var(--s2); margin: 0; padding: var(--s4) var(--s3) var(--s1); font-size: 15px; font-weight: 600; }
   .day-head .date { color: var(--fg-2); font-weight: 400; font-size: 13px; }
@@ -391,6 +419,8 @@
     .nav-item { height: 44px; font-size: 16px; }
     .paper { padding: 0 var(--s4) var(--s7); }
     .rows { padding-bottom: var(--s7); }
+    .week-nav .icon-btn::after { content: ""; position: absolute; inset: -8px; }
+    .toast-wrap { left: 50%; bottom: calc(var(--s4) + env(safe-area-inset-bottom)); }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; }
@@ -410,6 +440,7 @@
   <symbol id="i-compose" viewBox="0 0 24 24"><path d="M11 4.5H6.5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V13"/><path d="M17.6 3.9a1.9 1.9 0 0 1 2.7 2.7L12.5 14.4 9 15l.6-3.5z"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M10 4h4M6.5 7l.8 11.2A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8L17.5 7M10 11v5.5M14 11v5.5"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></symbol>
+  <symbol id="i-forward" viewBox="0 0 24 24"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
   <symbol id="i-grip" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></g></symbol>
   <symbol id="i-kept" viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4.5 4.5 0 0 1-.5 9H7z"/><path d="m9.5 13.6 1.8 1.8 3.4-3.6"/></symbol>
@@ -458,7 +489,13 @@
       <label class="search"><svg class="i"><use href="#i-search"/></svg><input id="search" type="search" placeholder="Search" aria-label="Search"></label>
       <button class="icon-btn" id="compose" aria-label="New note" title="New note (N)"><svg class="i"><use href="#i-compose"/></svg></button>
     </div>
-    <div class="list-head"><div><h1 id="list-title"></h1><p class="range" id="list-range" hidden></p></div><span class="total" id="list-total"></span><div id="list-sort" hidden></div></div>
+    <div class="list-head"><div><h1 id="list-title"></h1>
+      <div class="week-nav" id="week-nav" role="group" aria-label="Week" hidden>
+        <button class="icon-btn" id="week-prev" aria-label="Previous week" title="Previous week (K)" aria-keyshortcuts="K"><svg class="i"><use href="#i-back"/></svg></button>
+        <span class="range-wrap"><button class="range-btn" id="week-range" aria-keyshortcuts="G"><span id="week-label"></span></button><input type="date" id="week-pick" tabindex="-1" aria-hidden="true"></span>
+        <button class="icon-btn" id="week-next" aria-label="Next week" title="Next week (J)" aria-keyshortcuts="J"><svg class="i"><use href="#i-forward"/></svg></button>
+        <button class="week-today" id="week-today" title="Back to this week (T)" aria-keyshortcuts="T" hidden>Today</button>
+      </div></div><span class="total" id="list-total"></span><div id="list-sort" hidden></div></div>
     <div class="rows" id="rows"></div>
   </section>
 
@@ -466,6 +503,7 @@
 </div>
 
 <div id="announce" class="sr-only" aria-live="polite"></div>
+<div class="toast-wrap" role="status"><div class="toast" id="toast" hidden></div></div>
 <script type="module" src="app.js"></script>
 </body>
 </html>

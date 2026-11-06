@@ -2,22 +2,28 @@ import { ConflictError, createGitHubStore } from './src/github-store.js';
 import { AuthError, createAuth } from './src/github-auth.js';
 import { newItem } from './src/items.js';
 import { googleCalendarUrl } from './src/calendar.js';
+import { addDays, mondayOf, rangeLabel, todayIso, weekDays, weekDistance } from './src/dates.js';
 import { NOTES, TASKS, byEdited, compareNotes, compareTasks, keyBetween, planMove } from './src/order.js';
 import { demoItems } from './demo-data.js';
 import config from './config.js';
 
 const DAY = 864e5;
-const today = new Date(); today.setHours(0, 0, 0, 0);
-const iso = (offset) => new Date(today.getTime() + offset * DAY).toLocaleDateString('en-CA');
+const midnight = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+// "Today" moves on at midnight, also while the tab stays open (see refreshToday).
+let today = midnight();
+let todayStr = todayIso();
+const iso = (offset) => addDays(todayStr, offset);
 const ago = (minutes) => new Date(Date.now() - minutes * 6e4);
-// The week runs Monday to Sunday and includes the days that already passed.
-const weekStart = -((today.getDay() + 6) % 7);
-const weekDays = Array.from({ length: 7 }, (_, i) => iso(weekStart + i));
+// A week runs Monday to Sunday and includes the days that already passed. The
+// sidebar always counts this week; the Week schedule shows state.weekStart's.
+const thisMonday = () => mondayOf(todayStr);
+const shownDays = () => weekDays(state.weekStart);
 
 const state = {
   view: 'today',
   selected: null,
   draftDue: iso(0),
+  weekStart: mondayOf(todayIso()), // the Monday of the week the Week schedule shows
   showDone: false,
   query: '',
   sync: { state: 'loading' },
@@ -30,7 +36,7 @@ const state = {
 
 const LISTS = {
   today:     { label: 'Today',     icon: 'i-today',     filter: (t) => !t.done && t.due && t.due <= iso(0) },
-  week:      { label: 'Week schedule', icon: 'i-week', filter: (t) => !t.done && t.due && t.due >= weekDays[0] && t.due <= weekDays[6] },
+  week:      { label: 'Week schedule', icon: 'i-week', filter: (t) => !t.done && t.due && t.due >= thisMonday() && t.due <= addDays(thisMonday(), 6) },
   all:       { label: 'All tasks', icon: 'i-all',       filter: (t) => !t.done },
   completed: { label: 'Completed', icon: 'i-done',      filter: (t) => t.done },
   notes:     { label: 'All notes', icon: 'i-note' },
@@ -70,7 +76,34 @@ const SHORTCUTS = 'aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"';
 
 function visible() {
   if (state.view === 'notes') return notes().filter(matches);
-  return tasks().filter(list().filter).filter(matches).sort(compareTasks);
+  const days = state.view === 'week' && shownDays();
+  const filter = days ? (t) => !t.done && t.due && t.due >= days[0] && t.due <= days[6] : list().filter;
+  return tasks().filter(filter).filter(matches).sort(compareTasks);
+}
+
+// "Fri 30 Oct", with the year when it isn't this one.
+const dayName = (due) => new Date(due + 'T00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: due.slice(0, 4) === todayStr.slice(0, 4) ? undefined : 'numeric' });
+
+// New tasks get the date of the list they're added to.
+function defaultDue(view = state.view) {
+  if (view === 'today') return todayStr;
+  if (view === 'week') return shownDays().includes(todayStr) ? todayStr : state.weekStart;
+  return null;
+}
+
+// Open tasks dated before and after the shown week, so a week never hides them without a word.
+function weekEdges() {
+  const days = shownDays();
+  const dated = tasks().filter((t) => !t.done && t.due).filter(matches).map((t) => t.due).sort();
+  const before = dated.filter((d) => d < days[0]), after = dated.filter((d) => d > days[6]);
+  return { before: before.length ? { count: before.length, at: before.at(-1) } : null, after: after.length ? { count: after.length, at: after[0] } : null };
+}
+function edgeRow(edge, side) {
+  if (!edge) return '';
+  const what = state.query ? (edge.count === 1 ? 'match' : 'matches') + ' ' : '';
+  const word = side === 'after' ? 'later' : state.weekStart === thisMonday() ? 'overdue' : 'earlier';
+  const label = `${edge.count} ${what}${word} · ${side === 'after' ? 'next' : 'latest'} ${dayName(edge.at)}`;
+  return `<button class="edge ${side}" data-jump="${edge.at}" aria-label="${label}. Go to that week"><svg class="i"><use href="#i-back"/></svg>${label}</button>`;
 }
 
 // Notes sort by date edited (the default) or by the user's own order.
@@ -156,11 +189,14 @@ function renderList() {
   if (drag) { pendingRender = true; return; }
   const items = visible();
   $('#list-title').textContent = list().label;
-  const range = $('#list-range');
-  range.hidden = state.view !== 'week';
+  $('#week-nav').hidden = state.view !== 'week';
   if (state.view === 'week') {
-    const fmt = (d) => new Date(d + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-    range.textContent = `${fmt(weekDays[0])} – ${fmt(weekDays[6])}`;
+    const label = rangeLabel(state.weekStart, todayStr), distance = weekDistance(state.weekStart, todayStr);
+    $('#week-label').textContent = label;
+    $('#week-range').title = `${distance} · Go to a date (G)`;
+    $('#week-range').setAttribute('aria-label', `Choose week, showing ${label}, ${distance.toLowerCase()}`);
+    $('#week-pick').value = state.weekStart;
+    $('#week-today').hidden = state.weekStart === thisMonday();
   }
   $('#list-total').textContent = state.view === 'notes' ? '' : items.length;
   $('#list-sort').hidden = state.view !== 'notes';
@@ -215,7 +251,8 @@ function renderList() {
     return;
   }
   if (state.view === 'week') {
-    rows.innerHTML = weekDays.map((day) => {
+    const edges = weekEdges();
+    rows.innerHTML = edgeRow(edges.before, 'before') + shownDays().map((day) => {
       const dayTasks = items.filter((t) => t.due === day);
       const date = new Date(day + 'T00:00');
       const phase = day < iso(0) ? 'past' : day === iso(0) ? 'today' : '';
@@ -223,7 +260,7 @@ function renderList() {
         <h3 class="day-head"><span>${day === iso(0) ? 'Today' : date.toLocaleDateString('en-GB', { weekday: 'long' })}</span><span class="date">${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span></h3>
         ${dayTasks.length ? dayTasks.map((t) => taskRow(t, false)).join('') : '<p class="day-empty">No tasks</p>'}
       </section>`;
-    }).join('') + add;
+    }).join('') + edgeRow(edges.after, 'after') + add;
     return;
   }
   rows.innerHTML = items.map((t) => taskRow(t)).join('') + (items.length || add ? '' : '<p class="empty">Nothing completed yet.</p>') + add
@@ -390,11 +427,98 @@ function removeTag(item, tag) {
 function setView(view) {
   state.view = view;
   state.showDone = false;
-  state.draftDue = ['today', 'week'].includes(view) ? iso(0) : null;
+  if (view === 'week') state.weekStart = thisMonday(); // the sidebar item means "this week"
+  state.draftDue = defaultDue(view);
   state.selected = view === 'notes' ? notes()[0]?.id ?? null : null;
   app.dataset.view = 'list';
   render();
 }
+
+// Week schedule navigation. Everything is already loaded, so moving between weeks fetches nothing.
+function goToWeek(monday) {
+  state.weekStart = monday;
+  state.draftDue = defaultDue();
+  renderList();
+  const n = visible().length;
+  announce(`${weekDistance(monday, todayStr)}, ${rangeLabel(monday, todayStr)}, ${n} ${n === 1 ? 'task' : 'tasks'}`);
+}
+const shiftWeek = (n) => goToWeek(addDays(state.weekStart, 7 * n));
+function pickWeek() {
+  const input = $('#week-pick');
+  try { input.showPicker(); } catch { input.focus(); }
+}
+
+// A date change that takes a task out of the list on screen says where it went,
+// with a way to follow it. The list itself never jumps: typing the next task goes on.
+function reveal(task, verb) {
+  if (list().tag || visible().includes(task)) return;
+  toast(task.due ? `${verb} to ${dayName(task.due)}` : 'No date · in All tasks', () => show(task.id));
+}
+function show(id) {
+  const task = byId(id);
+  if (!task) return;
+  state.view = task.done ? 'completed' : task.due ? 'week' : 'all';
+  if (task.due) state.weekStart = mondayOf(task.due);
+  state.showDone = false;
+  state.query = ''; $('#search').value = '';
+  state.draftDue = defaultDue();
+  state.selected = id;
+  app.dataset.view = 'list';
+  render();
+  const row = rowsEl().querySelector(`.task-row[data-id="${CSS.escape(id)}"]`);
+  row?.scrollIntoView({ block: 'nearest' });
+  row?.querySelector('.title').focus();
+}
+
+// One toast at a time: a new message replaces the old one. Hover or focus holds it open.
+let toastTimer = null, toastAction = null;
+function toast(text, action) {
+  const el = $('#toast');
+  toastAction = action;
+  el.innerHTML = `<span>${esc(text)}</span>${action ? '<button id="toast-action">Show</button>' : ''}`;
+  el.hidden = false;
+  holdToast(false);
+}
+function holdToast(held) {
+  clearTimeout(toastTimer);
+  if (!held) toastTimer = setTimeout(hideToast, 6000);
+}
+function hideToast() {
+  clearTimeout(toastTimer);
+  const el = $('#toast');
+  if (el.contains(document.activeElement)) document.activeElement.blur();
+  el.hidden = true;
+  toastAction = null;
+}
+const toastEl = $('#toast');
+toastEl.addEventListener('pointerenter', () => holdToast(true));
+toastEl.addEventListener('pointerleave', () => { if (!toastEl.contains(document.activeElement)) holdToast(false); });
+toastEl.addEventListener('focusin', () => holdToast(true));
+toastEl.addEventListener('focusout', () => holdToast(false));
+
+document.addEventListener('click', (e) => {
+  if (e.target.closest('#toast-action')) { const action = toastAction; hideToast(); return action?.(); }
+  if (e.target.closest('#week-prev')) return shiftWeek(-1);
+  if (e.target.closest('#week-next')) return shiftWeek(1);
+  if (e.target.closest('#week-range')) return pickWeek();
+  if (e.target.closest('#week-today')) { goToWeek(thisMonday()); return $('#week-range').focus(); } // Today hides itself
+  const edge = e.target.closest('[data-jump]');
+  if (edge) { goToWeek(mondayOf(edge.dataset.jump)); return $('#week-range').focus(); }
+});
+
+// Week keys, as in most calendars: K back, J forward, T today, G go to a date.
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#toast').hidden) hideToast();
+  if (app.hidden || state.view !== 'week' || drag || press) return;
+  if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.target.matches('input, textarea')) return;
+  const key = e.key.toLowerCase();
+  if (key === 'k') shiftWeek(-1);
+  else if (key === 'j') shiftWeek(1);
+  else if (key === 't') { if (state.weekStart !== thisMonday()) goToWeek(thisMonday()); }
+  else if (key === 'g') pickWeek();
+  else return;
+  e.preventDefault();
+});
 
 // New tasks go to the bottom of their day, new notes to the top.
 const keysOf = (items) => items.map((i) => i.order).filter(Boolean);
@@ -402,7 +526,7 @@ const endOfDay = (task) => keyBetween(keysOf(tasks().filter((t) => t.id !== task
 const topOfNotes = (note) => keyBetween(null, keysOf(state.items.filter((i) => i.type === 'note' && i.id !== note.id)).reduce((min, k) => (min === null || k < min ? k : min), null));
 
 function create(type) {
-  const item = newItem(type, type === 'note' ? { edited: new Date() } : { due: state.view === 'today' ? iso(0) : null });
+  const item = newItem(type, type === 'note' ? { edited: new Date() } : { due: list().tag ? null : defaultDue() });
   const { tag } = list();
   if (tag) item.tags = [tag];
   item.order = type === 'note' ? topOfNotes(item) : endOfDay(item);
@@ -443,7 +567,7 @@ document.addEventListener('click', (e) => {
   if (e.target.closest('#clear-time')) { const item = byId(state.selected); item.time = null; render(); return changed(item); }
   const chipEl = e.target.closest('.date-chip');
   if (chipEl) { e.preventDefault(); const input = chipEl.querySelector('input'); try { input.showPicker(); } catch { input.focus(); } return; }
-  if (e.target.closest('#clear-due')) { const item = byId(state.selected); item.due = null; item.time = null; item.order = endOfDay(item); render(); return changed(item); }
+  if (e.target.closest('#clear-due')) { const item = byId(state.selected); item.due = null; item.time = null; item.order = endOfDay(item); render(); reveal(item, 'Moved'); return changed(item); }
   if (e.target.closest('#f-rendered')) return editBody();
   if (e.target.closest('#compose')) return create(state.view === 'notes' || list().tag ? 'note' : 'task');
   if (e.target.closest('#to-sidebar')) { app.dataset.view = 'sidebar'; return; }
@@ -466,15 +590,17 @@ document.addEventListener('submit', (e) => {
   const task = newItem('task', { title, due: state.draftDue, tags: tag ? [tag] : [] });
   task.order = endOfDay(task);
   state.items.push(task);
-  state.draftDue = ['today', 'week'].includes(state.view) ? iso(0) : null;
+  state.draftDue = defaultDue();
   render(); changed(task);
   $('#add-task input[name=title]').focus();
+  reveal(task, 'Added');
 });
 
 document.addEventListener('input', (e) => {
   const item = byId(state.selected);
   if (e.target.id === 'search') { state.query = e.target.value; return renderList(); }
   if (e.target.id === 'add-due') { state.draftDue = e.target.value || null; return renderList(); }
+  if (e.target.id === 'week-pick') { if (e.target.value) goToWeek(mondayOf(e.target.value)); return; }
   if (e.target.id === 'f-tag') {
     // A pick from the suggestions arrives as one replacement, and a typed comma finishes a tag.
     if (e.inputType === 'insertReplacementText' || !e.inputType || e.target.value.includes(',')) addTag(item, e.target.value);
@@ -491,7 +617,7 @@ document.addEventListener('input', (e) => {
     if (due !== item.due) item.order = endOfDay({ ...item, due }); // a new day: its end, in the same save
     item.due = due;
     if (!item.due) item.time = null;
-    render(); return changed(item);
+    render(); reveal(item, 'Moved'); return changed(item);
   }
   if (e.target.id === 'f-time') { item.time = e.target.value || null; render(); return changed(item); }
   changed(item);
@@ -524,7 +650,20 @@ addEventListener('offline', () => { if (jobs.size) setSync('offline'); });
 document.addEventListener('visibilitychange', () => {
   if (store && !document.hidden && !jobs.size && !document.activeElement?.matches('input, textarea')) reload().catch(() => {});
 });
-setInterval(renderSync, 3e4);
+// The date moves on at midnight even if the tab never reloads (or the phone app sleeps for days).
+const typingNow = () => document.activeElement?.matches('input, textarea');
+function refreshToday() {
+  const now = todayIso();
+  if (now === todayStr || typingNow() || drag || press) return false; // typing: retried on the next tick
+  const followed = state.weekStart === thisMonday();
+  const draftWasToday = state.draftDue === todayStr;
+  todayStr = now; today = midnight();
+  if (followed) state.weekStart = thisMonday();
+  if (draftWasToday) state.draftDue = defaultDue();
+  return true;
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && refreshToday()) render(); });
+setInterval(() => (refreshToday() ? render() : renderSync()), 3e4);
 
 // Manual order. A move shows at once and rewrites only the moved file (plus,
 // the first time an old list is arranged, any keyless neighbours it passes).
