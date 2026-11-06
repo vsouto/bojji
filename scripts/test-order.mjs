@@ -203,4 +203,18 @@ function check(group, id, to, kind, cmp, expect) {
   step('items: touch:false keeps updated; a normal save sets it to now');
 }
 
+{
+  const file = '---\nid: m1\ntype: task\ntitle: Renew\nstatus: todo\ndue: 2026-11-06\nmoved: 2026-11-03>2026-11-05; 2026-11-05>2026-11-06\n---\nBody';
+  const item = parse(file);
+  assert.deepEqual(item.moves, [{ from: '2026-11-03', to: '2026-11-05' }, { from: '2026-11-05', to: '2026-11-06' }]);
+  assert.equal(item.extra, undefined);
+  assert.match(serialize(item), /\nmoved: 2026-11-03>2026-11-05; 2026-11-05>2026-11-06\n/);
+  assert.doesNotMatch(serialize({ ...item, moves: [] }), /moved:/);
+  assert.equal(parse(file.replace('2026-11-03>2026-11-05; ', 'junk; ')).moves.length, 1);
+  const many = Array.from({ length: 12 }, (_, i) => ({ from: `2026-10-${String(i + 1).padStart(2, '0')}`, to: '2026-11-06' }));
+  assert.equal(parse(serialize({ ...item, moves: many })).moves.length, 10);
+  assert.equal(parse(file).body, 'Body');
+  step('items: the moved log round-trips, skips bad entries, keeps the last 10');
+}
+
 console.log('\nOrder tests passed.');

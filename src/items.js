@@ -7,7 +7,10 @@ import { isValidKey } from './order.js';
 const FOLDERS = { note: 'notes', task: 'tasks' };
 // Header keys Bojji writes itself. Any other key is kept in `item.extra` and
 // written back unchanged, so fields added later survive older copies of the app.
-const KNOWN = new Set(['id', 'type', 'title', 'status', 'due', 'time', 'tags', 'order', 'updated']);
+const KNOWN = new Set(['id', 'type', 'title', 'status', 'due', 'time', 'tags', 'order', 'moved', 'updated']);
+// A task's date moves out of Overdue, oldest first: `moved: 2026-11-03>2026-11-06; 2026-11-06>2026-11-09`.
+const MAX_MOVES = 10;
+const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 export function newItem(type, fields = {}) {
   const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -36,6 +39,7 @@ export function serialize(item, { touch = true } = {}) {
     meta.status = item.done ? 'done' : 'todo';
     if (item.due) meta.due = item.due;
     if (item.due && item.time) meta.time = item.time; // optional HH:MM, only beside a date
+    if (item.moves?.length) meta.moved = item.moves.slice(-MAX_MOVES).map((m) => `${m.from}>${m.to}`).join('; ');
   }
   if (item.tags?.length) meta.tags = item.tags.join(', ');
   if (item.order) meta.order = item.order; // manual position, see order.js
@@ -71,6 +75,8 @@ export function parse(text) {
     item.done = meta.status === 'done';
     item.due = meta.due || null;
     item.time = meta.time || null;
+    const moves = (meta.moved ?? '').split(';').map((m) => m.trim().split('>')).filter(([from, to]) => isDate(from) && isDate(to)).map(([from, to]) => ({ from, to }));
+    if (moves.length) item.moves = moves;
   }
   return item;
 }

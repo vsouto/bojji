@@ -230,7 +230,8 @@ function renderList() {
     const [date, due] = (showDue && dueLabel(t.due)) || [];
     const label = [date, t.due && t.time].filter(Boolean).join(', '); // the Week view shows only the time
     const tone = t.done ? '' : due;
-    const chips = tagChips(t);
+    const chips = tagChips(t) + (state.view === 'today' && !t.done && t.due < todayStr
+      ? `<button class="reschedule" data-reschedule="${t.id}" aria-label="Move “${esc(t.title)}” to today">Move to today</button>` : '');
     return `<div class="task-row ${t.done ? 'done' : ''}" data-id="${t.id}"${t.done ? '' : ` data-group="${groupOf(t)}"`} aria-current="${state.selected === t.id}">
       <button class="check" role="checkbox" aria-checked="${t.done}" aria-label="${esc(t.title)}" data-check="${t.id}"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></button>
       <div class="body"><button class="title" data-id="${t.id}"${t.done ? '' : ` ${SHORTCUTS}`}>${esc(t.title)}</button>${label || chips ? `<div class="row-meta">${label ? `<span class="due ${tone}">${label}</span>` : ''}${chips}</div>` : ''}</div>${t.done ? '' : `
@@ -263,8 +264,22 @@ function renderList() {
     }).join('') + edgeRow(edges.after, 'after') + add;
     return;
   }
+  if (state.view === 'today') {
+    const dueToday = items.filter((t) => t.due === todayStr), overdue = items.filter((t) => t.due < todayStr);
+    const empty = state.query ? (overdue.length ? 'Nothing due today matches.' : 'No tasks match.') : 'Nothing due today.';
+    rows.innerHTML = dueToday.map((t) => taskRow(t, false)).join('') + add
+      + (dueToday.length ? '' : `<p class="empty${overdue.length ? ' short' : ''}">${empty}</p>`) + overdueSection(overdue, taskRow);
+    return;
+  }
   rows.innerHTML = items.map((t) => taskRow(t)).join('') + (items.length || add ? '' : '<p class="empty">Nothing completed yet.</p>') + add
     + (!items.length && add ? `<p class="empty">${state.query ? 'No tasks match.' : state.view === 'today' ? 'Nothing due today.' : 'No tasks here.'}</p>` : '');
+}
+
+function moveLog(item) {
+  if (!item.moves?.length) return '';
+  const back = backTo(item);
+  return `<ul class="move-log" aria-label="Date changes">${item.moves.map((m, i) => `<li>Moved from ${dayName(m.from)} to ${dayName(m.to)}${back && i === item.moves.length - 1
+    ? ` · <button id="move-back">Move back</button>` : ''}</li>`).join('')}</ul>`;
 }
 
 function renderDetail() {
@@ -289,6 +304,7 @@ function renderDetail() {
       ${item.type === 'task' && item.done ? '<div class="field-row"><span class="label">Status</span><span>Completed</span></div>' : ''}
       <div class="rendered" id="f-rendered" tabindex="0" role="textbox" aria-label="Body, select to edit">${item.body ? markdown(item.body) : `<p class="placeholder">${item.type === 'note' ? 'Start writing…' : 'Notes'}</p>`}</div>
       <textarea class="body-field" id="f-body" hidden placeholder="${item.type === 'note' ? 'Start writing…' : 'Notes'}" aria-label="Body">${esc(item.body)}</textarea>
+      ${moveLog(item)}
     </div></div>`;
 }
 
@@ -370,6 +386,10 @@ function queue(item, op, { touch = true } = {}) {
   job.timer = setTimeout(() => run(job), op === 'remove' ? 0 : 700);
 }
 
+// GitHub writes go one at a time: parallel commits to one branch can fail as false conflicts.
+let writing = Promise.resolve();
+const oneAtATime = (fn) => { const next = writing.then(fn, fn); writing = next.catch(() => {}); return next; };
+
 async function run(job) {
   if (job.running) { job.again = true; return; }
   if (store && !navigator.onLine) return setSync('offline');
@@ -378,8 +398,8 @@ async function run(job) {
   job.touch = false;
   try {
     if (!store) await new Promise((done) => setTimeout(done, 400));
-    else if (job.op === 'remove') { if (job.item.sha) await store.remove(job.item, job.item.sha); }
-    else job.item.sha = (await store.save(job.item, job.item.sha, { touch })).sha;
+    else if (job.op === 'remove') { if (job.item.sha) await oneAtATime(() => store.remove(job.item, job.item.sha)); }
+    else job.item.sha = (await oneAtATime(() => store.save(job.item, job.item.sha, { touch }))).sha;
   } catch (error) {
     job.running = false;
     job.touch ||= touch;
@@ -431,6 +451,49 @@ function setView(view) {
   state.draftDue = defaultDue(view);
   state.selected = view === 'notes' ? notes()[0]?.id ?? null : null;
   app.dataset.view = 'list';
+  render();
+}
+
+// Today: overdue tasks sit below today's, as one section. "Hide" folds it until
+// tomorrow on this device only; nothing is written. Moving them is always the user's call.
+const overduePref = () => `bojji.overdueHidden.${state.user?.login ?? 'demo'}`;
+const overdueHidden = () => prefs.get(overduePref()) === todayStr;
+const overdueTasks = () => visible().filter((t) => t.due < todayStr);
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+function overdueSection(overdue, taskRow) {
+  if (!overdue.length) return '';
+  const n = overdue.length, hidden = overdueHidden();
+  const toggle = `<button class="text-action" id="toggle-overdue" aria-expanded="${!hidden}" aria-controls="overdue-rows">${hidden ? 'Show' : 'Hide'}</button>`;
+  const actions = hidden ? toggle
+    : `<button class="text-action" id="overdue-today" aria-label="Move ${plural(n, 'overdue task')} to today">${n === 1 ? 'Move to today' : 'Move all to today'}</button>`
+      + `<label class="date-chip icon-only" title="Move to another day"><svg class="i"><use href="#i-today"/></svg><input type="date" id="overdue-date" aria-label="Pick a new date for ${plural(n, 'overdue task')}"></label>` + toggle;
+  return `<section class="overdue" aria-labelledby="overdue-head">
+    <div class="section-bar"><h3 class="section-head" id="overdue-head">Overdue <span class="count">${n}</span></h3><div class="section-actions">${actions}</div></div>
+    <div id="overdue-rows"${hidden ? ' hidden' : ''}>${hidden ? '' : overdue.map((t) => taskRow(t)).join('')}</div></section>`;
+}
+// A move out of Overdue is logged in the file (`moved`), shown faintly under the
+// task's notes, so it can go back to the date it came from, on any device.
+const logMove = (t, to) => { if (t.due && t.due !== to) t.moves = [...(t.moves ?? []), { from: t.due, to }]; };
+const backTo = (t) => { const last = t?.moves?.at(-1); return !t?.done && last && last.to === t.due && last.from < todayStr ? last.from : null; };
+function moveBack(id) {
+  const task = byId(id), from = backTo(task);
+  if (!from) return;
+  task.moves = task.moves.slice(0, -1);
+  task.order = endOfDay({ ...task, due: from });
+  task.due = from;
+  changed(task);
+  render();
+  announce(`Moved “${task.title || 'Task'}” back to ${dayName(from)}`);
+}
+
+// Each moved task goes to the end of its new day, in the order it had; one save per file.
+function reschedule(list, due) {
+  for (const t of list) {
+    const order = endOfDay({ ...t, due });
+    logMove(t, due);
+    t.due = due; t.order = order;
+    changed(t);
+  }
   render();
 }
 
@@ -498,6 +561,25 @@ toastEl.addEventListener('focusout', () => holdToast(false));
 
 document.addEventListener('click', (e) => {
   if (e.target.closest('#toast-action')) { const action = toastAction; hideToast(); return action?.(); }
+  const one = e.target.closest('[data-reschedule]');
+  if (one) {
+    const task = byId(one.dataset.reschedule);
+    reschedule([task], todayStr);
+    focusRow(task.id);
+    return announce(`Moved “${task.title}” to today`);
+  }
+  if (e.target.closest('#overdue-today')) {
+    const moved = overdueTasks();
+    reschedule(moved, todayStr);
+    if (moved[0]) focusRow(moved[0].id);
+    return announce(`Moved ${plural(moved.length, 'task')} to today`);
+  }
+  if (e.target.closest('#move-back')) return moveBack(state.selected);
+  if (e.target.closest('#toggle-overdue')) {
+    prefs.set(overduePref(), overdueHidden() ? null : todayStr);
+    renderList();
+    return $('#toggle-overdue')?.focus();
+  }
   if (e.target.closest('#week-prev')) return shiftWeek(-1);
   if (e.target.closest('#week-next')) return shiftWeek(1);
   if (e.target.closest('#week-range')) return pickWeek();
@@ -600,6 +682,13 @@ document.addEventListener('input', (e) => {
   const item = byId(state.selected);
   if (e.target.id === 'search') { state.query = e.target.value; return renderList(); }
   if (e.target.id === 'add-due') { state.draftDue = e.target.value || null; return renderList(); }
+  if (e.target.id === 'overdue-date') {
+    const due = e.target.value, moved = overdueTasks();
+    if (!due || !moved.length) return;
+    reschedule(moved, due);
+    const text = `Moved ${plural(moved.length, 'task')} to ${due === todayStr ? 'today' : dayName(due)}`;
+    return due < todayStr || due === todayStr ? announce(text) : toast(text, () => show(moved[0].id));
+  }
   if (e.target.id === 'week-pick') { if (e.target.value) goToWeek(mondayOf(e.target.value)); return; }
   if (e.target.id === 'f-tag') {
     // A pick from the suggestions arrives as one replacement, and a typed comma finishes a tag.
@@ -726,7 +815,7 @@ document.addEventListener('keydown', (e) => {
 
 // Pointer dragging, without HTML5 drag and drop: a mouse or pen lifts a row
 // after 4px of movement, a finger after a 400ms press (moving first scrolls).
-const NO_DRAG = '.check, .tag, a, input, textarea, select, label';
+const NO_DRAG = '.check, .tag, .reschedule, a, input, textarea, select, label';
 const phone = matchMedia('(max-width: 760px)');
 let press = null; // a pointer is down on a row, not yet dragging
 let drag = null; // the lifted row
@@ -796,7 +885,12 @@ function startDrag() {
   const others = groupRows(group).filter((el) => el !== row);
   const from = groupRows(group).indexOf(row);
   if (from < 0) return;
-  drag = { id, group, row, others, from, to: from, pointerId: p.pointerId, y: p.y };
+  // In Today an overdue row can also be dropped among today's rows, which moves it to today.
+  const today = `due:${todayStr}`;
+  const target = state.view === 'today' && group.startsWith('due:') && group < today ? today : null;
+  // And a task moved here from Overdue can be dropped back there, to the date it came from.
+  const back = state.view === 'today' && group === today ? backTo(byId(id)) : null;
+  drag = { id, group, row, others, from, to: from, pointerId: p.pointerId, y: p.y, target, back, into: null };
   try { row.setPointerCapture(p.pointerId); } catch {}
   row.classList.add('lifted');
   rowsEl().classList.add('dragging');
@@ -813,6 +907,15 @@ function startDrag() {
 // line, or the line would run through its title like a strikethrough.)
 function follow() {
   const { row, others } = drag;
+  delete dropLine.dataset.label;
+  const section = rowsEl().querySelector('.overdue');
+  if (drag.back) {
+    const edge = section ? section.getBoundingClientRect().top : rowsEl().querySelector('#add-task').getBoundingClientRect().bottom;
+    drag.into = drag.y > edge ? 'back' : null;
+    if (drag.into) return lineAt(edge, row, `Back to ${dayName(drag.back)}`);
+  }
+  drag.into = drag.target && section && drag.y < section.getBoundingClientRect().top ? drag.target : null;
+  if (drag.into) return followInto(row);
   let to = 0;
   for (const el of others) { const r = el.getBoundingClientRect(); if (drag.y > r.top + r.height / 2) to++; }
   drag.to = to;
@@ -825,6 +928,44 @@ function follow() {
   dropLine.style.left = `${text - rows.left}px`;
   dropLine.style.width = `${anchor.right - 12 - text}px`;
   dropLine.hidden = false;
+}
+
+// Over today's rows: the line shows where the overdue task will land (above the add row if today is empty).
+function followInto(row) {
+  const targets = groupRows(drag.into);
+  let to = 0;
+  for (const el of targets) { const r = el.getBoundingClientRect(); if (drag.y > r.top + r.height / 2) to++; }
+  drag.to = to;
+  const rows = rowsEl().getBoundingClientRect();
+  const anchor = (targets[to] ?? targets[to - 1] ?? rowsEl().querySelector('#add-task')).getBoundingClientRect();
+  lineAt(targets[to] || !targets.length ? anchor.top : anchor.bottom, row);
+}
+function lineAt(edge, row, label) {
+  const rows = rowsEl().getBoundingClientRect();
+  const text = row.querySelector('.title').getBoundingClientRect().left;
+  dropLine.style.top = `${edge - rows.top + rowsEl().scrollTop - 1}px`;
+  dropLine.style.left = `${text - rows.left}px`;
+  dropLine.style.width = `${rows.right - 24 - text}px`;
+  if (label) dropLine.dataset.label = label;
+  dropLine.hidden = false;
+}
+
+// Another day: the task takes the new date and lands at the drop position (a date change, so a normal save).
+function moveToDay(id, group, toIndex) {
+  const task = byId(id), due = group.slice('due:'.length);
+  if (!task) return;
+  task.order = endOfDay({ ...task, due });
+  logMove(task, due);
+  task.due = due;
+  changed(task);
+  const day = tasks().filter((t) => !t.done && t.due === due).sort(compareTasks);
+  for (const { id: changedId, order } of planMove(day, id, toIndex, TASKS)) {
+    const moved = byId(changedId);
+    moved.order = order;
+    queue(moved, 'save', { touch: false });
+  }
+  render();
+  announce(`Moved “${task.title || 'Task'}” to ${due === todayStr ? 'today' : dayName(due)}, position ${toIndex + 1}`);
 }
 
 // Near the top or bottom edge (40px), scroll: the list pane on desktop, the page on a phone.
@@ -854,7 +995,9 @@ function endDrag(commit, held = false) {
   d.row.classList.remove('lifted');
   const waiting = pendingRender;
   pendingRender = false;
-  if (commit && d.to !== d.from) { moveItem(d.id, d.to, d.group); settle(d.id, top); }
+  if (commit && d.into === 'back') moveBack(d.id);
+  else if (commit && d.into) { moveToDay(d.id, d.into, d.to); settle(d.id, top); }
+  else if (commit && d.to !== d.from) { moveItem(d.id, d.to, d.group); settle(d.id, top); }
   else if (waiting) render();
 }
 

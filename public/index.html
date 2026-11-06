@@ -265,6 +265,20 @@
   .sort button[aria-pressed="true"] { background: var(--select-quiet); color: var(--fg); }
   .section-bar { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s2); }
   .section-bar .sort { margin: 0 var(--s1) 2px 0; }
+  /* Today: the Overdue section, below today's tasks */
+  .overdue { margin-top: var(--s2); }
+  .section-head .count { margin-left: var(--s1); color: var(--fg-3); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .overdue .section-head { white-space: nowrap; }
+  .section-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 0; margin: 0 0 2px 0; }
+  .text-action { position: relative; padding: var(--s1) var(--s2); border-radius: 13px; color: var(--fg-2); font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .text-action:hover { color: var(--fg); background: var(--fill); }
+  .date-chip.icon-only { width: 26px; padding: 0; justify-content: center; }
+  .reschedule { position: relative; color: var(--fg-3); font-size: 12px; }
+  .reschedule:hover { color: var(--fg); }
+  .empty.short { padding: var(--s3) var(--s4) var(--s2); text-align: left; padding-left: 44px; font-size: 13px; }
+  @media (hover: none) {
+    .text-action::after, .reschedule::after { content: ""; position: absolute; inset: -8px -4px; }
+  }
 
   /* Manual order: the lifted row keeps its slot as a flat Quiet Select fill (no shadow); one 2px line follows the pointer to the drop. */
   .rows [data-group] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
@@ -284,6 +298,10 @@
   .note-row[aria-current="true"] .grip { color: var(--select-fg); }
   @media (hover: none) { .grip { opacity: .7; } }
   .drop-line { position: absolute; z-index: 3; height: 2px; background: var(--accent); pointer-events: none; }
+  .drop-line[data-label]::after { content: attr(data-label); position: absolute; left: 0; top: 6px; color: var(--accent); font-size: 12px; font-weight: 500; white-space: nowrap; }
+  .move-log { margin: var(--s6) 0 0; padding: var(--s3) 0 0; border-top: 1px solid var(--line); list-style: none; color: var(--fg-3); font-size: 12px; line-height: 1.6; }
+  .move-log button { color: var(--fg-2); font-weight: 500; }
+  .move-log button:hover { color: var(--fg); text-decoration: underline; }
   .task-row.settling, .note-row.settling { transition: transform .15s var(--ease); }
   .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   .field-row .clear { color: var(--fg-2); font-size: 13px; }

@@ -15,6 +15,7 @@ export function demoItems({ iso, ago }) {
     { id: 't6', type: 'task', title: 'Cancel the Evernote subscription', due: null, done: false, body: 'Export everything first.', tags: ['Personal'] },
     { id: 't7', type: 'task', title: 'Water the plants', due: iso(-2), done: true, body: '' },
     { id: 't8', type: 'task', title: 'Send the rent receipt', due: iso(-3), done: true, body: '' },
+    { id: 't13', type: 'task', title: 'Send the plumber’s invoice to the landlord', due: iso(-3), done: false, body: '', tags: ['Home'] },
     { id: 's1', type: 'task', title: 'Ask legal about the Siemens NDA', due: iso(-1), done: false, body: '', tags: ['Siemens'] },
     { id: 's2', type: 'task', title: 'Prepare the workshop demo', due: iso(1), time: '10:00', done: false, body: 'Use the staging data set, not production.', tags: ['Siemens'] },
     { id: 's3', type: 'task', title: 'Send the Q4 proposal', due: iso(2), done: false, body: '', tags: ['Siemens', 'Proposals'] },
